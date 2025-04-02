@@ -1,6 +1,8 @@
 import { useState, FormEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Head from "next/head";
+import { url } from "inspector";
 
 const Login = () => {
   const [userId, setUserId] = useState<string>("");
@@ -18,82 +20,30 @@ const Login = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>로그인</title>
-        <meta name="description" content="로그인 페이지" />
-      </Head>
-
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">계정에 로그인하세요</h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              또는{" "}
-              <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                새 계정 만들기
-              </Link>
-            </p>
+    <div >
+      <div className="flex w-full h-full flex-col items-center jsutify-start">
+        <Image className="mt-[3%]" src={"/assets/images/logo.svg"} alt="logo" width={380} height={190}></Image>
+        <div id="inputCont" className="flex flex-col align-start mt-[32px]">
+          <div id="id" className="mb-[32px]">
+            <p className="mb-[8px] text-[20px] leading-[23px] text-center text-[#333333] flex items-center font-[NanumGothic]" >아이디</p>
+            <input className="flex w-[380px] h-[56px] border border-[#A9A9A9] rounded-[10px]"></input>
+          </div>
+          <div id="password" className="  mb-[64px]">
+            <p className="mb-[8px] text-[20px] leading-[23px] text-center text-[#333333] flex items-center font-[NanumGothic]">비밀번호</p>
+            <input type="password" className="border w-[380px] h-[56px] border-[#A9A9A9] rounded-[10px] px-[3px]"></input>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <input type="hidden" name="remember" defaultValue="true" />
-            <div className="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label htmlFor="user-id" className="sr-only">
-                  아이디
-                </label>
-                <input
-                  id="user-id"
-                  name="userId"
-                  type="text"
-                  autoComplete="username"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="아이디"
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  비밀번호
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="비밀번호"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
+          <button className="flex justify-center items-center w-[380px] h-[56px] bg-[#0064FF] rounded-[10px] text-white font-[NanumGothic] font-semibold text-[20px] leading-[23px] mb-[32px] ">로그인하기</button>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                  비밀번호를 잊으셨나요?
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                {isLoading ? "로그인 중..." : "로그인"}
-              </button>
-            </div>
-          </form>
+          <div id="findCont" className="flex flex-row w-[380px] justify-around font-[NanumGothic] text-[#A9A9A9] font-normal text-[20px] leading-[23px]">
+            <div>아이디 찾기</div>
+            |
+            <div>비밀번호 찾기</div>
+          </div>
         </div>
       </div>
-    </>
+
+    </div>
   );
 };
 
