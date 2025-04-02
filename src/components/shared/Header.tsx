@@ -44,7 +44,15 @@ export const Header = ({ children }: { children: ReactNode }) => {
   return (
     <header>
       <div className="flex items-center w-full h-18 bg-white border-b border-gray-400">
-        <Image src={logo} alt="로고" height={64} />
+        <Image
+          src={logo}
+          alt="로고"
+          height={64}
+          onClick={() => {
+            router.push("/");
+          }}
+          className="cursor-pointer"
+        />
         <div className="flex items-center gap-16 ml-4">{menuElements}</div>
       </div>
       {children}
