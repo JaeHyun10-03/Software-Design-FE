@@ -21,7 +21,7 @@ const studentData = {
 export default function StudentRecord() {
   const [photo, setPhoto] = useState(false);
   return (
-    <div>
+    <div className="p-8">
       <div className="flex flex-wrap w-full gap-8 justify-start items-start">
         {/* 증명 사진 */}
         {photo ? (

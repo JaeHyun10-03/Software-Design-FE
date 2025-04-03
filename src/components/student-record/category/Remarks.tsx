@@ -4,7 +4,7 @@ import Button from "@/components/shared/Button";
 
 export default function Remarks() {
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div className="flex flex-col h-full gap-4 p-8">
       <div className="flex-1 flex flex-col">
         <label className="mb-2 font-medium">특기사항</label>
         <Input placeholder="특기사항을 작성해주세요" className="h-full flex-1 border" />
