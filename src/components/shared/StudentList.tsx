@@ -32,7 +32,7 @@ export default function StudentList() {
   }, [grade, classNumber]);
 
   return (
-    <div className="w-44 h-screen border border-gray-400 overflow-hidden">
+    <div className="w-44 h-100% border border-gray-400 overflow-hidden">
       {/* 헤더 */}
       <div className="flex h-8 border-b border-gray-400">
         <div className="w-12 flex items-center justify-center border-r border-gray-400 text-gray-800 text-base">번호</div>

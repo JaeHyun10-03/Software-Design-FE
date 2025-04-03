@@ -12,14 +12,16 @@ export default function Content() {
   const { category } = useCategoryStore();
 
   return (
-    <div className="w-screen h-screen border border-gray-400">
+    <div className="flex-1 border border-gray-400 overflow-y-auto flex flex-col">
       <Category />
-      {category === "학적" && <StudentRecord />}
-      {category === "성적" && <Grade />}
-      {category === "특기사항" && <Remarks />}
-      {category === "출결" && <Attendance />}
-      {category === "행동" && <Behavior />}
-      {category === "상담" && <Counsel />}
+      <div className="flex-1 p-8">
+        {category === "학적" && <StudentRecord />}
+        {category === "성적" && <Grade />}
+        {category === "특기사항" && <Remarks />}
+        {category === "출결" && <Attendance />}
+        {category === "행동" && <Behavior />}
+        {category === "상담" && <Counsel />}
+      </div>
     </div>
   );
 }
