@@ -6,5 +6,5 @@ interface InputProps {
 }
 
 export default function Input({ placeholder, className }: InputProps) {
-  return <textarea placeholder={placeholder} className={className} />;
+  return <textarea placeholder={placeholder} className={`focus:outline-none p-4 ${className || ""}`} />;
 }
