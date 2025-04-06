@@ -1,10 +1,26 @@
 import React, { ReactNode } from "react";
 
-export default function Button({ children, className, onClick }: { children: ReactNode; className?: string; onClick?: () => void }) {
+interface ButtonProps {
+  children: ReactNode;
+  className?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+export default function Button({ children, className, onClick, disabled = false }: ButtonProps) {
+  const handleClick = () => {
+    if (!disabled && onClick) {
+      onClick();
+    }
+  };
+
   return (
-    <div className={className} onClick={onClick}>
-      <div className="flex items-center justify-center rounded-md bg-[#0064ff] w-full h-full cursor-pointer hover:bg-[#0057E6]">
-        <p className="text-xl font-bold text-white">{children}</p>
+    <div className={className} onClick={handleClick}>
+      <div
+        className={`flex items-center justify-center rounded-md w-full h-full
+        ${disabled ? "bg-gray-400 cursor-not-allowed" : "bg-[#0064ff] cursor-pointer hover:bg-[#0057E6]"}`}
+      >
+        <p className={`text-xl font-bold ${disabled ? "text-gray-200" : "text-white"}`}>{children}</p>
       </div>
     </div>
   );
