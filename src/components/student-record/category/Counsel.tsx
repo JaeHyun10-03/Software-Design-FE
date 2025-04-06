@@ -1,5 +1,10 @@
 import React from "react";
+import CounselList from "../CounselList";
 
 export default function Counsel() {
-  return <div>Counsel</div>;
+  return (
+    <div>
+      <CounselList></CounselList>
+    </div>
+  );
 }
