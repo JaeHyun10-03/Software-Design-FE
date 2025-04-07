@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = `https://neeis.inuappcenter.kr`;
 
 export const PostLogin = async (
     userId: string,
@@ -10,9 +10,9 @@ export const PostLogin = async (
 
   try {
     const response: AxiosResponse<any> = await axios.post(
-        `${apiUrl}/login`,
+        `${apiUrl}/student/login`,
         {
-          id: userId,
+          loginId: userId,
           password: password,
         },
         { withCredentials: true }
