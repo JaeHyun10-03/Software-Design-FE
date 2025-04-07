@@ -6,11 +6,12 @@ import { url } from "inspector";
 import { useRouter } from 'next/navigation';
 import { PostLogin } from "@/api/postLogin";
 
-const FindId = () => {
+const FindPW = () => {
   const router = useRouter();
 
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const [identityNumber, setIdentityNumber] = useState<string>("");
   const [school, setSchool] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,6 +23,10 @@ const FindId = () => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setPhone(e.target.value);
+  };
+
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setIdentityNumber(e.target.value);
   };
 
   const handleSchoolChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -60,7 +65,7 @@ const FindId = () => {
   return ( 
     <div className="w-full h-[100vh] flex justify-center items-center" >
       <div className="flex w-full h-auto max-w-[500px] flex-col items-center jsutify-center border border-[#A9A9A9] rounded-[6px]">
-        <p className="mt-[64px] font-nanumgothic font-extrabold text-[24px] leading-[24px] flex items-center text-center mb-[32px] text-[#333333]">아이디 찾기</p>
+        <p className="mt-[64px] font-nanumgothic font-extrabold text-[24px] leading-[24px] flex items-center text-center mb-[32px] text-[#333333]">비밀번호 찾기</p>
         <div id="inputCont" className="flex flex-col align-start mt-[32px] w-[76%]">
           <div id="name" className="mb-[32px]">
             <p className="mb-[8px] text-[20px] font-semibold leading-[23px] text-center text-[#333333] flex items-center font-[NanumGothic]" >이름</p>
@@ -79,6 +84,16 @@ const FindId = () => {
                 placeholder="휴대폰 번호를 작성해주세요"
                 value={phone}
                 onChange={handlePhoneChange}            
+            />
+          </div>
+
+          <div id="identityNumber" className="mb-[32px]">
+            <p className="mb-[8px] text-[20px] font-semibold leading-[23px] text-center text-[#333333] flex items-center font-[NanumGothic]">주민번호</p>
+            <input 
+                className="border w-[100%] h-[56px] border-[#A9A9A9] rounded-[10px] px-[12px]"
+                placeholder="주민등록번호를 작성해주세요"
+                value={identityNumber}
+                onChange={handleNumberChange}            
             />
           </div>
 
@@ -102,4 +117,4 @@ const FindId = () => {
   );
 };
 
-export default FindId;
+export default FindPW;
