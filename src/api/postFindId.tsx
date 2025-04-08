@@ -2,18 +2,20 @@ import axios, { AxiosResponse } from "axios";
 
 const apiUrl = `https://neeis.inuappcenter.kr`;
 
-export const PostLogin = async (
-    userId: string,
-    password: string
+export const PostFindId = async (
+    name: string,
+    phone: string,
+    school: string
 ): Promise<any> => {
   axios.defaults.withCredentials = true;
 
   try {
     const response: AxiosResponse<any> = await axios.post(
-        `${apiUrl}/students/login`,
+        `${apiUrl}/students/id`,
         {
-          loginId: userId,
-          password: password,
+            name: name,
+            phone: phone,
+            school: school
         },
         { withCredentials: true }
     );

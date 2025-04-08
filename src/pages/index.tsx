@@ -42,7 +42,7 @@ const Login = () => {
           console.error("Access token이 응답에 포함되지 않았습니다.");
         }        
         
-        router.push('/main');
+        router.push('/student-record');
        
     } catch (error) {
         console.error("로그인 실패", error);
