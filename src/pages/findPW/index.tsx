@@ -4,7 +4,7 @@ import Link from "next/link";
 import Head from "next/head";
 import { url } from "inspector";
 import { useRouter } from 'next/navigation';
-import { PostLogin } from "@/api/postLogin";
+import { PostFindPW } from "@/api/postFindPW";
 
 const FindPW = () => {
   const router = useRouter();
@@ -36,30 +36,23 @@ const FindPW = () => {
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault();
-    // if (!userId || !password) {
-    //     alert('아이디와 비밀번호를 입력해주세요.');
-    //     return;
-    // }
+    if (!name || !phone || !identityNumber || !school) {
+        alert('정보를 모두 입력해주세요.');
+        return;
+    }
 
-    // try {
+    try {
       
-    //     const response = await PostLogin(userId, password);
-    //     console.log(`로그인 결과: ${response}`);
-    //     const accessToken = response.accessToken;
-
-    //     if (accessToken) {
-    //       localStorage.setItem('accessToken', accessToken);
-    //     } else {
-    //       console.error("Access token이 응답에 포함되지 않았습니다.");
-    //     }        
+        const response = await PostFindPW(name, phone, identityNumber, school);
+        console.log(` 결과: ${response}`);    
         
-    //     router.push('/main');
+        router.push('/main');
        
-    // } catch (error) {
-    //     console.error("로그인 실패", error);
-    //     alert(error);
-    //     //alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
-    // }
+    } catch (error) {
+        console.error(" 실패", error);
+        alert(error);
+        //alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
+    }
 };
 
   return ( 
