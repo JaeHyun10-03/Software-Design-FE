@@ -10,7 +10,7 @@ export const PostLogin = async (
 
   try {
     const response: AxiosResponse<any> = await axios.post(
-        `${apiUrl}/students/login`,
+        `${apiUrl}/users/login`,
         {
           loginId: userId,
           password: password,

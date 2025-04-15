@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Head from "next/head";
 import { url } from "inspector";
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { PostFindPW } from "@/api/postFindPW";
 
 const FindPW = () => {
@@ -46,7 +46,7 @@ const FindPW = () => {
         const response = await PostFindPW(name, phone, identityNumber, school);
         console.log(` 결과: ${response}`);    
         
-        router.push('/main');
+        router.push(`/findPW/${response.password}`);
        
     } catch (error) {
         console.error(" 실패", error);
