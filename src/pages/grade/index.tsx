@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { Header } from "@/components/shared/Header";
 
 // 유틸 함수: classNames 결합용
@@ -83,7 +81,6 @@ export default function GradesPage() {
   };
 
   return (
-    <Header>
       <div className="p-6">
         <div className="flex items-center mb-4">
           <p>학년</p><Input placeholder="학년" className="w-[48px] h-[18px]"   onChange={e => setGrade(e.target.value)} />
@@ -166,6 +163,9 @@ export default function GradesPage() {
           <div className="text-gray-400 text-center mt-8">모든 정보를 입력해주세요.</div>
         )}
       </div>
-    </Header>
   );
 }
+
+GradesPage.getLayout = (page: ReactNode) => {
+  return <Header>{page}</Header>;
+};
