@@ -2,6 +2,7 @@ import React, { ReactNode, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import logo from "@/assets/images/logo.png";
+import AlertIcon from "@/assets/icons/AlertIcon";
 
 export const Header = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
@@ -54,6 +55,9 @@ export const Header = ({ children }: { children: ReactNode }) => {
           className="cursor-pointer"
         />
         <div className="flex items-center gap-16 ml-4">{menuElements}</div>
+        <div className="flex justify-center items-center ml-auto mr-8">
+          <AlertIcon />
+        </div>
       </div>
       {children}
     </header>
