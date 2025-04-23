@@ -54,7 +54,7 @@ const AttendanceTable: React.FC = () => {
             <div className="min-w-20 h-8 flex justify-center items-center border border-gray-400 text-center">{student.name}</div>
             <div className="flex flex-1">
               {student.attendance.map((mark, i) => (
-                <div key={i} className="flex-1 min-w-9 h-8 flex justify-center items-center border border-gray-400 text-center">
+                <div key={i} className="flex-1 min-w-9 h-8 flex justify-center items-center border border-gray-400 text-center select-none">
                   {mark}
                 </div>
               ))}
