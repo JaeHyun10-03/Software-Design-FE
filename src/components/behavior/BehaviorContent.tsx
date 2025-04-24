@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "../shared/Button";
 
 const BehaviorContent = () => {
+  const [behavior, setBehavior] = useState("");
+  const [generalOpinion, setGeneralOpinion] = useState("");
+
   return (
     <div className="w-full h-full border border-[#a9a9a9] p-4">
       <div className="flex flex-col gap-2">
