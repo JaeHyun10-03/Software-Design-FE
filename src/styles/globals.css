@@ -19,3 +19,97 @@
 body {
   font-family: "NanumSqure";
 }
+
+/* FullCalendar 헤더(연/월) 중앙정렬, 버튼 투명 */
+.fc .fc-toolbar.fc-header-toolbar {
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 12px;
+  margin-top: 16px ;
+}
+.fc .fc-toolbar-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+}
+.fc .fc-prev-button {
+  background: transparent;
+  border: none;
+  color: #222;
+  font-size: 16px;
+  padding: 0 12px;
+  box-shadow: none;
+  margin-right: 56px;
+}
+
+.fc .fc-next-button {
+  background: transparent;
+  border: none;
+  color: #222;
+  font-size: 16px;
+  padding: 0 12px;
+  box-shadow: none;
+  margin-left: 56px;
+}
+.fc .fc-button:focus, .fc .fc-button-primary:focus {
+  outline: none;
+  box-shadow: none;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* 요일 헤더 */
+.fc .fc-col-header-cell {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #888;
+}
+.fc .fc-col-header-cell:first-child { color: #d12c2c; } /* 일요일 빨강 */
+.fc .fc-col-header-cell:last-child { color: #2478ff; }  /* 토요일 파랑 */
+
+/* 날짜 셀 */
+.fc .fc-daygrid-day {
+  border: none;
+  background: none;
+}
+
+.fc .fc-daygrid-day-number {
+ 
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 8px;
+  font-size: 15px;
+  font-weight: 500;
+ 
+}
+.fc .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
+  color: #ccc;
+  font-weight: 400;
+}
+
+
+
+/* 일요일 날짜 빨강, 토요일 파랑 */
+.fc .fc-day-sun .fc-daygrid-day-number { color: #d12c2c; }
+.fc .fc-day-sat .fc-daygrid-day-number { color: #2478ff; }
+
+/* 캘린더 전체 테두리, 셀 테두리 제거 */
+.fc .fc-scrollgrid,
+.fc .fc-scrollgrid-section,
+.fc .fc-theme-standard td,
+.fc .fc-theme-standard th {
+  border: none !important;
+}
+
+.fc .fc-daygrid-day-events {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
