@@ -18,10 +18,35 @@ const TEACHERS = ["박기석", "김교사", "이교사", "정교사"];
 let nextId = 5;
 
 const initialData: ConsultingData[] = [
-  { id: 1, date: "2025-01-08", type: "학업", teacher: "박기석", content: "수학 상담" },
-  { id: 2, date: "2025-01-08", type: "대학", teacher: "김교사", content: "입시 상담" },
-  { id: 3, date: "2025-01-12", type: "취업", teacher: "이교사", content: "이력서 상담" },
-];
+    {
+      id: 1,
+      date: "2025-03-24",
+      type: "대학",
+      teacher: "김교사",
+      content: "대학 진학 관련 상담",
+    },
+    {
+      id: 2,
+      date: "2025-04-05",
+      type: "취업",
+      teacher: "이교사",
+      content: "취업 준비 관련 상담",
+    },
+    {
+      id: 3,
+      date: "2025-05-05",
+      type: "학업",
+      teacher: "박기석",
+      content: "학업 성취도 향상을 위한 상담",
+    },
+    {
+      id: 4,
+      date: "2025-05-20",
+      type: "개인",
+      teacher: "정교사",
+      content: "개인 고민 상담",
+    },
+  ];
 
 export default function CounselContent() {
   const [consultingData, setConsultingData] = useState<ConsultingData[]>(initialData);
@@ -87,101 +112,35 @@ export default function CounselContent() {
     id: String(item.id),
     title: item.type,
     date: item.date,
-    backgroundColor: "#4285F4",
+    backgroundColor: getEventColor(item.type),
     borderColor: "transparent",
   }));
 
-  // --- FullCalendar 스타일 커스터마이징 (글로벌 CSS에 추가) ---
-  // 반드시 app/globals.css 또는 _app.tsx의 global 스타일에 아래 CSS를 추가하세요!
-  /*
-  .fc .fc-toolbar.fc-header-toolbar {
-    justify-content: center;
-    background: none;
-    border: none;
-    padding: 0;
-    margin-bottom: 12px;
-  }
-  .fc .fc-toolbar-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #222;
-  }
-  .fc .fc-button {
-    background: transparent;
-    border: none;
-    color: #222;
-    font-size: 24px;
-    padding: 0 12px;
-    box-shadow: none;
-  }
-  .fc .fc-col-header-cell {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 15px;
-    font-weight: 500;
-    color: #888;
-  }
-  .fc .fc-col-header-cell:first-child { color: #d12c2c; }
-  .fc .fc-col-header-cell:last-child { color: #2478ff; }
-  .fc .fc-daygrid-day {
-    border: none;
-    background: none;
-  }
-  .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number,
-  .fc .fc-daygrid-day.selected .fc-daygrid-day-number {
-    background: #2478ff;
-    color: #fff;
-    border-radius: 8px;
-    width: 32px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .fc .fc-daygrid-day-number {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 32px;
-    height: 32px;
-    font-size: 15px;
-    font-weight: 500;
-    transition: background 0.2s;
-  }
-  .fc .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
-    color: #ccc;
-    font-weight: 400;
-  }
-  .fc .fc-day-sun .fc-daygrid-day-number { color: #d12c2c; }
-  .fc .fc-day-sat .fc-daygrid-day-number { color: #2478ff; }
-  .fc .fc-scrollgrid,
-  .fc .fc-scrollgrid-section,
-  .fc .fc-theme-standard td,
-  .fc .fc-theme-standard th {
-    border: none !important;
-  }
-  .fc .fc-daygrid-body .fc-daygrid-week,
-  .fc .fc-daygrid .fc-daygrid-row {
-    min-height: 28px !important;
-    height: 28px !important;
-    line-height: 1.1 !important;
-  }
-  */
 
-  // 날짜 선택 시 파란 네모 표시
-  const dayCellClassNames = (arg: any) => {
-    if (arg.date.toISOString().slice(0, 10) === selectedDate) {
-      return ["selected"];
+  
+
+  function getEventColor(type: string): string {
+    switch (type) {
+      case "대학":
+        return "#4285F4";
+      case "취업":
+        return "#34A853";
+      case "가정":
+        return "#FBBC05";
+      case "학업":
+        return "#EA4335";
+      case "개인":
+        return "#8F00FF";
+      default:
+        return "#1677FF";
     }
-    return [];
-  };
-
+  }
+  
   return (
     <div className="w-full h-full border border-[#a9a9a9] p-4">
       <div className="flex flex-col md:flex-row gap-4">
         {/* 캘린더 */}
-        <div className="flex-1 border border-[#a9a9a9] min-w-[320px] flex justify-center items-center">
+        <div className="flex-1 min-w-[320px] flex justify-center items-center">
           <FullCalendar
             plugins={[dayGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
@@ -201,7 +160,17 @@ export default function CounselContent() {
             events={events}
             height="auto"
             firstDay={0}
-            dayCellClassNames={dayCellClassNames}
+            dayCellClassNames={(arg) => {
+                // arg.date는 Date 객체, selectedDate는 'YYYY-MM-DD' 문자열
+                const y = arg.date.getFullYear();
+                const m = String(arg.date.getMonth() + 1).padStart(2, "0");
+                const d = String(arg.date.getDate()).padStart(2, "0");
+                const cellDateStr = `${y}-${m}-${d}`;
+                if (cellDateStr === selectedDate) {
+                  return ["selected-date"];
+                }
+                return [];
+              }}
             contentHeight={320}
           />
         </div>
