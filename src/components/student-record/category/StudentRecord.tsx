@@ -1,25 +1,60 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-
-const studentData = {
-  name: "김범수",
-  grade: "1",
-  class: "2",
-  number: "3",
-  gender: "남",
-  idNumber: "0901010-3123456",
-  address: "인천광역시 연수구 아카데미로 119",
-  phone: "-",
-  admissionDate: "-",
-  teacher: "-",
-  father: "-",
-  mother: "-",
-  fatherContact: "-",
-  motherContact: "-",
-};
+import useStudentFilterStore from "@/store/student-filter-store";
+import axios from "axios";
 
 export default function StudentRecord() {
   const [photo, setPhoto] = useState(false);
+  const { grade, classNumber, studentNumber } = useStudentFilterStore();
+  const [studentData, setStudentData] = useState({
+    name: "",
+    grade: "",
+    class: "",
+    number: "",
+    gender: "",
+    idNumber: "",
+    address: "",
+    phone: "",
+    admissionDate: "",
+    teacher: "",
+    father: "",
+    mother: "",
+    fatherContact: "",
+    motherContact: "",
+  });
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const getStudentData = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers/students/${studentNumber}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = res.data.response;
+        // console.log("리스폰스 : ", data);
+        setStudentData({
+          name: "잠시만",
+          grade: grade,
+          class: data.classroom,
+          number: data.number,
+          gender: data.gender,
+          idNumber: data.id,
+          address: data.address,
+          phone: data.phone,
+          admissionDate: data.admissionData,
+          teacher: "잠시만",
+          father: data.fatherName,
+          mother: data.motherName,
+          fatherContact: data.fatherNum,
+          motherContact: data.motherNum,
+        });
+      } catch (err) {
+        alert(`학생 정보 가져오기 실패 : ${err}`);
+        console.error("학생 정보 가져오기 실패 :", err);
+      }
+    };
+    getStudentData();
+  }, [grade, classNumber, studentNumber]);
+
   return (
     <div className="p-8">
       <div className="flex flex-wrap w-full gap-8 justify-start items-start">
