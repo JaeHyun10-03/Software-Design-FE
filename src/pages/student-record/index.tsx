@@ -3,15 +3,34 @@ import { Header } from "@/components/shared/Header";
 import StudentFilter from "@/components/shared/StudentFilter";
 import StudentList from "@/components/shared/StudentList";
 import Content from "@/components/student-record/Content";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import Button from "@/components/shared/Button";
 import useCategoryStore from "@/store/category-store";
 import useAttendanceStore from "@/store/attendance-store";
+import axios from "axios";
 
 export default function StudentRecordPage() {
   const { category } = useCategoryStore();
   const { saveAttendance } = useAttendanceStore();
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const studentId = 1;
+    console.log("토큰:", accessToken);
+    const getStudentData = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers/students/${studentId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = await res.data;
+        console.log("데이터:", data);
+      } catch (err) {
+        alert(`GET : teachers/students/{studentId} API 오류 내용 : ${err}`);
+      }
+    };
+    getStudentData();
+  }, []);
 
   const handleSave = async () => {
     setIsSaving(true);
