@@ -2,7 +2,7 @@ import useCategoryStore from "@/store/category-store";
 import React from "react";
 
 export const Category = () => {
-  const categoryList = ["학적", "성적", "특기사항", "출결", "행동", "상담"];
+  const categoryList = ["학적", "성적", "출결", "행동", "상담"];
   const { category, setCategory } = useCategoryStore();
   return (
     <>

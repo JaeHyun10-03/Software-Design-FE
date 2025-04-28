@@ -1,7 +1,6 @@
 import React from "react";
 import { Category } from "@/components/student-record/Category";
 import StudentRecord from "./category/StudentRecord";
-import Remarks from "./category/Remarks";
 import Attendance from "./category/Attendance";
 import Behavior from "./category/Behavior";
 import Counsel from "./category/Counsel";
@@ -17,7 +16,6 @@ export default function Content() {
       <div className="flex-1">
         {category === "학적" && <StudentRecord />}
         {category === "성적" && <Grade />}
-        {category === "특기사항" && <Remarks />}
         {category === "출결" && <Attendance />}
         {category === "행동" && <Behavior />}
         {category === "상담" && <Counsel />}
