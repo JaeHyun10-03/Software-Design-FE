@@ -5,7 +5,7 @@ import { renderStatusIcon } from "@/utils/statusUtils";
 import { getDateTextColor, getCellStyle } from "@/hooks/attendanceStyles";
 
 export default function AttendanceCalendar() {
-  const { biweeks, updateStatus } = useAttendanceCalendar();
+  const { biweeks } = useAttendanceCalendar();
 
   return (
     <div className="w-full">
@@ -32,15 +32,8 @@ export default function AttendanceCalendar() {
 
                       <div className="flex w-full">
                         {week.map((dateInfo, index) => {
-                          // 전역 인덱스를 계산해줌
-                          const globalIndex = biweekIndex * 14 + weekIdx * 7 + index;
-
                           return (
-                            <div
-                              key={`status-${weekIdx}-${index}`}
-                              className={`flex-1 h-8 border ${getCellStyle(dateInfo)} flex items-center justify-center cursor-pointer`}
-                              onClick={() => updateStatus(globalIndex)}
-                            >
+                            <div key={`status-${weekIdx}-${index}`} className={`flex-1 h-8 border ${getCellStyle(dateInfo)} flex items-center justify-center cursor-pointer`}>
                               <p className="text-xs md:text-sm text-center text-gray-800">{renderStatusIcon(dateInfo.status)}</p>
                             </div>
                           );
