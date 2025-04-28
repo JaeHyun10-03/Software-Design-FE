@@ -23,7 +23,7 @@ export default function AttendanceCalendar() {
                       <div className="flex w-full">
                         {week.map((dateInfo, index) => (
                           <div key={`date-${weekIdx}-${index}`} className={`flex-1 h-8 border ${getCellStyle(dateInfo)} flex items-center justify-center`}>
-                            <p className={`text-xs md:text-sm text-center ${getDateTextColor(dateInfo)}`}>{dateInfo.date}</p>
+                            <p className={`text-xs md:text-sm text-center select-none ${getDateTextColor(dateInfo)}`}>{dateInfo.date}</p>
                           </div>
                         ))}
                         {weekIdx === 1 &&
@@ -33,8 +33,8 @@ export default function AttendanceCalendar() {
                       <div className="flex w-full">
                         {week.map((dateInfo, index) => {
                           return (
-                            <div key={`status-${weekIdx}-${index}`} className={`flex-1 h-8 border ${getCellStyle(dateInfo)} flex items-center justify-center cursor-pointer`}>
-                              <p className="text-xs md:text-sm text-center text-gray-800">{renderStatusIcon(dateInfo.status)}</p>
+                            <div key={`status-${weekIdx}-${index}`} className={`flex-1 h-8 border ${getCellStyle(dateInfo)} flex items-center justify-center`}>
+                              <p className="text-xs md:text-sm text-center text-gray-800 select-none">{renderStatusIcon(dateInfo.status)}</p>
                             </div>
                           );
                         })}
