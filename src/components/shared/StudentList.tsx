@@ -3,12 +3,10 @@ import axios from "axios";
 import React, { useEffect, useMemo, useState } from "react";
 
 export default function StudentList() {
-  const { grade, classNumber, studentNumber, setStudentNumber } = useStudentFilterStore();
+  const { grade, classNumber, studentNumber, setGrade, setClassNumber, setStudentNumber } = useStudentFilterStore();
 
   // 학년별 학생 목록 상태
-  const [freshmanList, setFreshmanList] = useState([]);
-  const [sophomoreList, setSophomoreList] = useState([]);
-  const [juniorList, setJuniorList] = useState([]);
+  const [studentList, setStudentList] = useState([]);
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
@@ -18,15 +16,10 @@ export default function StudentList() {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const data = res.data.response;
-        console.log("데이터:", data);
-
-        // 1학년 학생 목록으로 설정 (지금은 모든 데이터를 1학년에 넣습니다)
-        setFreshmanList(data);
-
-        // 현재는 더미 데이터이므로 2, 3학년은 빈 배열로 두거나
-        // 필요시 API에서 학년별로 가져오도록 수정해야 합니다
-        setSophomoreList([]);
-        setJuniorList([]);
+        // console.log("데이터:", data);
+        setStudentList(data.students);
+        setGrade(data.grade);
+        setClassNumber(data.classNum);
       } catch (error) {
         console.error("학생 목록 가져오기 오류:", error);
       }
@@ -36,11 +29,8 @@ export default function StudentList() {
 
   // 학년 선택에 따른 학생 리스트의 데이터 변경
   const currentList = useMemo(() => {
-    if (grade === "1") return freshmanList;
-    if (grade === "2") return sophomoreList;
-    if (grade === "3") return juniorList;
-    return []; // 기본값 제공
-  }, [grade, freshmanList, sophomoreList, juniorList]); // 의존성 배열 수정
+    return studentList;
+  }, [grade, classNumber, studentNumber, studentList]); // 의존성 배열 수정
 
   return (
     <div className="w-44 h-100% border border-gray-400 overflow-hidden">
@@ -52,13 +42,13 @@ export default function StudentList() {
 
       {/* 리스트 */}
       {currentList && currentList.length > 0 ? (
-        currentList.map(({ studentId, name }) => (
+        currentList.map(({ number, name }) => (
           <div
-            key={studentId}
-            className={`flex h-8 border-b border-gray-400 cursor-pointer ${studentId.toString() === studentNumber ? "bg-[#4DAAF880]" : ""}`}
-            onClick={() => setStudentNumber(`${studentId}`)}
+            key={number}
+            className={`flex h-8 border-b border-gray-400 cursor-pointer ${number.toString() === studentNumber ? "bg-[#4DAAF880]" : ""}`}
+            onClick={() => setStudentNumber(`${number}`)}
           >
-            <div className="w-12 flex items-center justify-center border-r border-gray-400 text-gray-800 text-base">{studentId}</div>
+            <div className="w-12 flex items-center justify-center border-r border-gray-400 text-gray-800 text-base">{number}</div> {/* 여기 수정 */}
             <div className="flex-1 flex items-center justify-center text-gray-800 text-base">{name}</div>
           </div>
         ))
