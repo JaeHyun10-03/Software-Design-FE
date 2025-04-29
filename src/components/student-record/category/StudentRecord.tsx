@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import useStudentFilterStore from "@/store/student-filter-store";
 import axios from "axios";
 
 export default function StudentRecord() {
-  const [photo, setPhoto] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(null); // string | null로 변경
+  const fileInputRef = useRef<HTMLInputElement>(null); // 파일 input 참조
   const { grade, classNumber, studentNumber } = useStudentFilterStore();
   const [studentData, setStudentData] = useState({
     name: "",
@@ -12,7 +13,7 @@ export default function StudentRecord() {
     class: "",
     number: "",
     gender: "",
-    idNumber: "",
+    ssn: "",
     address: "",
     phone: "",
     admissionDate: "",
@@ -22,6 +23,7 @@ export default function StudentRecord() {
     fatherContact: "",
     motherContact: "",
   });
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const getStudentData = async () => {
@@ -30,17 +32,17 @@ export default function StudentRecord() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = res.data.response;
-        // console.log("리스폰스 : ", data);
+        console.log("리스폰스 : ", data);
         setStudentData({
           name: "잠시만",
           grade: grade,
           class: data.classroom,
           number: data.number,
           gender: data.gender,
-          idNumber: data.id,
+          ssn: data.ssn,
           address: data.address,
           phone: data.phone,
-          admissionDate: data.admissionData,
+          admissionDate: data.admissionDate,
           teacher: "잠시만",
           father: data.fatherName,
           mother: data.motherName,
@@ -55,19 +57,32 @@ export default function StudentRecord() {
     getStudentData();
   }, [grade, classNumber, studentNumber]);
 
+  // 파일 선택 핸들러
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhoto(reader.result as string); // 파일 읽어서 base64로 저장
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // 이미지 클릭 핸들러
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="p-8">
       <div className="flex flex-wrap w-full gap-8 justify-start items-start">
         {/* 증명 사진 */}
-        {photo ? (
-          <div className="flex justify-center items-center w-[272px] h-[336px] flex-shrink-0 border border-gray-400">
-            <Image src="/images/defaultImage.png" alt="증명사진" width={200} height={200} />
-          </div>
-        ) : (
-          <div className="flex justify-center items-center w-[272px] h-[336px] flex-shrink-0 border border-gray-400">
-            <p className="text-base text-center text-gray-800">증명 사진</p>
-          </div>
-        )}
+        <div className="flex justify-center items-center w-[272px] h-[336px] flex-shrink-0 border border-gray-400 cursor-pointer" onClick={handleImageClick}>
+          {photo ? <Image src={photo} alt="증명사진" width={250} height={250} className="object-cover" /> : <p className="text-base text-center text-gray-800">증명 사진</p>}
+          {/* 파일 업로드용 input */}
+          <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: "none" }} />
+        </div>
 
         {/* 표 컨테이너 */}
         <div className="flex flex-grow min-w-0">
@@ -81,7 +96,7 @@ export default function StudentRecord() {
               ))}
             </div>
             <div className="flex flex-col flex-grow min-w-[200px]">
-              {[studentData.name, studentData.grade, studentData.class, studentData.number, studentData.gender, studentData.idNumber, studentData.address].map((value, idx) => (
+              {[studentData.name, studentData.grade, studentData.class, studentData.number, studentData.gender, studentData.ssn, studentData.address].map((value, idx) => (
                 <div key={idx} className="flex justify-left items-center h-12 border-b border-gray-400 pl-2">
                   <p className="text-base text-left text-black">{value}</p>
                 </div>
