@@ -34,7 +34,7 @@ export default function StudentRecord() {
         const data = res.data.response;
         // console.log("리스폰스 : ", data);
         setStudentData({
-          name: "잠시만",
+          name: data.name,
           grade: grade,
           class: data.classroom,
           number: data.number,
@@ -43,7 +43,7 @@ export default function StudentRecord() {
           address: data.address,
           phone: data.phone,
           admissionDate: data.admissionDate,
-          teacher: "잠시만",
+          teacher: data.teacherName,
           father: data.fatherName,
           mother: data.motherName,
           fatherContact: data.fatherNum,
