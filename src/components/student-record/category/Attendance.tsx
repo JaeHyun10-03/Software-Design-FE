@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Cell from "../Cell";
 import AttendanceCalendar from "../AttendanceCalendar";
+import axios from "axios";
+import useStudentFilterStore from "@/store/student-filter-store";
 
 const attendanceHeaders = [
   { label: "수업일수", value: 123 },
@@ -11,6 +13,23 @@ const attendanceHeaders = [
 ];
 
 export default function Attendance() {
+  const { grade, classNumber, studentNumber } = useStudentFilterStore();
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const getAttendance = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances?year=${2025}&grade=${grade}&classNum=${classNumber}&month=${1}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.data.response;
+        console.log(data);
+      } catch (err) {
+        console.error("출결 카테고리 API 요청 실패 : ", err);
+      }
+    };
+    getAttendance();
+  }, []);
+
   return (
     <div>
       <div className="flex">

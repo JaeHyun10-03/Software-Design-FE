@@ -32,11 +32,11 @@ export default function Behavior() {
   return (
     <div className="flex flex-col h-full gap-4 p-8">
       <div className="flex-1 flex flex-col">
-        <label className="mb-2 font-medium">행동</label>
+        <label className="mb-2 font-medium">행동특성</label>
         <div className="focus:outline-none p-4 h-full flex-1 border border-[#a9a9a9]">{behavior}</div>
       </div>
       <div className="flex-1 flex flex-col">
-        <label className="mb-2 font-medium">태도</label>
+        <label className="mb-2 font-medium">종합의견</label>
         <div className="focus:outline-none p-4 h-full flex-1 border border-[#a9a9a9]">{generalComment}</div>
       </div>
     </div>
