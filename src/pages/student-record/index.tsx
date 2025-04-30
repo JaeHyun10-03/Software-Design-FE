@@ -11,7 +11,6 @@ export default function StudentRecordPage() {
       <div className="flex h-8">
         <StudentFilter />
       </div>
-
       <div className="flex flex-row gap-8 mt-4 flex-1">
         <StudentList />
         <Content />

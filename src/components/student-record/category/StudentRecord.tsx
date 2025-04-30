@@ -32,7 +32,7 @@ export default function StudentRecord() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = res.data.response;
-        console.log("리스폰스 : ", data);
+        // console.log("리스폰스 : ", data);
         setStudentData({
           name: "잠시만",
           grade: grade,
