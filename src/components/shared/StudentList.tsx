@@ -1,4 +1,6 @@
 import useStudentFilterStore from "@/store/student-filter-store";
+import { useEffect } from "react";
+import { GetStudentList } from "@/api/getStudentList";
 import React, { useMemo } from "react";
 
 // 더미 데이터 -> api 완성 후 수정 예정
@@ -21,7 +23,24 @@ const C = [
 ];
 
 export default function StudentList() {
-  const { grade, classNumber, studentNumber, setStudentNumber } = useStudentFilterStore();
+  const { grade, classNumber, studentNumber, setStudentNumber, setInitialFilter} = useStudentFilterStore();
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await GetStudentList(2025); // 기본값: 올해
+      const { grade, classNum, students } = response.data.response;
+  
+      setInitialFilter(
+        grade?.toString() ?? "1",
+        classNum?.toString() ?? "1",
+        students[0]?.studentId?.toString() ?? "1"
+      );
+      // 학생 리스트도 필요하면 상태에 저장
+    }
+    fetchData();
+  }, [setInitialFilter]);
+  
+
 
   // 학년 선택에 따른 학생 리스트의 데이터 변경 -> api 완성 후 수정 예정
   const currentList = useMemo(() => {
@@ -29,8 +48,9 @@ export default function StudentList() {
     if (grade === "2") return B;
     if (grade === "3") return C;
     return A; // 기본값
-  }, [grade, classNumber]);
-
+  }, [grade, classNumber]); 
+  
+  
   return (
     <div className="w-44 h-100% border border-gray-400 overflow-hidden">
       {/* 헤더 */}

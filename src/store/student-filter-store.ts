@@ -8,6 +8,7 @@ interface StudentFilterStore {
   setClassNumber: (classNumber: string) => void;
   setStudentNumber: (studentNumber: string) => void;
   resetFilter: () => void;
+  setInitialFilter: (grade: string, classNumber: string, studentNumber: string) => void; // 추가
 }
 
 const useStudentFilterStore = create<StudentFilterStore>((set) => ({
@@ -23,6 +24,8 @@ const useStudentFilterStore = create<StudentFilterStore>((set) => ({
       classNumber: "1",
       studentNumber: "1",
     }),
+  setInitialFilter: (grade, classNumber, studentNumber) =>
+    set({ grade, classNumber, studentNumber }),
 }));
 
 export default useStudentFilterStore;
