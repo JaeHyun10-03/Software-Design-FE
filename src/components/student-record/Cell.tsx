@@ -6,7 +6,7 @@ interface CellProps {
 }
 
 export default function Cell({ children, onClick }: CellProps) {
-  const baseClass = "flex flex-1 items-center justify-center h-8 border border-gray-400";
+  const baseClass = "flex flex-1 items-center justify-center h-16 border border-gray-400";
   const clickableClass = onClick ? "cursor-pointer" : "";
 
   return (

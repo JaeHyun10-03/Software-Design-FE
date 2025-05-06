@@ -2,23 +2,61 @@ import React, { useEffect, useState } from "react";
 import Cell from "../Cell";
 import GradeRadarChart from "../Chart";
 import Modal from "../Modal";
+import axios from "axios";
+import useStudentFilterStore from "@/store/student-filter-store";
 
 export default function Grade() {
   const columnHeaders = ["과목", "지필/수행", "고사 / 영역명(반영비율)", "만점", "합계", "받은 점수", "성취도(수강자수)", "원점수/과목평균(표준편차)", "석차등급", "석차"];
-  const dataList = [
-    { name: "국어", 지필수행: 999, 고사영역명: 999, 만점: 999, 받은점수: 999, 합계: 999, 성취도: 999, 원점수: 999, 석차등급: 999, 석차: 999, 피드백: "" },
-    { name: "수학", 지필수행: 999, 고사영역명: 999, 만점: 999, 받은점수: 999, 합계: 999, 성취도: 999, 원점수: 999, 석차등급: 999, 석차: 999, 피드백: "" },
-    { name: "영어", 지필수행: 999, 고사영역명: 999, 만점: 999, 받은점수: 999, 합계: 999, 성취도: 999, 원점수: 999, 석차등급: 999, 석차: 999, 피드백: "" },
-    { name: "사회", 지필수행: 999, 고사영역명: 999, 만점: 999, 받은점수: 999, 합계: 999, 성취도: 999, 원점수: 999, 석차등급: 999, 석차: 999, 피드백: "" },
-    { name: "과학", 지필수행: 999, 고사영역명: 999, 만점: 999, 받은점수: 999, 합계: 999, 성취도: 999, 원점수: 999, 석차등급: 999, 석차: 999, 피드백: "" },
-    { name: "기술가정", 지필수행: 999, 고사영역명: 999, 만점: 999, 받은점수: 999, 합계: 999, 성취도: 999, 원점수: 999, 석차등급: 999, 석차: 999, 피드백: "" },
-  ];
+  const [dataList, setDataList] = useState<any[]>([]);
   const [modalOpen, setModalOpen] = useState<boolean[]>([]);
+  const { grade, classNumber, studentNumber } = useStudentFilterStore();
 
   useEffect(() => {
-    const arr = new Array(dataList.length).fill(false);
-    setModalOpen(arr);
-  }, []);
+    const token = localStorage.getItem("accessToken");
+
+    const getScoreSummary = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/score-summary?year=2025&semester=1&grade=${grade}&classNum=${classNumber}&number=${studentNumber}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = res.data.response.subjects;
+        console.log("학적-성적데이터:", data);
+
+        const examTypeMap: Record<string, string> = {
+          PRACTICAL: "수행평가",
+          WRITTEN: "지필평가",
+        };
+
+        const mapped = data.map((subject: any) => {
+          const evalNames = subject.evaluationMethods?.map((m: any) => `${m.title}(${m.weight}%)`).join(" / ");
+
+          const examTypes = subject.evaluationMethods?.map((m: any) => examTypeMap[m.examType] || m.examType).join(" / ");
+
+          return {
+            name: subject.subjectName,
+            지필수행: examTypes || "-",
+            고사영역명: evalNames || "-",
+            만점: 100,
+            합계: subject.rawTotal,
+            받은점수: subject.weightedTotal,
+            성취도: `${subject.achievementLevel} (${subject.totalStudentCount}명)`,
+            원점수: `${subject.rawTotal} / ${subject.average} (${subject.stdDev})`,
+            석차등급: `${subject.grade}등급`,
+            석차: `${subject.rank}등`,
+            피드백: subject.feedback || "",
+          };
+        });
+
+        setDataList(mapped);
+        setModalOpen(new Array(mapped.length).fill(false));
+      } catch (err) {
+        console.error("학생 성적 학적 조회 API 에러 : ", err);
+      }
+    };
+
+    getScoreSummary();
+  }, [grade, classNumber, studentNumber]);
 
   const openModal = (index: number) => {
     const updated = [...modalOpen];
@@ -53,11 +91,11 @@ export default function Grade() {
           <Cell>{data.석차등급}</Cell>
           <Cell>{data.석차}</Cell>
 
-          {modalOpen[index] && <Modal name={data.name} feedback={data.피드백} onClose={() => closeModal(index)}></Modal>}
+          {modalOpen[index] && <Modal name={data.name} feedback={data.피드백} onClose={() => closeModal(index)} />}
         </div>
       ))}
 
-      <GradeRadarChart />
+      <GradeRadarChart dataList={dataList} />
     </>
   );
 }

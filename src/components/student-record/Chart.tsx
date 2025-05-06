@@ -8,9 +8,9 @@ const data = [
   { subject: "영어", grade: 2 },
 ];
 
-export default function GradeRadarChart() {
+export default function GradeRadarChart(dataList: any) {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex">
       <RadarChart cx={200} cy={200} outerRadius={150} width={400} height={400} data={data}>
         <PolarGrid />
         <PolarAngleAxis dataKey="subject" />
