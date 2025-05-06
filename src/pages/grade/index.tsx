@@ -2,7 +2,6 @@ import React, { ReactNode, useState,  useEffect } from "react";
 import { Header } from "@/components/shared/Header";
 import StudentFilter from "@/components/shared/StudentFilter";
 import GradeFilter from "@/components/grade/GradeFilter";
-import StudentList from "@/components/shared/StudentList";
 import useStudentFilterStore from "@/store/student-filter-store";
 import useGradeFilterStore from "@/store/grade-filter-store";
 
@@ -30,9 +29,8 @@ const Button = ({ className, ...props }: React.ButtonHTMLAttributes<HTMLButtonEl
 export default function GradesPage() {
   const initialStudents: any[] = [];
   
-  const [ScoreKey ,setScoreKey ]= ["중간고사", "기말고사" , "수행평가1" , "수행평가2"];
-  const { grade, classNumber, studentNumber, studentId, setStudentNumber, setStudentId } = useStudentFilterStore();
-  const { year, semester, subject, setYear, setSemester, setSubject } = useGradeFilterStore();
+  const { grade, classNumber, studentNumber} = useStudentFilterStore();
+  const { year, semester, subject } = useGradeFilterStore();
   const [students, setStudents] = useState(initialStudents);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [editing, setEditing] = useState<{ row: number; key: string } | null>(null);
