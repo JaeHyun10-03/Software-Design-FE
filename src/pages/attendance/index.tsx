@@ -1,5 +1,5 @@
 import AttendanceContent from "@/components/attendance/attendanceContent";
-import DateFilter from "@/components/attendance/DateFilter";
+import DateFilter from "@/components/shared/DateFilter";
 import AttendanceType from "@/components/shared/AttendanceType";
 import Button from "@/components/shared/Button";
 import { Header } from "@/components/shared/Header";
@@ -11,7 +11,7 @@ export default function AttendancePage() {
     <div className="mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
       <div className="flex h-8 gap-4">
         <StudentFilter />
-        <DateFilter />
+        <DateFilter></DateFilter>
 
         <div className="flex flex-row gap-4 ml-auto">
           <div className="hidden lg:flex">

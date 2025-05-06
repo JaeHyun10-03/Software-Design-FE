@@ -25,7 +25,7 @@ const DateFilter = () => {
   const SelectInput = useCallback(
     ({ value, onChange, options, label }: SelectInputProps) => (
       <div className="flex items-center gap-1">
-        <select className="w-12 h-6 border border-gray-400 text-gray-800 text-center text-base rounded" value={value} onChange={onChange}>
+        <select className="w-20 h-6 border border-gray-400 text-gray-800 text-center text-base rounded" value={value} onChange={onChange}>
           {options.map((option) => (
             <option key={option} value={option}>
               {option}
