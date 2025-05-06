@@ -18,11 +18,11 @@ export default function Attendance() {
     const token = localStorage.getItem("accessToken");
     const getAttendance = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances?year=${2025}&grade=${grade}&classNum=${classNumber}&month=${1}`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances?year=${2025}&grade=${grade}&classNum=${classNumber}&month=${3}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data = await res.data.response;
-        console.log(data);
+        const data = res.data.response;
+        console.log("출결데이터:", data);
       } catch (err) {
         console.error("출결 카테고리 API 요청 실패 : ", err);
       }
