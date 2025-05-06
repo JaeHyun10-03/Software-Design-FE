@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
-export const PostCounsel = async (
-    studentId:string,
+export const PutCounsel = async (
+    counselId:number,
     category:string,
     content: string,
     nextPlan:string,
@@ -12,8 +12,8 @@ export const PostCounsel = async (
   const accessToken = localStorage.getItem("accessToken");
 
   try {
-    const response: AxiosResponse<any> = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/counsel?studentId=${studentId}`,
+    const response: AxiosResponse<any> = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/counsel/${counselId}`,
         {
             category:category,
             content: content,
