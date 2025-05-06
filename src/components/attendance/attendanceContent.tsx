@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useImperativeHandle, forwardRef } from "react";
 import axios from "axios";
 import useSelectedDate from "@/store/selected-date-store";
 import useStudentFilterStore from "@/store/student-filter-store";
 
-const AttendanceTable: React.FC<{ edit: boolean }> = ({ edit }) => {
+interface AttendanceContentProps {
+  edit: boolean;
+  onSave?: (saveFunction: () => Promise<void>) => void;
+}
+
+// forwardRef를 사용하여 부모 컴포넌트에서 접근할 수 있게 함
+const AttendanceContent = forwardRef<{ postAttendances: () => Promise<void> }, AttendanceContentProps>(({ edit, onSave }, ref) => {
   const { year, month } = useSelectedDate();
   const { grade, classNumber } = useStudentFilterStore();
   const [dataList, setDataList] = useState<any[]>([]); // 배열로 명시
@@ -38,6 +44,7 @@ const AttendanceTable: React.FC<{ edit: boolean }> = ({ edit }) => {
     return statusCycle[(idx + 1) % statusCycle.length];
   };
 
+  // postAttendances 함수
   const postAttendances = async () => {
     try {
       const token = localStorage.getItem("accessToken");
@@ -55,10 +62,24 @@ const AttendanceTable: React.FC<{ edit: boolean }> = ({ edit }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("출결 저장 완료:", res.data);
+      return res.data;
     } catch (err) {
       console.error("출결 저장 실패:", err);
+      throw err;
     }
   };
+
+  // 부모 컴포넌트에서 ref로 접근할 수 있도록 설정
+  useImperativeHandle(ref, () => ({
+    postAttendances,
+  }));
+
+  // 부모 컴포넌트에 저장 함수 전달
+  useEffect(() => {
+    if (onSave) {
+      onSave(postAttendances);
+    }
+  }, [onSave]);
 
   return (
     <div className="w-full h-full min-w-[600px] border border-[#a9a9a9]">
@@ -178,6 +199,8 @@ const AttendanceTable: React.FC<{ edit: boolean }> = ({ edit }) => {
       ))}
     </div>
   );
-};
+});
 
-export default AttendanceTable;
+AttendanceContent.displayName = "AttendanceContent";
+
+export default AttendanceContent;
