@@ -137,21 +137,6 @@ export default function AttendanceCalendar() {
         className="h-full"
       />
 
-      <div className="attendance-legend mt-3 flex gap-4 flex-wrap text-sm">
-        <div className="flex items-center gap-1">
-          <span className="font-bold">O</span> <span>출석</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="font-bold">X</span> <span>결석</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="font-bold">▲</span> <span>지각</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="font-bold">△</span> <span>조퇴</span>
-        </div>
-      </div>
-
       <style jsx global>{`
         .react-calendar {
           border: 1px solid #e5e7eb;
