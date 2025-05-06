@@ -93,10 +93,10 @@ function GradeTableRow({
           handleInputKeyDown={handleInputKeyDown}
         />
       ))}
-      <td className="border px-2 py-1">{student.rawTotal ?? "-"}</td>
-      <td className="border px-2 py-1">{student.weightedTotal ?? "-"}</td>
-      <td className="border px-2 py-1">{student.average ?? "-"}</td>
-      <td className="border px-2 py-1">{student.stdDev ?? "-"}</td>
+      <td className="border px-2 py-1">{typeof student.rawTotal === "number" ? student.rawTotal.toFixed(1) : "-"}</td>
+      <td className="border px-2 py-1">{typeof student.weightedTotal === "number" ? student.weightedTotal.toFixed(1) :  "-"}</td>
+      <td className="border px-2 py-1">{typeof student.average === "number" ? student.average.toFixed(2) : "-"}</td>
+      <td className="border px-2 py-1">{typeof student.stdDev === "number" ? student.stdDev.toFixed(1): "-"}</td>
       <td className="border px-2 py-1">{student.rank ?? "-"}</td>
       <td className="border px-2 py-1">{student.grade ?? "-"}</td>
       <td className="border px-2 py-1">{student.achievementLevel ?? "-"}</td>
