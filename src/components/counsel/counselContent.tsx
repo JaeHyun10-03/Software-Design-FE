@@ -125,7 +125,7 @@ export default function CounselContent() {
   
       try {
         
-          const response = await PostCounsel(form.category, form.content, form.nextPlan, form.dateTime, form.isPublic, form.teacher);
+          const response = await PostCounsel(form.category, form.content, form.nextPlan, form.dateTime, form.isPublic);
           console.log(` 결과: ${response}`);    
           
          
