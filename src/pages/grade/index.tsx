@@ -23,19 +23,22 @@ const Button = ({ className, ...props }: React.ButtonHTMLAttributes<HTMLButtonEl
   );
 };
 
-
+interface Evaluation {
+  evaluationId: number; // API에서 받은 실제 evaluationId
+  title: string;
+}
 
 
 export default function GradesPage() {
   const initialStudents: any[] = [];
   
-  const { grade, classNumber, studentNumber} = useStudentFilterStore();
-  const { year, semester, subject } = useGradeFilterStore();
+  const { grade, classNumber, studentNumber, } = useStudentFilterStore();
+  const { year, semester, subject, } = useGradeFilterStore();
   const [students, setStudents] = useState(initialStudents);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [editing, setEditing] = useState<{ row: number; key: string } | null>(null);
   const [inputValue, setInputValue] = useState<string>("");
-  const [evaluationTitles, setEvaluationTitles] = useState<string[]>([]);
+  const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
 
   // 모든 값이 채워졌는지 체크
   const allFilled = [year, semester, subject, grade, classNumber, studentNumber].every(Boolean);
@@ -54,7 +57,7 @@ export default function GradesPage() {
           );
           const { titles, students } = mapApiResponseToStudents(response);
           console.log("매핑 결과:", titles, students);
-        setEvaluationTitles(titles);
+        setEvaluations(titles);
         setStudents(students);
       } catch (error) {
         console.error("Failed to fetch grades", error);
@@ -67,27 +70,33 @@ export default function GradesPage() {
   const mapApiResponseToStudents = (response: any) => {
     if (!response?.evaluations) return { titles: [], students: [] };
   
-    // 1. 기본 타이틀 + API 응답 타이틀 병합
-    const apiTitles = response.evaluations.map((e: any) => e.title);
-    const titles = [...new Set([ ...apiTitles])]; // 중복 제거
+    // 1. evaluationId와 title을 객체로 추출
+    // 중복 제거를 위해 Map 사용
+    const titleMap = new Map<string, { evaluationId: number, title: string }>();
+    response.evaluations.forEach((e: any) => {
+      if (!titleMap.has(e.title)) {
+        titleMap.set(e.title, { evaluationId: e.evaluationId, title: e.title });
+      }
+    });
+    const titles = Array.from(titleMap.values());
   
-    // 2. 모든 학생 번호 수집 (나머지 코드는 동일)
+    // 2. 모든 학생 번호 수집
     const allNumbers = new Set<number>();
     response.evaluations.forEach((e: any) => {
       e.scores?.forEach((s: any) => allNumbers.add(s.number));
     });
   
-    // 3. 학생 객체 초기화 (기본 타이틀 포함)
+    // 3. 학생 객체 초기화 (각 title에 대해 필드 생성)
     const studentsMap: Record<number, any> = {};
     Array.from(allNumbers).forEach((number) => {
       studentsMap[number] = {
         number,
         studentName: "",
-        ...Object.fromEntries(titles.map((title) => [title, "-"])), // 기본 타이틀 포함
+        ...Object.fromEntries(titles.map((t) => [t.title, "-"])),
       };
     });
   
-    // 4. 실제 데이터 매핑 (기존 코드 유지)
+    // 4. 실제 데이터 매핑
     response.evaluations.forEach((evaluation: any) => {
       evaluation.scores?.forEach((score: any) => {
         const student = studentsMap[score.number];
@@ -100,6 +109,7 @@ export default function GradesPage() {
   
     return { titles, students: Object.values(studentsMap) };
   };
+  
   
   
   const handleCellClick = (row: number, key: string, value: number | undefined) => {
@@ -129,19 +139,20 @@ export default function GradesPage() {
 
   function convertToApiFormat(
     students: any[],
-    evaluationTitles: string[],
+    evaluations: Evaluation[], // evaluationId 포함한 배열 사용
     classNum: number
   ) {
-    // evaluationId는 evaluationTitles의 인덱스
-    return evaluationTitles.map((title, idx) => ({
+    return evaluations.map((evaluation) => ({
       classNum,
-      evaluationId: idx,
+      evaluationId: evaluation.evaluationId, // API에서 받은 실제 ID 사용
       students: students.map((student) => ({
         number: student.number,
         rawScore:
-          student[title] === "-" || student[title] === undefined || student[title] === null
+          student[evaluation.title] === "-" ||
+          student[evaluation.title] === undefined ||
+          student[evaluation.title] === null
             ? 0
-            : Number(student[title]),
+            : Number(student[evaluation.title]),
       })),
     }));
   }
@@ -149,7 +160,7 @@ export default function GradesPage() {
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault();
 
-    const payload = convertToApiFormat(students, evaluationTitles, Number(classNumber));
+    const payload = convertToApiFormat(students, evaluations, Number(classNumber));
     console.log("저장할 데이터:", payload);
     
      try {
@@ -191,7 +202,7 @@ export default function GradesPage() {
             <thead className="">
               <tr>
                 {[
-                  "번호", "성명",  ...evaluationTitles,
+                  "번호", "성명",  ...evaluations.map(e => e.title),
                   "총점", "환산", "평균", "표준편차", "석차", "등급", "피드백(비고)"
                 ].map((header) => (
                   <th key={header} className="px-2 py-2 border">
@@ -212,27 +223,28 @@ export default function GradesPage() {
                 >
                   <td className="border px-2 py-1">{student.number}</td>
                   <td className="border px-2 py-1">{student.studentName}</td>
-                  {evaluationTitles.map((title) => (
-                      <td
-                        key={title}
-                        className="border px-2 py-1 cursor-pointer"
-                        onClick={() => handleCellClick(student.number, title, student[title])}
-                      >
-                      {editing && editing.row === student.number && editing.key === title ?  (
-                        <input
-                          type="number"
-                          className="w-16 border rounded px-1 py-0.5 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0"
-                          value={inputValue}
-                          onChange={handleInputChange}
-                          onBlur={handleInputBlur}
-                          onKeyDown={handleInputKeyDown}
-                          autoFocus
-                        />
-                      ) : (
-                        student[title] ?? "-"
-                      )}
-                    </td>
-                  ))}
+                  {evaluations.map((evaluation) => (
+                  <td
+                    key={evaluation.evaluationId} // 또는 key={evaluation.title} (고유하다면)
+                    className="border px-2 py-1 cursor-pointer"
+                    onClick={() => handleCellClick(student.number, evaluation.title, student[evaluation.title])}
+                  >
+                {editing && editing.row === student.number && editing.key === evaluation.title ? (
+                  <input
+                     type="number"
+                    className="w-16 border rounded px-1 py-0.5 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    onKeyDown={handleInputKeyDown}
+                    autoFocus
+                  />
+                ) : (
+                  student[evaluation.title] ?? "-"
+                  )}
+                  </td>
+                ))}
+
                   {Array(7).fill(null).map((_, i) => (
                     <td key={i} className="border px-2 py-1">-</td>
                   ))}

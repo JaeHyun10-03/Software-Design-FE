@@ -22,8 +22,8 @@ export const PostScore = async (
           }
     );
 
-    console.log(response.data.response[0]);
-    return response.data.response[0];
+    console.log(response.data.response);
+    return response.data.response;
   } catch (error: any) {
     if (error.response) {
       const { status, data } = error.response;
