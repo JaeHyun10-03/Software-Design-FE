@@ -10,10 +10,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@fullcalendar/react": "^6.1.17",
     "@tailwindcss/postcss": "^4.0.17",
     "axios": "^1.8.3",
     "dayjs": "^1.11.13",
     "framer-motion": "^12.6.3",
+    "fullcalendar": "^6.1.17",
     "next": "14.2.23",
     "react": "^18",
     "react-calendar": "^5.1.0",

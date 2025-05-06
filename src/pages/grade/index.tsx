@@ -1,20 +1,18 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState,  useEffect } from "react";
 import { Header } from "@/components/shared/Header";
+import StudentFilter from "@/components/shared/StudentFilter";
+import GradeFilter from "@/components/grade/GradeFilter";
+import StudentList from "@/components/shared/StudentList";
+import useStudentFilterStore from "@/store/student-filter-store";
+import useGradeFilterStore from "@/store/grade-filter-store";
 
+import { GetScore } from "@/api/getScoreSummary";
+import { PostScore } from "@/api/postScore";
 // 유틸 함수: classNames 결합용
 function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-// 커스텀 Input 컴포넌트
-const Input = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) => {
-  return (
-    <input
-      className={cn("border border-gray-300 px-2 py-1 flex items-center text-center", className)}
-      {...props}
-    />
-  );
-};
 
 // 커스텀 Button 컴포넌트
 const Button = ({ className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
@@ -26,46 +24,100 @@ const Button = ({ className, ...props }: React.ButtonHTMLAttributes<HTMLButtonEl
   );
 };
 
-const initialStudents = [
-  { 번호: 1, 성명: "김", 중간고사: 10, 기말고사: 10, 수행평가1: 10, 수행평가2: 10 },
-  { 번호: 2, 성명: "김법", 중간고사: 20, 기말고사: 20, 수행평가1: 20 },
-  { 번호: 3, 성명: "김법수", 중간고사: 30, 기말고사: 30, 수행평가1: 30 },
-  // ... 생략된 나머지 데이터들
-];
 
-type ScoreKey = "중간고사" | "기말고사" | "수행평가1" | "수행평가2";
+
 
 export default function GradesPage() {
+  const initialStudents: any[] = [];
+  
+  const [ScoreKey ,setScoreKey ]= ["중간고사", "기말고사" , "수행평가1" , "수행평가2"];
+  const { grade, classNumber, studentNumber, studentId, setStudentNumber, setStudentId } = useStudentFilterStore();
+  const { year, semester, subject, setYear, setSemester, setSubject } = useGradeFilterStore();
   const [students, setStudents] = useState(initialStudents);
-  // editing: {row: 번호, key: ScoreKey} | null
-  const [editing, setEditing] = useState<{ row: number; key: ScoreKey } | null>(null);
-  const [inputValue, setInputValue] = useState<string>("");
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
-  const [subject, setSubject] = useState<string>("");
-  const [grade, setGrade] = useState("");
-  const [classNum, setClassNum] = useState("");
-  const [studentNum, setStudentNum] = useState("");
-  const [year, setYear] = useState("");
-  const [semester, setSemester] = useState("");
-  const allFilled = grade && classNum &&  year && semester && subject;
+  const [editing, setEditing] = useState<{ row: number; key: string } | null>(null);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [evaluationTitles, setEvaluationTitles] = useState<string[]>([]);
 
-  // 셀 클릭 시
-  const handleCellClick = (row: number, key: ScoreKey, value: number | undefined) => {
+  // 모든 값이 채워졌는지 체크
+  const allFilled = [year, semester, subject, grade, classNumber, studentNumber].every(Boolean);
+ 
+  // 값이 모두 채워지면 API 호출
+  useEffect(() => {
+    if (!allFilled) return;
+    const fetchGrades = async () => {
+      try {
+        const response = await GetScore(
+          Number(year),
+          Number(semester),
+          Number(grade),
+          Number(classNumber),
+          subject
+          );
+          const { titles, students } = mapApiResponseToStudents(response);
+          console.log("매핑 결과:", titles, students);
+        setEvaluationTitles(titles);
+        setStudents(students);
+      } catch (error) {
+        console.error("Failed to fetch grades", error);
+      }
+    };
+    fetchGrades();
+  }, [year, semester, subject, grade, classNumber, studentNumber, allFilled]);
+
+
+  const mapApiResponseToStudents = (response: any) => {
+    if (!response?.evaluations) return { titles: [], students: [] };
+  
+    // 1. 기본 타이틀 + API 응답 타이틀 병합
+    const apiTitles = response.evaluations.map((e: any) => e.title);
+    const titles = [...new Set([ ...apiTitles])]; // 중복 제거
+  
+    // 2. 모든 학생 번호 수집 (나머지 코드는 동일)
+    const allNumbers = new Set<number>();
+    response.evaluations.forEach((e: any) => {
+      e.scores?.forEach((s: any) => allNumbers.add(s.number));
+    });
+  
+    // 3. 학생 객체 초기화 (기본 타이틀 포함)
+    const studentsMap: Record<number, any> = {};
+    Array.from(allNumbers).forEach((number) => {
+      studentsMap[number] = {
+        number,
+        studentName: "",
+        ...Object.fromEntries(titles.map((title) => [title, "-"])), // 기본 타이틀 포함
+      };
+    });
+  
+    // 4. 실제 데이터 매핑 (기존 코드 유지)
+    response.evaluations.forEach((evaluation: any) => {
+      evaluation.scores?.forEach((score: any) => {
+        const student = studentsMap[score.number];
+        if (student) {
+          student.studentName = score.studentName;
+          student[evaluation.title] = score.rawScore ?? "-";
+        }
+      });
+    });
+  
+    return { titles, students: Object.values(studentsMap) };
+  };
+  
+  
+  const handleCellClick = (row: number, key: string, value: number | undefined) => {
     setEditing({ row, key });
     setInputValue(value !== undefined ? String(value) : "");
   };
 
-  // 입력 변경
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
-  // 입력 완료(엔터/포커스아웃)
   const handleInputBlur = () => {
     if (!editing) return;
     setStudents((prev) =>
       prev.map((stu) =>
-        stu.번호 === editing.row
+        stu.number === editing.row
           ? { ...stu, [editing.key]: inputValue === "" ? undefined : Number(inputValue) }
           : stu
       )
@@ -73,26 +125,59 @@ export default function GradesPage() {
     setEditing(null);
   };
 
-  // 엔터키 입력
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleInputBlur();
-    }
+    if (e.key === "Enter") handleInputBlur();
   };
+
+  function convertToApiFormat(
+    students: any[],
+    evaluationTitles: string[],
+    classNum: number
+  ) {
+    // evaluationId는 evaluationTitles의 인덱스
+    return evaluationTitles.map((title, idx) => ({
+      classNum,
+      evaluationId: idx,
+      students: students.map((student) => ({
+        number: student.number,
+        rawScore:
+          student[title] === "-" || student[title] === undefined || student[title] === null
+            ? 0
+            : Number(student[title]),
+      })),
+    }));
+  }
+
+  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+    e.preventDefault();
+
+    const payload = convertToApiFormat(students, evaluationTitles, Number(classNumber));
+    console.log("저장할 데이터:", payload);
+    
+     try {
+          
+            const response = await PostScore(payload);
+            console.log(`전송 결과: ${response}`);
+            
+           
+        } catch (error) {
+            console.error("저장 실패", error);
+            alert(error);
+            alert('저장에 실패했습니다. 다시 시도해주세요.');
+        }
+  };
+  
 
   return (
       <div className="p-6">
         <div className="flex items-center mb-4">
-          <p>학년</p><Input placeholder="학년" className="w-[48px] h-[18px]"   onChange={e => setGrade(e.target.value)} />
-          <p className="ml-[22px]">반</p><Input placeholder="반" className="w-[48px] h-[18px] "   onChange={e => setClassNum(e.target.value)}/>
-          <p className="ml-[22px]">번호</p><Input placeholder="번호" className="w-[48px] h-[18px] "   onChange={e => setStudentNum(e.target.value)} />
-          <p className="ml-[22px]">연도</p><Input placeholder="연도" className="w-[48px] h-[18px]"   onChange={e => setYear(e.target.value)}         />
-          <p className="ml-[22px]"> 학기</p><Input placeholder="학기" className="w-[48px] h-[18px] "  onChange={e => setSemester(e.target.value)}          />
-          <p className="ml-[22px]">과목</p><Input placeholder="과목" className="w-[48px] h-[18px] border border-[#A9A9A9]" defaultValue="국어"   onChange={e => setSubject(e.target.value)}  />
-        </div>
+          <StudentFilter />
+          <GradeFilter />
+
+         </div>
 
         <div className="flex justify-end mt-4">
-          <Button>저장</Button>
+          <Button onClick={handleSave}>저장</Button>
         </div>
 
 
@@ -108,7 +193,7 @@ export default function GradesPage() {
             <thead className="">
               <tr>
                 {[
-                  "번호", "성명", "중간고사", "기말고사", "수행평가1", "수행평가2",
+                  "번호", "성명",  ...evaluationTitles,
                   "총점", "환산", "평균", "표준편차", "석차", "등급", "피드백(비고)"
                 ].map((header) => (
                   <th key={header} className="px-2 py-2 border">
@@ -120,22 +205,22 @@ export default function GradesPage() {
             <tbody>
               {students.map((student) => (
                 <tr
-                  key={student.번호}
-                  onClick={() => setSelectedRow(student.번호)}
+                  key={student.number}
+                  onClick={() => setSelectedRow(student.number)}
                   className={cn(
                     "hover:bg-blue-100",
-                    selectedRow === student.번호 && "bg-blue-200"
+                    selectedRow === student.number && "bg-blue-200"
                   )}
                 >
-                  <td className="border px-2 py-1">{student.번호}</td>
-                  <td className="border px-2 py-1">{student.성명}</td>
-                  {(["중간고사", "기말고사", "수행평가1", "수행평가2"] as ScoreKey[]).map((key) => (
-                    <td
-                      key={key}
-                      className="border px-2 py-1 cursor-pointer"
-                      onClick={() => handleCellClick(student.번호, key, student[key])}
-                    >
-                      {editing && editing.row === student.번호 && editing.key === key ? (
+                  <td className="border px-2 py-1">{student.number}</td>
+                  <td className="border px-2 py-1">{student.studentName}</td>
+                  {evaluationTitles.map((title) => (
+                      <td
+                        key={title}
+                        className="border px-2 py-1 cursor-pointer"
+                        onClick={() => handleCellClick(student.number, title, student[title])}
+                      >
+                      {editing && editing.row === student.number && editing.key === title ?  (
                         <input
                           type="number"
                           className="w-16 border rounded px-1 py-0.5 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0"
@@ -146,7 +231,7 @@ export default function GradesPage() {
                           autoFocus
                         />
                       ) : (
-                        student[key] ?? "-"
+                        student[title] ?? "-"
                       )}
                     </td>
                   ))}
