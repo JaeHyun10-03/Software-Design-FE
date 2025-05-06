@@ -10,8 +10,8 @@ export default function AttendancePage() {
   const [edit, setEdit] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 저장 함수를 저장할 ref 생성
-  const saveAttendanceRef = useRef<() => Promise<void> | null>(null);
+  // MutableRefObject 형태로 사용하기 위해 useRef를 사용
+  const saveAttendanceRef = useRef<(() => Promise<void>) | null>(null);
 
   // AttendanceContent 컴포넌트의 ref
   const contentRef = useRef<{ postAttendances: () => Promise<void> } | null>(null);
