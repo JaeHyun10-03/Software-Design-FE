@@ -3,10 +3,12 @@ import React, { ReactNode } from "react";
 interface CellProps {
   children: ReactNode;
   onClick?: () => void;
+  type?: "small" | "large";
 }
 
-export default function Cell({ children, onClick }: CellProps) {
-  const baseClass = "flex flex-1 items-center justify-center h-8 border border-gray-400";
+export default function Cell({ children, onClick, type = "large" }: CellProps) {
+  const baseClass = type === "large" ? "flex flex-1 items-center justify-center h-16 border border-gray-400" : "flex flex-1 items-center justify-center h-8 border border-gray-400";
+
   const clickableClass = onClick ? "cursor-pointer" : "";
 
   return (
