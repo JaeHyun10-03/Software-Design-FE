@@ -12,7 +12,7 @@ interface CounselingCardProps {
   isPublic: boolean;
 }
 
-export default function CounselCard({ id, dateTime, category, teacher, content, nextPlan, isPublic }: CounselingCardProps) {
+export default function CounselCard({ dateTime, category, teacher, content, nextPlan }: CounselingCardProps) {
   const [open, setOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -21,7 +21,8 @@ export default function CounselCard({ id, dateTime, category, teacher, content, 
     try {
       const date = new Date(dateTimeStr);
       return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       return dateTimeStr; // 변환 실패 시 원본 반환
     }
   };

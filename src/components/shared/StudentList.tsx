@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 export default function StudentList() {
   const setStudentFilter = useStudentFilterStore.setState;
-  const { grade, classNumber, studentNumber, studentId, setStudentNumber, setStudentId } = useStudentFilterStore();
+  const { grade, classNumber, studentNumber, setStudentNumber, setStudentId } = useStudentFilterStore();
 
   const [studentList, setStudentList] = useState([]);
 
@@ -51,7 +51,7 @@ export default function StudentList() {
         currentList.map(({ studentId, number, name }) => (
           <div
             key={number}
-            className={`flex h-8 border-b border-gray-400 cursor-pointer ${number.toString() === studentNumber ? "bg-[#4DAAF880]" : ""}`}
+            className={`flex h-8 border-b border-gray-400 cursor-pointer ${`${number}` === studentNumber ? "bg-[#4DAAF880]" : ""}`}
             onClick={() => {
               setStudentNumber(`${number}`);
               setStudentId(`${studentId}`);
