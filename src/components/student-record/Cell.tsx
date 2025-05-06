@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 interface CellProps {
   children: ReactNode;
   onClick?: () => void;
-  type: "small" | "large";
+  type?: "small" | "large";
 }
 
 export default function Cell({ children, onClick, type = "large" }: CellProps) {
