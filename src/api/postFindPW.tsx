@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 
-const apiUrl = `https://neeis.inuappcenter.kr`;
 
 export const PostFindPW = async (
     name: string,
@@ -12,7 +11,7 @@ export const PostFindPW = async (
 
   try {
     const response: AxiosResponse<any> = await axios.post(
-        `${apiUrl}/students/password`,
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/students/password`,
         {
             name: name,
             phone: phone,

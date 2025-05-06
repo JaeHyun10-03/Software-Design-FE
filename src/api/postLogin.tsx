@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 
-const apiUrl = `https://neeis.inuappcenter.kr`;
 
 export const PostLogin = async (
     userId: string,
@@ -10,16 +9,13 @@ export const PostLogin = async (
 
   try {
     const response: AxiosResponse<any> = await axios.post(
-        `${apiUrl}/users/login`,
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/users/login`,
         {
           loginId: userId,
           password: password,
         },
         { withCredentials: true }
-    );
-
-    console.log(response.data.response);
-   
+    );   
 
 
     return response.data.response;
