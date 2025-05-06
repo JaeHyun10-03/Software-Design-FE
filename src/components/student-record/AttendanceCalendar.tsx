@@ -12,7 +12,7 @@ interface AttendanceData {
 
 export default function AttendanceCalendar() {
   const { grade, classNumber, studentNumber } = useStudentFilterStore();
-  const { year, month, semester } = useSelectedDate();
+  const { year, month } = useSelectedDate();
   const [attendances, setAttendances] = useState<AttendanceData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
