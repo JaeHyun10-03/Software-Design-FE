@@ -65,7 +65,7 @@ const BehaviorContent = () => {
     try {
       const token = localStorage.getItem("accessToken");
       const res = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNumber}&studentId=${studentId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior/${behaviorId}`,
         {
           behavior: behavior,
           generalComment: generalOpinion,
