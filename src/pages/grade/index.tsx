@@ -68,47 +68,44 @@ export default function GradesPage() {
 
 
   const mapApiResponseToStudents = (response: any) => {
-    if (!response?.evaluations) return { titles: [], students: [] };
+    if (!response?.evaluations || !response?.students) return { titles: [], students: [] };
   
-    // 1. evaluationId와 title을 객체로 추출
-    // 중복 제거를 위해 Map 사용
-    const titleMap = new Map<string, { evaluationId: number, title: string }>();
-    response.evaluations.forEach((e: any) => {
-      if (!titleMap.has(e.title)) {
-        titleMap.set(e.title, { evaluationId: e.evaluationId, title: e.title });
-      }
-    });
-    const titles = Array.from(titleMap.values());
+    // 1. 평가 정보 추출 (evaluationId, title)
+    const titles = response.evaluations.map((e: any) => ({
+      evaluationId: e.evaluationId,
+      title: e.title,
+    }));
   
-    // 2. 모든 학생 번호 수집
-    const allNumbers = new Set<number>();
-    response.evaluations.forEach((e: any) => {
-      e.scores?.forEach((s: any) => allNumbers.add(s.number));
-    });
+    // 2. 학생별 데이터 매핑
+    const students = response.students.map((stu: any) => {
+      // 각 평가별 점수 매핑
+      const scoresByTitle: Record<string, number | "-"> = {};
+      
+      response.evaluations.forEach((evaluation: any) => {
+        // 학생의 scores에서 해당 평가 점수 찾기
+        const found = stu.scores?.find(
+          (s: any) => s.evaluationId === evaluation.evaluationId
+        );
+        scoresByTitle[evaluation.title] = found?.rawScore ?? "-";
+      });
   
-    // 3. 학생 객체 초기화 (각 title에 대해 필드 생성)
-    const studentsMap: Record<number, any> = {};
-    Array.from(allNumbers).forEach((number) => {
-      studentsMap[number] = {
-        number,
-        studentName: "",
-        ...Object.fromEntries(titles.map((t) => [t.title, "-"])),
+      return {
+        number: stu.number,
+        studentName: stu.studentName,
+        ...scoresByTitle,
+        rawTotal: stu.rawTotal || 0,
+        weightedTotal: stu.weightedTotal || 0,
+        average: stu.average || 0,
+        stdDev: stu.stdDev || 0,
+        rank: stu.rank || 0,
+        grade: stu.grade || "-",
+        achievementLevel: stu.achievementLevel || "-"
       };
     });
   
-    // 4. 실제 데이터 매핑
-    response.evaluations.forEach((evaluation: any) => {
-      evaluation.scores?.forEach((score: any) => {
-        const student = studentsMap[score.number];
-        if (student) {
-          student.studentName = score.studentName;
-          student[evaluation.title] = score.rawScore ?? "-";
-        }
-      });
-    });
-  
-    return { titles, students: Object.values(studentsMap) };
+    return { titles, students };
   };
+  
   
   
   
@@ -174,6 +171,8 @@ export default function GradesPage() {
             alert(error);
             alert('저장에 실패했습니다. 다시 시도해주세요.');
         }
+
+        window.location.reload()
   };
   
 
@@ -203,7 +202,7 @@ export default function GradesPage() {
               <tr>
                 {[
                   "번호", "성명",  ...evaluations.map(e => e.title),
-                  "총점", "환산", "평균", "표준편차", "석차", "등급", "피드백(비고)"
+                  "총점", "환산", "평균", "표준편차", "석차", "등급", "성취도", "피드백(비고)"
                 ].map((header) => (
                   <th key={header} className="px-2 py-2 border">
                     {header}
@@ -212,45 +211,56 @@ export default function GradesPage() {
               </tr>
             </thead>
             <tbody>
-              {students.map((student) => (
-                <tr
-                  key={student.number}
-                  onClick={() => setSelectedRow(student.number)}
-                  className={cn(
-                    "hover:bg-blue-100",
-                    selectedRow === student.number && "bg-blue-200"
-                  )}
-                >
-                  <td className="border px-2 py-1">{student.number}</td>
-                  <td className="border px-2 py-1">{student.studentName}</td>
-                  {evaluations.map((evaluation) => (
-                  <td
-                    key={evaluation.evaluationId} // 또는 key={evaluation.title} (고유하다면)
-                    className="border px-2 py-1 cursor-pointer"
-                    onClick={() => handleCellClick(student.number, evaluation.title, student[evaluation.title])}
-                  >
-                {editing && editing.row === student.number && editing.key === evaluation.title ? (
-                  <input
-                     type="number"
-                    className="w-16 border rounded px-1 py-0.5 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    onBlur={handleInputBlur}
-                    onKeyDown={handleInputKeyDown}
-                    autoFocus
-                  />
-                ) : (
-                  student[evaluation.title] ?? "-"
-                  )}
-                  </td>
-                ))}
+  {students.map((student) => (
+    <tr
+      key={student.number}
+      onClick={() => setSelectedRow(student.number)}
+      className={cn(
+        "hover:bg-blue-100",
+        selectedRow === student.number && "bg-blue-200"
+      )}
+    >
+      <td className="border px-2 py-1">{student.number}</td>
+      <td className="border px-2 py-1">{student.studentName}</td>
+      {evaluations.map((evaluation) => (
+        <td
+          key={evaluation.evaluationId}
+          className="border px-2 py-1 cursor-pointer"
+          onClick={() =>
+            handleCellClick(student.number, evaluation.title, student[evaluation.title])
+          }
+        >
+          {editing &&
+          editing.row === student.number &&
+          editing.key === evaluation.title ? (
+            <input
+              type="number"
+              className="w-16 border rounded px-1 py-0.5 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0"
+              value={inputValue}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
+              onKeyDown={handleInputKeyDown}
+              autoFocus
+            />
+          ) : (
+            student[evaluation.title] ?? "-"
+          )}
+        </td>
+      ))}
 
-                  {Array(7).fill(null).map((_, i) => (
-                    <td key={i} className="border px-2 py-1">-</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
+      {/* 총점, 환산, 평균, 표준편차, 석차, 등급, 성취도, 피드백(비고) */}
+      <td className="border px-2 py-1">{student.rawTotal ?? "-"}</td>
+      <td className="border px-2 py-1">{student.weightedTotal ?? "-"}</td>
+      <td className="border px-2 py-1">{student.average ?? "-"}</td>
+      <td className="border px-2 py-1">{student.stdDev ?? "-"}</td>
+      <td className="border px-2 py-1">{student.rank ?? "-"}</td>
+      <td className="border px-2 py-1">{student.grade ?? "-"}</td>
+      <td className="border px-2 py-1">{student.achievementLevel ?? "-"}</td>
+      <td className="border px-2 py-1">{student.feedback ?? "-"}</td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
         </div>
         </>

@@ -33,7 +33,7 @@ export default function GradeFilter(): React.ReactElement { // 컴포넌트 이�
   const SelectInput = useCallback(
     ({ value, onChange, options, label }: SelectInputProps) => (
       <div className="flex items-center gap-1">
-        <select className="w-12 h-6 border border-gray-400 text-gray-800 text-center text-base rounded" 
+        <select className="w-15 h-6 border border-gray-400 text-gray-800 text-center text-base rounded" 
                 value={value} 
                 onChange={onChange}>
           {options.map((option) => (
