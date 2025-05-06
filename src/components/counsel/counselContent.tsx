@@ -39,6 +39,8 @@ export default function CounselContent() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedCounselId, setSelectedCounselId] = useState<number | null>(null);
   const [teacher, setTeacher] = useState<TeacherInfo | null>(null);
+  const [sendAsPrivate, setSendAsPrivate] = useState(false);
+
   const [form, setForm] = useState<Omit<ConsultingData, "id">>({
     dateTime: "",
     category: "",
@@ -133,7 +135,7 @@ export default function CounselContent() {
     setConsultingData((prev) => [...prev, { ...form, id: nextId++ }]);
     try {
       
-      await PostCounsel( studentId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, form.isPublic);
+      await PostCounsel( studentId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, !sendAsPrivate);
      
       
      
@@ -156,7 +158,7 @@ export default function CounselContent() {
 
     try {
       
-      await PutCounsel( selectedCounselId , reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, form.isPublic);
+      await PutCounsel( selectedCounselId , reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, !sendAsPrivate);
      
       
      
@@ -311,27 +313,20 @@ export default function CounselContent() {
                     />
                   </td>
                 </tr>
-                {/* <tr>
+                 <tr>
                   <td colSpan={4} className="py-2 text-right">
                     <label className="inline-flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="isPublic"
-                        checked={!form.isPublic}
-                        onChange={e =>
-                          handleChange({
-                            target: {
-                              name: "isPublic",
-                              value: !e.target.checked, // 체크 시 false(비공개), 해제 시 true(공개)
-                          },
-                        } as any)
-                      }
+                    <input
+                      type="checkbox"
+                      name="sendAsPrivate"
+                      checked={sendAsPrivate}
+                      onChange={e => setSendAsPrivate(e.target.checked)}
                       className="form-checkbox w-5 h-5 text-blue-600 border-gray-300 rounded"
-                      />
+                    />
                       <span className="text-sm text-gray-700">비공개</span>
                     </label>
                   </td>
-                </tr> */}
+                </tr> 
               </tbody>
             </table>
         
