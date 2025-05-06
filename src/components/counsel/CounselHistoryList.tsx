@@ -1,6 +1,6 @@
 import React from "react";
 import { ConsultingData } from "@/types/counsel";
-import { CounselHistoryItem } from "./counselHistoryItem";
+import { CounselHistoryItem } from "./CounselHistoryItem";
 
 interface CounselHistoryListProps {
   dailyHistory: ConsultingData[];

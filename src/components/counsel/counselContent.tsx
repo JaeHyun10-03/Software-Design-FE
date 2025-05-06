@@ -5,10 +5,10 @@ import { PostCounsel } from "@/api/postCounsel";
 import { PutCounsel } from "@/api/putCounsel";
 import { GetTeacherInfo } from "@/api/getTeacherInfo";
 import { ConsultingData, TeacherInfo } from "@/types/counsel";
-import { COUNSEL_TYPES, categoryMap, reverseCategoryMap } from "@/utils/categoryMap";
+import { categoryMap, reverseCategoryMap } from "@/utils/categoryMap";
 import { CounselCalendar } from "@/components/counsel/CounselCalendar";
-import { CounselForm } from "@/components/counsel/counselForm";
-import { CounselHistoryList } from "@/components/counsel/counselHistoryList";
+import { CounselForm } from "@/components/counsel/CounselForm";
+import { CounselHistoryList } from "@/components/counsel/CounselHistoryList";
 
 let nextId = 5;
 
