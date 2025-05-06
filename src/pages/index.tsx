@@ -5,10 +5,8 @@ import { PostLogin } from "@/api/postLogin";
 
 const Login = () => {
   const router = useRouter();
-
   const [userId, setUserId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
   const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setUserId(e.target.value);
   };
@@ -39,7 +37,6 @@ const Login = () => {
     } catch (error) {
       console.error("로그인 실패", error);
       alert(error);
-      //alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
     }
   };
 
