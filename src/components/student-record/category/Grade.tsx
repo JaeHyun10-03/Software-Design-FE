@@ -6,7 +6,7 @@ import axios from "axios";
 import useStudentFilterStore from "@/store/student-filter-store";
 
 export default function Grade() {
-  const columnHeaders = ["과목", "지필/수행", "고사 / 영역명(반영비율)", "만점", "합계", "받은 점수", "성취도(수강자수)", "원점수/과목평균(표준편차)", "석차등급", "석차"];
+  const columnHeaders = ["과목", "지필/수행", "고사 / 영역명(반영비율)", "만점", "받은 점수", "합계", "성취도(수강자수)", "원점수/과목평균(표준편차)", "석차등급", "석차"];
   const [dataList, setDataList] = useState<any[]>([]);
   const [modalOpen, setModalOpen] = useState<boolean[]>([]);
   const { grade, classNumber, studentNumber } = useStudentFilterStore();
