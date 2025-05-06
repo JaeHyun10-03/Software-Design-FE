@@ -1,70 +1,76 @@
-import React, { useState } from "react";
+import React, { useState,  useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import { EventClickArg } from "@fullcalendar/core";
 import koLocale from "@fullcalendar/core/locales/ko";
-
+import useStudentFilterStore from "@/store/student-filter-store";
+import { GetCounsel } from "@/api/getCounsel";
+import { isThenable } from "next/dist/client/components/router-reducer/router-reducer-types";
 interface ConsultingData {
   id: number;
-  date: string; // YYYY-MM-DD
-  type: string;
+  dateTime: string; // YYYY-MM-DD
+  category: string;
   teacher: string;
   content: string;
+  nextPlan: string;
+  isPublic: boolean;
 }
 
 const COUNSEL_TYPES = ["대학", "취업", "가정", "학업", "개인", "기타"];
 const TEACHERS = ["박기석", "김교사", "이교사", "정교사"];
 let nextId = 5;
 
-const initialData: ConsultingData[] = [
-    {
-      id: 1,
-      date: "2025-03-24",
-      type: "대학",
-      teacher: "김교사",
-      content: "대학 진학 관련 상담",
-    },
-    {
-      id: 2,
-      date: "2025-04-05",
-      type: "취업",
-      teacher: "이교사",
-      content: "취업 준비 관련 상담",
-    },
-    {
-      id: 3,
-      date: "2025-05-05",
-      type: "학업",
-      teacher: "박기석",
-      content: "학업 성취도 향상을 위한 상담",
-    },
-    {
-      id: 4,
-      date: "2025-05-20",
-      type: "개인",
-      teacher: "정교사",
-      content: "개인 고민 상담",
-    },
-  ];
+
 
 export default function CounselContent() {
-  const [consultingData, setConsultingData] = useState<ConsultingData[]>(initialData);
+  const { grade, classNumber, studentNumber, studentId, setStudentNumber, setStudentId } = useStudentFilterStore();
+  const allFilled = [grade, classNumber, studentNumber].every(Boolean);
+  const [consultingData, setConsultingData] = useState<ConsultingData[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedCounselId, setSelectedCounselId] = useState<number | null>(null);
 
   const [form, setForm] = useState<Omit<ConsultingData, "id">>({
-    date: "",
-    type: "",
+    dateTime: "",
+    category: "",
     teacher: "",
     content: "",
+    isPublic: true,
+    nextPlan: ""
   });
 
+  const categoryMap: Record<string, string> = {
+    UNIVERSITY: "대학",
+    CAREER: "취업",
+    FAMILY: "가정",
+    ACADEMIC: "학업",
+    PERSONAL: "개인",
+    OTHER: "기타",
+  };
+
+  
+  useEffect(() => {
+      if (!allFilled) return;
+      const fetchCounsel = async () => {
+        try {
+          const response = await GetCounsel(
+            studentId
+            );
+            setConsultingData([response]);
+          } catch (error) {
+          console.error("Failed to fetch Counsel", error);
+        }
+      };
+      fetchCounsel();
+    }, [ grade, classNumber, studentNumber, allFilled]);
+  
+
+  
   // 날짜 클릭: 상담 추가 폼
   const handleDateClick = (arg: DateClickArg) => {
     setSelectedDate(arg.dateStr);
     setSelectedCounselId(null);
-    setForm({ date: arg.dateStr, type: "", teacher: "", content: "" });
+    setForm({ dateTime: arg.dateStr, category: "", teacher: "", content: "", isPublic: true, nextPlan: ""  });
   };
 
   // 상담 이력 클릭: 수정 폼
@@ -72,18 +78,20 @@ export default function CounselContent() {
     const id = Number(arg.event.id);
     const counsel = consultingData.find((c) => c.id === id);
     if (counsel) {
-      setSelectedDate(counsel.date);
+      setSelectedDate(counsel.dateTime);
       setSelectedCounselId(id);
       setForm({
-        date: counsel.date,
-        type: counsel.type,
+        dateTime: counsel.dateTime,
+        category: counsel.category,
         teacher: counsel.teacher,
         content: counsel.content,
+        isPublic: counsel.isPublic,
+        nextPlan: counsel.nextPlan
       });
     }
   };
 
-  const dailyHistory = consultingData.filter((c) => c.date === selectedDate);
+  const dailyHistory = consultingData.filter((c) => c.dateTime === selectedDate);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -92,9 +100,9 @@ export default function CounselContent() {
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.type || !form.teacher || !form.content) return;
+    if (!form.category || !form.teacher || !form.content) return;
     setConsultingData((prev) => [...prev, { ...form, id: nextId++ }]);
-    setForm({ date: selectedDate, type: "", teacher: "", content: "" });
+    setForm({ dateTime: selectedDate, category: "", teacher: "", content: "" , isPublic: true, nextPlan: ""});
   };
 
   const handleEdit = (e: React.FormEvent) => {
@@ -110,9 +118,9 @@ export default function CounselContent() {
   // 캘린더 이벤트
   const events = consultingData.map((item) => ({
     id: String(item.id),
-    title: item.type,
-    date: item.date,
-    backgroundColor: getEventColor(item.type),
+    title: categoryMap[item.category] ?? item.category,
+    date: item.dateTime,
+    backgroundColor: getEventColor(item.category),
     borderColor: "transparent",
   }));
 
@@ -121,16 +129,18 @@ export default function CounselContent() {
 
   function getEventColor(type: string): string {
     switch (type) {
-      case "대학":
+      case "UNIVERSITY":
         return "#4285F4";
-      case "취업":
+      case "CAREER":
         return "#34A853";
-      case "가정":
+      case "FAMILY":
         return "#FBBC05";
-      case "학업":
+      case "ACADEMIC":
         return "#EA4335";
-      case "개인":
+      case "PERSONAL":
         return "#8F00FF";
+      case "OTHER":
+        return "#1677FF";
       default:
         return "#1677FF";
     }
@@ -214,7 +224,7 @@ export default function CounselContent() {
                     <select
                       name="type"
                       className="border rounded p-1"
-                      value={form.type}
+                      value={categoryMap[form.category] ?? form.category}
                       onChange={handleChange}
                       required
                     >
@@ -249,7 +259,7 @@ export default function CounselContent() {
                   className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 transition"
                   onClick={() => {
                     setSelectedCounselId(null);
-                    setForm({ date: selectedDate, type: "", teacher: "", content: "" });
+                    setForm({ dateTime: selectedDate, category: "", teacher: "", content: "",  isPublic: true, nextPlan: ""});
                   }}
                 >
                   새 상담 추가
@@ -289,14 +299,16 @@ export default function CounselContent() {
                 onClick={() => {
                   setSelectedCounselId(item.id);
                   setForm({
-                    date: item.date,
-                    type: item.type,
+                    dateTime: item.dateTime,
+                    category: item.category,
                     teacher: item.teacher,
                     content: item.content,
+                    isPublic: item.isPublic,
+                    nextPlan: item.nextPlan
                   });
                 }}
               >
-                <div className="font-medium">{item.type}</div>
+                <div className="font-medium">{item.category}</div>
                 <div className="text-xs text-gray-500">
                   담당 교사: {item.teacher}
                 </div>
