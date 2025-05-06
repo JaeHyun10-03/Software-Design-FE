@@ -3,7 +3,7 @@ import axios from "axios";
 import useSelectedDate from "@/store/selected-date-store";
 import useStudentFilterStore from "@/store/student-filter-store";
 
-const AttendanceTable: React.FC = () => {
+const AttendanceTable: React.FC<{ edit: boolean }> = ({ edit }) => {
   const { year, month } = useSelectedDate();
   const { grade, classNumber } = useStudentFilterStore();
   const [dataList, setDataList] = useState<any[]>([]); // 배열로 명시
@@ -31,6 +31,34 @@ const AttendanceTable: React.FC = () => {
     };
     fetchAttendances();
   }, [year, month, grade, classNumber]);
+
+  const statusCycle = ["O", "△", "▲", "X"];
+  const getNextStatus = (current: string) => {
+    const idx = statusCycle.indexOf(current);
+    return statusCycle[(idx + 1) % statusCycle.length];
+  };
+
+  const postAttendances = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const requestBody = {
+        year,
+        month,
+        grade,
+        classNumber,
+        students: dataList.map((student) => ({
+          studentId: student.studentId,
+          attendances: student.attendances ?? [],
+        })),
+      };
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances`, requestBody, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("출결 저장 완료:", res.data);
+    } catch (err) {
+      console.error("출결 저장 실패:", err);
+    }
+  };
 
   return (
     <div className="w-full h-full min-w-[600px] border border-[#a9a9a9]">
@@ -70,18 +98,20 @@ const AttendanceTable: React.FC = () => {
             const currentDate = new Date(`${year}-${paddedMonth}-${paddedDay}`);
             const today = new Date();
 
-            const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6; // 0: Sunday, 6: Saturday
+            const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
 
             let symbol = "";
+            let attendanceIdx = -1;
+
+            const attendances = data.attendances ?? [];
 
             if (isWeekend) {
               symbol = "-";
             } else {
-              const attendances = data.attendances;
-              if (attendances && Array.isArray(attendances)) {
-                const attendanceRecord = attendances.find((a: any) => a.date === dateStr);
-                if (attendanceRecord) {
-                  switch (attendanceRecord.status) {
+              if (Array.isArray(attendances)) {
+                attendanceIdx = attendances.findIndex((a: any) => a.date === dateStr);
+                if (attendanceIdx !== -1) {
+                  switch (attendances[attendanceIdx].status) {
                     case "EARLY":
                       symbol = "△";
                       break;
@@ -104,8 +134,42 @@ const AttendanceTable: React.FC = () => {
               }
             }
 
+            const handleClick = () => {
+              if (!edit || isWeekend || currentDate > today) return;
+
+              const newDataList = [...dataList];
+              const target = newDataList[i];
+
+              if (!target.attendances) {
+                target.attendances = [];
+              }
+
+              const currentStatus = symbol;
+              const nextSymbol = getNextStatus(currentStatus);
+
+              const statusMap: any = {
+                O: null, // Remove if present
+                "△": "EARLY",
+                "▲": "LATE",
+                X: "ABSENT",
+              };
+
+              if (nextSymbol === "O") {
+                // Remove if exists
+                target.attendances = target.attendances.filter((a: any) => a.date !== dateStr);
+              } else {
+                if (attendanceIdx !== -1) {
+                  target.attendances[attendanceIdx].status = statusMap[nextSymbol];
+                } else {
+                  target.attendances.push({ date: dateStr, status: statusMap[nextSymbol] });
+                }
+              }
+
+              setDataList(newDataList);
+            };
+
             return (
-              <div key={dayIdx} className="flex flex-1 h-8 border border-[#a9a9a9] justify-center items-center select-none cursor-pointer">
+              <div key={dayIdx} className="flex flex-1 h-8 border border-[#a9a9a9] justify-center items-center select-none cursor-pointer" onClick={handleClick}>
                 <span>{symbol}</span>
               </div>
             );
