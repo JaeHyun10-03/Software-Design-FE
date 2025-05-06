@@ -1,18 +1,25 @@
 import axios, { AxiosResponse } from "axios";
 
-export const PostScore = async (
-    payload: Array<{ // ✅ 배열 형태 명시적 타입 지정
-        classNum: number;
-        evaluationId: number;
-        students: Array<{ number: number; rawScore: number }>;
-      }>): Promise<any> => {
+export const PostCounsel = async (
+    category:string,
+    content: string,
+    nextPlan:string,
+    dateTime: string,
+    isPublic: boolean
+   ): Promise<any> => {
   axios.defaults.withCredentials = true;
   const accessToken = localStorage.getItem("accessToken");
 
   try {
     const response: AxiosResponse<any> = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/scores`,
-          payload ,  // 두 번째 인자로 payload 전달
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/`,
+        {
+            category:category,
+            content: content,
+            nextPlan:nextPlan,
+            dateTime: dateTime,
+            isPublic: isPublic
+          }  ,  
         {
             withCredentials: true,
             headers: {
@@ -22,8 +29,8 @@ export const PostScore = async (
           }
     );
 
-    console.log(response.data.response);
-    return response.data.response;
+    console.log(response.data.response[0]);
+    return response.data.response[0];
   } catch (error: any) {
     if (error.response) {
       const { status, data } = error.response;
