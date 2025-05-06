@@ -1,9 +1,5 @@
-import { useState, FormEvent } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import Head from "next/head";
-import { url } from "inspector";
-import { useRouter, useParams } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from 'next/navigation';
 import { PostFindPW } from "@/api/postFindPW";
 
 const FindPW = () => {
@@ -14,7 +10,6 @@ const FindPW = () => {
   const [identityNumber, setIdentityNumber] = useState<string>("");
   const [school, setSchool] = useState<string>("");
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {

@@ -1,8 +1,5 @@
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import Head from "next/head";
-import { url } from "inspector";
 import { useRouter } from 'next/navigation';
 import { PostLogin } from "@/api/postLogin";
 
@@ -11,7 +8,6 @@ const Login = () => {
 
   const [userId, setUserId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
   const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -47,7 +43,6 @@ const Login = () => {
     } catch (error) {
         console.error("로그인 실패", error);
         alert(error);
-        //alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
     }
 };
 
