@@ -55,7 +55,12 @@ export const Header = ({ children }: { children: ReactNode }) => {
           className="cursor-pointer"
         />
         <div className="flex items-center gap-16 ml-4">{menuElements}</div>
-        <div className="flex justify-center items-center ml-auto mr-8">
+        <div
+          className="flex justify-center items-center ml-auto mr-8"
+          onClick={() => {
+            router.push("/alert");
+          }}
+        >
           <AlertIcon />
         </div>
       </div>
