@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Cell from "../Cell";
-import GradeRadarChart from "../Chart";
+import GradeRadarChart from "../GradeRadarChart";
 import Modal from "../Modal";
 import axios from "axios";
 import useStudentFilterStore from "@/store/student-filter-store";
@@ -93,7 +93,7 @@ export default function Grade() {
           {modalOpen[index] && <Modal name={data.name} onClose={() => closeModal(index)} />}
         </div>
       ))}
-
+      {/* 전체 과목차트 */}
       <GradeRadarChart dataList={dataList} />
     </>
   );
