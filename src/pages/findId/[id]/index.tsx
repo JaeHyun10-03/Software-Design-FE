@@ -1,17 +1,8 @@
-import { useState, FormEvent } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import Head from "next/head";
-import { url } from "inspector";
 import { useRouter, useParams } from 'next/navigation';
-import { PostFindId } from "@/api/postFindId";
 
 const ReturnId = () => {
   const router = useRouter();
   const { id } = useParams();
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
 
   
     const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {

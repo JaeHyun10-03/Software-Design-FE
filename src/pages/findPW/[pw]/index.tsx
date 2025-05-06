@@ -1,16 +1,9 @@
-import { useState, FormEvent } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import Head from "next/head";
-import { url } from "inspector";
+import { useState } from "react";
 import { useRouter, useParams } from 'next/navigation';
-import { PostFindId } from "@/api/postFindId";
-
 const ReturnPw = () => {
   const router = useRouter();
   const { pw } = useParams();
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
   
