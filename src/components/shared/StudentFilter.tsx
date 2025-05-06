@@ -29,7 +29,7 @@ export default function StudentFilter(): React.ReactElement {
             </option>
           ))}
         </select>
-        <p className="w-7 text-base text-gray-800">{label}</p>
+        <p className="w-8 text-base text-gray-800">{label}</p>
       </div>
     ),
     []

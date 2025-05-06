@@ -14,12 +14,10 @@ export default function Modal({ name, onClose }: ModalProps) {
     const token = localStorage.getItem("accessToken");
     const getFeedback = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}`, {
+         await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data = res.data;
-        // 초기 피드백 데이터를 여기서 넣고 싶으면:
-        // setFeedback(data.feedback);
+       
       } catch (err) {
         console.error(err);
       }
