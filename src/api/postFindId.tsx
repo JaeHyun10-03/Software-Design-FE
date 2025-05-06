@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 
-const apiUrl = `https://neeis.inuappcenter.kr`;
 
 export const PostFindId = async (
     name: string,
@@ -11,7 +10,7 @@ export const PostFindId = async (
 
   try {
     const response: AxiosResponse<any> = await axios.post(
-        `${apiUrl}/students/id`,
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/students/id`,
         {
             name: name,
             phone: phone,
