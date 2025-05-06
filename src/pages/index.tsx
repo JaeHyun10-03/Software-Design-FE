@@ -26,7 +26,7 @@ const Login = () => {
   const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault();
     if (!userId || !password) {
-        alert('아이디와 비밀번호를 입력해주세요.');
+        alert('아이디와 비밀번호를 모두 입력해주세요.');
         return;
     }
 
@@ -47,7 +47,7 @@ const Login = () => {
     } catch (error) {
         console.error("로그인 실패", error);
         alert(error);
-        //alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
+        alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
     }
 };
 
