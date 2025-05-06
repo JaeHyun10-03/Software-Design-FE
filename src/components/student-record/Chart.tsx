@@ -35,7 +35,7 @@ export default function GradeRadarChart({ dataList }: GradeRadarChartProps): Rea
   // 등급 문자열을 숫자로 변환
   const chartData: ChartDataItem[] = dataList.map((item) => ({
     subject: item.name,
-    grade: parseInt(item.석차등급?.split("등급")[0]) || 9, // 파싱 실패 시 기본값 9
+    grade: item.석차등급 ? parseInt(item.석차등급.split("등급")[0]) || 9 : 9, // 파싱 실패 시 기본값 9
   }));
 
   // 레이더 차트는 역변환된 값으로 더 잘 작동함 (1이 최고, 9가 최저)
