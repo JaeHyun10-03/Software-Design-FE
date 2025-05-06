@@ -1,7 +1,10 @@
+"use client";
+
 import { useRouter, useParams } from "next/navigation";
 const ReturnPw = () => {
   const router = useRouter();
-  const { pw } = useParams();
+  const params = useParams();
+  const pw = params?.pw || null;
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
