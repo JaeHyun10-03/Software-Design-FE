@@ -22,14 +22,14 @@ export default function StudentFilter(): React.ReactElement {
   const SelectInput = useCallback(
     ({ value, onChange, options, label }: SelectInputProps) => (
       <div className="flex items-center gap-1">
-        <select className="w-12 h-6 border border-gray-400 text-gray-800 text-center text-base rounded" value={value} onChange={onChange}>
+        <select className="w-10 h-6 border border-gray-400 text-gray-800 text-center text-base rounded" value={value} onChange={onChange}>
           {options.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
           ))}
         </select>
-        <p className="text-base text-gray-800">{label}</p>
+        <p className="w-7 text-base text-gray-800">{label}</p>
       </div>
     ),
     []
