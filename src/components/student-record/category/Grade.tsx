@@ -21,7 +21,7 @@ export default function Grade() {
         });
 
         const data = res.data.response.subjects;
-        console.log("학적-성적데이터:", data);
+        // console.log("학적-성적데이터:", data);
 
         const examTypeMap: Record<string, string> = {
           PRACTICAL: "수행평가",
@@ -54,7 +54,6 @@ export default function Grade() {
         console.error("학생 성적 학적 조회 API 에러 : ", err);
       }
     };
-
     getScoreSummary();
   }, [grade, classNumber, studentNumber]);
 
@@ -91,7 +90,7 @@ export default function Grade() {
           <Cell>{data.석차등급}</Cell>
           <Cell>{data.석차}</Cell>
 
-          {modalOpen[index] && <Modal name={data.name} feedback={data.피드백} onClose={() => closeModal(index)} />}
+          {modalOpen[index] && <Modal name={data.name} onClose={() => closeModal(index)} />}
         </div>
       ))}
 
