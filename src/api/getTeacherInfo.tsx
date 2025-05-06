@@ -1,15 +1,13 @@
 import axios, { AxiosResponse } from "axios";
 
 
-export const GetCounsel = async (
-    studentId:string
-): Promise<any> => {
+export const GetTeacherInfo = async (): Promise<any> => {
   axios.defaults.withCredentials = true;
   const accessToken = localStorage.getItem("accessToken");
 
   try {
     const response: AxiosResponse<any> = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/counsel?studentId=${studentId}`,{
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers`,{
           headers: { Authorization: `Bearer ${accessToken}` }
         });
 

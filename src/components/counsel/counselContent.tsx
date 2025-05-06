@@ -7,6 +7,9 @@ import koLocale from "@fullcalendar/core/locales/ko";
 import useStudentFilterStore from "@/store/student-filter-store";
 import { GetCounsel } from "@/api/getCounsel";
 import { PostCounsel } from "@/api/postCounsel";
+import { PutCounsel } from "@/api/putCounsel";
+import { GetTeacherInfo } from "@/api/getTeacherInfo";
+
 interface ConsultingData {
   id: number;
   dateTime: string; // YYYY-MM-DD
@@ -17,8 +20,14 @@ interface ConsultingData {
   isPublic: boolean;
 }
 
+interface TeacherInfo {
+  teacherId: number;
+  name: string;
+  phone: string;
+  email: string;
+}
+
 const COUNSEL_TYPES = ["대학", "취업", "가정", "학업", "개인", "기타"];
-const TEACHERS = ["박기석", "김교사", "이교사", "정교사"];
 let nextId = 5;
 
 
@@ -29,11 +38,11 @@ export default function CounselContent() {
   const [consultingData, setConsultingData] = useState<ConsultingData[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedCounselId, setSelectedCounselId] = useState<number | null>(null);
-
+  const [teacher, setTeacher] = useState<TeacherInfo | null>(null);
   const [form, setForm] = useState<Omit<ConsultingData, "id">>({
     dateTime: "",
     category: "",
-    teacher: "",
+    teacher: teacher?.name || "",
     content: "",
     isPublic: true,
     nextPlan: ""
@@ -49,6 +58,13 @@ export default function CounselContent() {
   };
 
   
+  const reverseCategoryMap: Record<string, string> = Object.fromEntries(
+    Object.entries(categoryMap).map(([en, ko]) => [ko, en])
+  );
+
+ 
+
+  
   useEffect(() => {
       if (!allFilled) return;
       const fetchCounsel = async () => {
@@ -56,7 +72,7 @@ export default function CounselContent() {
           const response = await GetCounsel(
             studentId
             );
-            setConsultingData([response]);
+            setConsultingData(response);
           } catch (error) {
           console.error("Failed to fetch Counsel", error);
         }
@@ -64,13 +80,26 @@ export default function CounselContent() {
       fetchCounsel();
     }, [ grade, classNumber, studentNumber,studentId,  allFilled]);
   
-
+ useEffect(() => {
+    const fetchTeacherInfo = async () => {
+      try {
+        
+        const response = await GetTeacherInfo();
+        // response.response에 실제 정보가 있음
+        setTeacher(response);
+        console.log(response)
+      } catch {
+        console.error("선생님 정보를 불러오는 데 실패했습니다.");
+      } 
+    };
+    fetchTeacherInfo();
+  }, []);
   
   // 날짜 클릭: 상담 추가 폼
   const handleDateClick = (arg: DateClickArg) => {
     setSelectedDate(arg.dateStr);
     setSelectedCounselId(null);
-    setForm({ dateTime: arg.dateStr, category: "", teacher: "", content: "", isPublic: true, nextPlan: ""  });
+    setForm({ dateTime: arg.dateStr, category: "", teacher: teacher?.name || "", content: "", isPublic: true, nextPlan: ""  });
   };
 
   // 상담 이력 클릭: 수정 폼
@@ -98,14 +127,25 @@ export default function CounselContent() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    if (!form.category || !form.teacher || !form.content) return;
+    
     setConsultingData((prev) => [...prev, { ...form, id: nextId++ }]);
-    setForm({ dateTime: selectedDate, category: "", teacher: "", content: "" , isPublic: true, nextPlan: ""});
+    try {
+      
+      await PostCounsel( studentId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, form.isPublic);
+     
+      
+     
+  } catch (error) {
+      console.error(" 실패", error);
+      alert(error);
+      //alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
+  }
+    setForm({ dateTime: selectedDate, category: "", teacher: teacher?.name || "" , content: "" , isPublic: true, nextPlan: ""});
   };
 
-  const handleEdit = (e: React.FormEvent) => {
+  const handleEdit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (selectedCounselId === null) return;
     setConsultingData((prev) =>
@@ -113,28 +153,29 @@ export default function CounselContent() {
         c.id === selectedCounselId ? { ...c, ...form } : c
       )
     );
+
+    try {
+      
+      await PutCounsel( selectedCounselId , reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, form.isPublic);
+     
+      
+     
+    } catch (error) {
+      console.error(" 실패", error);
+      alert(error);
+      //alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
+    }
   };
 
-
-  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-      e.preventDefault();
-      if (!form.teacher || !form.content) {
-          alert('정보를 모두 입력해주세요.');
-          return;
-      }
+  useEffect(() => {
+    if (teacher?.name) {
+      setForm(prev => ({ ...prev, teacher: teacher.name }));
+    }
+  }, [teacher?.name]);
   
-      try {
-        
-          const response = await PostCounsel(form.category, form.content, form.nextPlan, form.dateTime, form.isPublic);
-          console.log(` 결과: ${response}`);    
-          
-         
-      } catch (error) {
-          console.error(" 실패", error);
-          alert(error);
-          //alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
-      }
-  };
+  
+
+  
   // 캘린더 이벤트
   const events = consultingData.map((item) => ({
     id: String(item.id),
@@ -222,36 +263,23 @@ export default function CounselContent() {
                   </td>
                   <th className="text-left w-28 font-medium py-2">담당 교사</th>
                   <td className="py-2">
-                    <select
-                      name="teacher"
-                      className="border rounded p-1"
-                      value={form.teacher}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">선택</option>
-                      {TEACHERS.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </select>
+                  <span className="font-semibold text-gray-700">{teacher?.name}</span>
                   </td>
                 </tr>
                 <tr>
                   <th className="text-left font-medium py-2">상담 종류</th>
                   <td colSpan={3} className="py-2">
-                    <select
-                      name="type"
-                      className="border rounded p-1"
-                      value={categoryMap[form.category] ?? form.category}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">선택</option>
+                  <select
+                    name="category"
+                    className="border rounded p-1"
+                    value={categoryMap[form.category] ?? form.category} 
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">선택</option>
                       {COUNSEL_TYPES.map((t) => (
                         <option key={t} value={t}>
-                          {t}
+                          {categoryMap[t] ?? t}
                         </option>
                       ))}
                     </select>
@@ -262,7 +290,7 @@ export default function CounselContent() {
                   <td colSpan={3} className="py-2">
                     <textarea
                       className="w-full h-24 p-2 border rounded"
-                      value={form.content}
+                      value={form.content || ""}
                       onChange={handleChange}
                       name="content"
                       placeholder="상담 내용을 입력하세요"
@@ -275,7 +303,7 @@ export default function CounselContent() {
                   <td colSpan={3} className="py-2">
                     <textarea
                       className="w-full h-24 p-2 border rounded"
-                      value={form.nextPlan}
+                      value={form.nextPlan || ""}
                       onChange={handleChange}
                       name="nextPlan"
                       placeholder="상담 내용을 입력하세요"
@@ -314,18 +342,17 @@ export default function CounselContent() {
                   className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 transition"
                   onClick={() => {
                     setSelectedCounselId(null);
-                    setForm({ dateTime: selectedDate, category: "", teacher: "", content: "",  isPublic: true, nextPlan: ""});
+                    setForm({ dateTime: selectedDate, category: "", teacher:teacher?.name || "", content: "",  isPublic: true, nextPlan: ""});
                   }}
                 >
                   새 상담 추가
                 </button>
               )}
-              <button
-                type="submit"
-                onClick={()=>handleSubmit}
-                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-              >
-                {selectedCounselId ? "상담 수정" : "상담 등록"}
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+                > 
+                  {selectedCounselId ? "상담 수정" : "상담 등록"}
               </button>
             </div> 
           </form>
@@ -384,7 +411,7 @@ export default function CounselContent() {
           </div>
         </div>
 
-        {/* 비공개 항목에만 보이는 버튼 */}
+       
         {!item.isPublic && (
           <button
             className="absolute inset-0 w-full h-full flex items-center justify-center bg-white/50 z-10 text-blue-600 hover:text-blue-800 text-xs"
