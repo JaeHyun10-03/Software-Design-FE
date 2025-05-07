@@ -25,10 +25,10 @@ const BehaviorContent = () => {
         setBehavior(data.behavior);
         setGeneralOpinion(data.generalComment);
         setBehaviorId(data.behaviorId);
-        console.log("출결 데이터:", data);
+        console.log("행동 데이터:", data);
       } catch (err) {
         setBehaviorId(null);
-        alert(`행동 API 요청 실패 : ${err}`);
+        console.error(err);
       }
     };
     getBehavior();
@@ -52,9 +52,8 @@ const BehaviorContent = () => {
       );
       const data = res.data;
       console.log("행동 데이터 생성:", data);
-      alert("저장되었습니다.");
     } catch (err) {
-      alert(`저장 실패 : ${err}`);
+      console.error(`저장 실패 : ${err}`);
     }
   };
 
@@ -77,7 +76,7 @@ const BehaviorContent = () => {
       const data = res.data;
       console.log("행동 데이터 수정:", data);
     } catch (err) {
-      alert(`저장 실패 : ${err}`);
+      console.error(`저장 실패 : ${err}`);
     }
   };
 
