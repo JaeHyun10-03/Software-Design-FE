@@ -18,8 +18,8 @@ const Login = () => {
   const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault();
     if (!userId || !password) {
-        alert('아이디와 비밀번호를 모두 입력해주세요.');
-        return;
+      alert("아이디와 비밀번호를 모두 입력해주세요.");
+      return;
     }
 
     try {
@@ -35,16 +35,16 @@ const Login = () => {
 
       router.push("/student-record");
     } catch (error) {
-        console.error("로그인 실패", error);
-        alert(error);
-        alert('이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.');
+      console.error("로그인 실패", error);
+      alert(error);
+      alert("이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.");
     }
   };
 
   return (
     <div className="w-full h-[100vh] flex justify-center items-center">
       <div className="flex w-full h-auto max-w-[500px] flex-col items-center jsutify-center">
-        <Image className="flex" src={"/assets/images/logo.svg"} alt="logo" width={380} height={190}></Image>
+        <Image className="flex" src={"/assets/images/logo.png"} alt="logo" width={300} height={190}></Image>
         <div id="inputCont" className="flex flex-col align-start mt-[32px] w-[76%]">
           <div id="id" className="mb-[32px]">
             <p className="mb-[8px] text-[20px] leading-[23px] text-center text-[#333333] flex items-center font-[NanumGothic]">아이디</p>
