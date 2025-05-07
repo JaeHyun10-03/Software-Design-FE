@@ -70,7 +70,7 @@ const Login = () => {
           </button>
 
           <div id="findCont" className="flex flex-row w-[100%] justify-around font-[NanumGothic] text-[#A9A9A9] font-normal text-[20px] leading-[23px]">
-            <div onClick={() => router.push("/findId")}>아이디 찾기</div>|<div onClick={() => router.push("/findPW")}>비밀번호 찾기</div>
+            <div onClick={() => router.push("/findId")}>아이디 찾기</div>|<div onClick={() => router.push("/findPW")}>비밀번호 찾기</div>|<div onClick={() => router.push("/changePW")}>비밀번호 변경</div>
           </div>
         </div>
       </div>

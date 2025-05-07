@@ -1,17 +1,22 @@
 import axios, { AxiosResponse } from "axios";
 
 
-export const GetCounsel = async (
-    studentId:string
+export const PutPassword = async (
+    loginId: string,
+    oldPassword: string,
+    newPassword: string
 ): Promise<any> => {
   axios.defaults.withCredentials = true;
-  const accessToken = localStorage.getItem("accessToken");
 
   try {
-    const response: AxiosResponse<any> = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/counsel?studentId=${studentId}`,{
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
+    const response: AxiosResponse<any> = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/users/password`,
+        {
+            loginId: loginId,
+            oldPassword: oldPassword,
+            newPassword: newPassword
+        }
+    );
 
     console.log(response.data.response);
    
