@@ -115,7 +115,7 @@ export default function StudentRecord() {
       }
 
       // 요청 전 FormData 내용 확인 (디버깅용)
-      for (let pair of formData.entries()) {
+      for (const pair of formData.entries()) {
         console.log(pair[0], pair[1]);
       }
 
