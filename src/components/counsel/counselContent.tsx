@@ -1,4 +1,4 @@
-import React, { useState,  useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
@@ -6,7 +6,6 @@ import { EventClickArg } from "@fullcalendar/core";
 import koLocale from "@fullcalendar/core/locales/ko";
 import useStudentFilterStore from "@/store/student-filter-store";
 import { GetCounsel } from "@/api/getCounsel";
-import { isThenable } from "next/dist/client/components/router-reducer/router-reducer-types";
 interface ConsultingData {
   id: number;
   dateTime: string; // YYYY-MM-DD
@@ -21,10 +20,8 @@ const COUNSEL_TYPES = ["대학", "취업", "가정", "학업", "개인", "기타
 const TEACHERS = ["박기석", "김교사", "이교사", "정교사"];
 let nextId = 5;
 
-
-
 export default function CounselContent() {
-  const { grade, classNumber, studentNumber, studentId, setStudentNumber, setStudentId } = useStudentFilterStore();
+  const { grade, classNumber, studentNumber, studentId } = useStudentFilterStore();
   const allFilled = [grade, classNumber, studentNumber].every(Boolean);
   const [consultingData, setConsultingData] = useState<ConsultingData[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>("");
@@ -36,7 +33,7 @@ export default function CounselContent() {
     teacher: "",
     content: "",
     isPublic: true,
-    nextPlan: ""
+    nextPlan: "",
   });
 
   const categoryMap: Record<string, string> = {
@@ -48,29 +45,24 @@ export default function CounselContent() {
     OTHER: "기타",
   };
 
-  
   useEffect(() => {
-      if (!allFilled) return;
-      const fetchCounsel = async () => {
-        try {
-          const response = await GetCounsel(
-            studentId
-            );
-            setConsultingData([response]);
-          } catch (error) {
-          console.error("Failed to fetch Counsel", error);
-        }
-      };
-      fetchCounsel();
-    }, [ grade, classNumber, studentNumber, allFilled]);
-  
+    if (!allFilled) return;
+    const fetchCounsel = async () => {
+      try {
+        const response = await GetCounsel(studentId);
+        setConsultingData([response]);
+      } catch (error) {
+        console.error("Failed to fetch Counsel", error);
+      }
+    };
+    fetchCounsel();
+  }, [grade, classNumber, studentNumber, allFilled]);
 
-  
   // 날짜 클릭: 상담 추가 폼
   const handleDateClick = (arg: DateClickArg) => {
     setSelectedDate(arg.dateStr);
     setSelectedCounselId(null);
-    setForm({ dateTime: arg.dateStr, category: "", teacher: "", content: "", isPublic: true, nextPlan: ""  });
+    setForm({ dateTime: arg.dateStr, category: "", teacher: "", content: "", isPublic: true, nextPlan: "" });
   };
 
   // 상담 이력 클릭: 수정 폼
@@ -86,7 +78,7 @@ export default function CounselContent() {
         teacher: counsel.teacher,
         content: counsel.content,
         isPublic: counsel.isPublic,
-        nextPlan: counsel.nextPlan
+        nextPlan: counsel.nextPlan,
       });
     }
   };
@@ -102,17 +94,13 @@ export default function CounselContent() {
     e.preventDefault();
     if (!form.category || !form.teacher || !form.content) return;
     setConsultingData((prev) => [...prev, { ...form, id: nextId++ }]);
-    setForm({ dateTime: selectedDate, category: "", teacher: "", content: "" , isPublic: true, nextPlan: ""});
+    setForm({ dateTime: selectedDate, category: "", teacher: "", content: "", isPublic: true, nextPlan: "" });
   };
 
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCounselId === null) return;
-    setConsultingData((prev) =>
-      prev.map((c) =>
-        c.id === selectedCounselId ? { ...c, ...form } : c
-      )
-    );
+    setConsultingData((prev) => prev.map((c) => (c.id === selectedCounselId ? { ...c, ...form } : c)));
   };
 
   // 캘린더 이벤트
@@ -123,9 +111,6 @@ export default function CounselContent() {
     backgroundColor: getEventColor(item.category),
     borderColor: "transparent",
   }));
-
-
-  
 
   function getEventColor(type: string): string {
     switch (type) {
@@ -145,7 +130,7 @@ export default function CounselContent() {
         return "#1677FF";
     }
   }
-  
+
   return (
     <div className="w-full h-full border border-[#a9a9a9] p-4">
       <div className="flex flex-col md:flex-row gap-4">
@@ -171,16 +156,16 @@ export default function CounselContent() {
             height="auto"
             firstDay={0}
             dayCellClassNames={(arg) => {
-                // arg.date는 Date 객체, selectedDate는 'YYYY-MM-DD' 문자열
-                const y = arg.date.getFullYear();
-                const m = String(arg.date.getMonth() + 1).padStart(2, "0");
-                const d = String(arg.date.getDate()).padStart(2, "0");
-                const cellDateStr = `${y}-${m}-${d}`;
-                if (cellDateStr === selectedDate) {
-                  return ["selected-date"];
-                }
-                return [];
-              }}
+              // arg.date는 Date 객체, selectedDate는 'YYYY-MM-DD' 문자열
+              const y = arg.date.getFullYear();
+              const m = String(arg.date.getMonth() + 1).padStart(2, "0");
+              const d = String(arg.date.getDate()).padStart(2, "0");
+              const cellDateStr = `${y}-${m}-${d}`;
+              if (cellDateStr === selectedDate) {
+                return ["selected-date"];
+              }
+              return [];
+            }}
             contentHeight={320}
           />
         </div>
@@ -202,13 +187,7 @@ export default function CounselContent() {
                   </td>
                   <th className="text-left w-28 font-medium py-2">담당 교사</th>
                   <td className="py-2">
-                    <select
-                      name="teacher"
-                      className="border rounded p-1"
-                      value={form.teacher}
-                      onChange={handleChange}
-                      required
-                    >
+                    <select name="teacher" className="border rounded p-1" value={form.teacher} onChange={handleChange} required>
                       <option value="">선택</option>
                       {TEACHERS.map((t) => (
                         <option key={t} value={t}>
@@ -221,13 +200,7 @@ export default function CounselContent() {
                 <tr>
                   <th className="text-left font-medium py-2">상담 종류</th>
                   <td colSpan={3} className="py-2">
-                    <select
-                      name="type"
-                      className="border rounded p-1"
-                      value={categoryMap[form.category] ?? form.category}
-                      onChange={handleChange}
-                      required
-                    >
+                    <select name="type" className="border rounded p-1" value={categoryMap[form.category] ?? form.category} onChange={handleChange} required>
                       <option value="">선택</option>
                       {COUNSEL_TYPES.map((t) => (
                         <option key={t} value={t}>
@@ -259,16 +232,13 @@ export default function CounselContent() {
                   className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 transition"
                   onClick={() => {
                     setSelectedCounselId(null);
-                    setForm({ dateTime: selectedDate, category: "", teacher: "", content: "",  isPublic: true, nextPlan: ""});
+                    setForm({ dateTime: selectedDate, category: "", teacher: "", content: "", isPublic: true, nextPlan: "" });
                   }}
                 >
                   새 상담 추가
                 </button>
               )}
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-              >
+              <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
                 {selectedCounselId ? "상담 수정" : "상담 등록"}
               </button>
             </div>
@@ -291,11 +261,7 @@ export default function CounselContent() {
             dailyHistory.map((item) => (
               <div
                 key={item.id}
-                className={`border rounded px-4 py-2 bg-gray-50 text-sm cursor-pointer ${
-                  selectedCounselId === item.id
-                    ? "border-blue-500 bg-blue-50"
-                    : ""
-                }`}
+                className={`border rounded px-4 py-2 bg-gray-50 text-sm cursor-pointer ${selectedCounselId === item.id ? "border-blue-500 bg-blue-50" : ""}`}
                 onClick={() => {
                   setSelectedCounselId(item.id);
                   setForm({
@@ -304,19 +270,13 @@ export default function CounselContent() {
                     teacher: item.teacher,
                     content: item.content,
                     isPublic: item.isPublic,
-                    nextPlan: item.nextPlan
+                    nextPlan: item.nextPlan,
                   });
                 }}
               >
                 <div className="font-medium">{item.category}</div>
-                <div className="text-xs text-gray-500">
-                  담당 교사: {item.teacher}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {item.content.length > 30
-                    ? item.content.slice(0, 30) + "..."
-                    : item.content}
-                </div>
+                <div className="text-xs text-gray-500">담당 교사: {item.teacher}</div>
+                <div className="text-xs text-gray-500">{item.content.length > 30 ? item.content.slice(0, 30) + "..." : item.content}</div>
               </div>
             ))
           ) : (
