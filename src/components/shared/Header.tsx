@@ -1,7 +1,6 @@
 import React, { ReactNode, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import logo from "@/assets/images/logo.png";
 import AlertIcon from "@/assets/icons/AlertIcon";
 
 export const Header = ({ children }: { children: ReactNode }) => {
@@ -46,15 +45,16 @@ export const Header = ({ children }: { children: ReactNode }) => {
     <header>
       <div className="flex items-center w-full h-18 bg-white border-b border-gray-400">
         <Image
-          src={logo}
+          src={"/assets/images/logo.png"}
           alt="로고"
-          height={64}
+          width={71}
+          height={48}
           onClick={() => {
             router.push("/");
           }}
-          className="cursor-pointer"
+          className="cursor-pointer mx-8 my-auto"
         />
-        <div className="flex items-center gap-16 ml-4">{menuElements}</div>
+        <div className="flex items-center h-[72px] gap-16 ml-4">{menuElements}</div>
         <div
           className="flex justify-center items-center ml-auto mr-8"
           onClick={() => {
