@@ -36,7 +36,7 @@ export default function StudentList() {
     };
 
     getStudentList();
-  }, [grade, classNumber, studentNumber]);
+  }, []);
 
   const currentList = useMemo(() => {
     return studentList;
