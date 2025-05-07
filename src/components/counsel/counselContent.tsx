@@ -28,7 +28,7 @@ export default function CounselContent() {
     teacher: teacher?.name || "",
     content: "",
     isPublic: true,
-    nextPlan: ""
+    nextPlan: "",
   });
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function CounselContent() {
 
   useEffect(() => {
     if (teacher?.name) {
-      setForm(prev => ({ ...prev, teacher: teacher.name }));
+      setForm((prev) => ({ ...prev, teacher: teacher.name }));
     }
   }, [teacher?.name]);
 
@@ -71,7 +71,7 @@ export default function CounselContent() {
       teacher: teacher?.name || "",
       content: "",
       isPublic: true,
-      nextPlan: ""
+      nextPlan: "",
     });
   };
 
@@ -87,7 +87,7 @@ export default function CounselContent() {
         teacher: counsel.teacher,
         content: counsel.content,
         isPublic: counsel.isPublic,
-        nextPlan: counsel.nextPlan
+        nextPlan: counsel.nextPlan,
       });
     }
   };
@@ -103,14 +103,7 @@ export default function CounselContent() {
     e.preventDefault();
     setConsultingData((prev) => [...prev, { ...form, id: nextId++ }]);
     try {
-      await PostCounsel(
-        studentId,
-        reverseCategoryMap[form.category] ?? form.category,
-        form.content,
-        form.nextPlan,
-        form.dateTime,
-        !sendAsPrivate
-      );
+      await PostCounsel(studentId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, !sendAsPrivate);
     } catch (error) {
       console.error(" 실패", error);
       alert(error);
@@ -121,27 +114,16 @@ export default function CounselContent() {
       teacher: teacher?.name || "",
       content: "",
       isPublic: true,
-      nextPlan: ""
+      nextPlan: "",
     });
   };
 
   const handleEdit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (selectedCounselId === null) return;
-    setConsultingData((prev) =>
-      prev.map((c) =>
-        c.id === selectedCounselId ? { ...c, ...form } : c
-      )
-    );
+    setConsultingData((prev) => prev.map((c) => (c.id === selectedCounselId ? { ...c, ...form } : c)));
     try {
-      await PutCounsel(
-        selectedCounselId,
-        reverseCategoryMap[form.category] ?? form.category,
-        form.content,
-        form.nextPlan,
-        form.dateTime,
-        !sendAsPrivate
-      );
+      await PutCounsel(selectedCounselId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, !sendAsPrivate);
     } catch (error) {
       console.error(" 실패", error);
       alert(error);
@@ -179,12 +161,7 @@ export default function CounselContent() {
     <div className="w-full h-full border border-[#a9a9a9] p-4">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 min-w-[320px] flex justify-center items-center">
-          <CounselCalendar
-            events={events}
-            selectedDate={selectedDate}
-            handleDateClick={handleDateClick}
-            handleEventClick={handleEventClick}
-          />
+          <CounselCalendar events={events} selectedDate={selectedDate} handleDateClick={handleDateClick} handleEventClick={handleEventClick} />
         </div>
         <div className={`flex-[2] border rounded-md p-4 flex flex-col justify-between relative ${form.isPublic ? "" : "pointer-events-none"}`}>
           <CounselForm
@@ -216,12 +193,7 @@ export default function CounselContent() {
               })} 상담 이력`
             : "상담이력"}
         </div>
-        <CounselHistoryList
-          dailyHistory={dailyHistory}
-          selectedCounselId={selectedCounselId}
-          setSelectedCounselId={setSelectedCounselId}
-          setForm={setForm}
-        />
+        <CounselHistoryList dailyHistory={dailyHistory} selectedCounselId={selectedCounselId} setSelectedCounselId={setSelectedCounselId} setForm={setForm} />
       </div>
     </div>
   );

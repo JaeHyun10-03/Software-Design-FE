@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fullcalendar/react": "^6.1.17",
+    "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.0.17",
     "axios": "^1.8.3",
     "dayjs": "^1.11.13",
