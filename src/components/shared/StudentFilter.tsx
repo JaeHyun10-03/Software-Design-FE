@@ -37,7 +37,6 @@ export default function StudentFilter(): React.ReactElement {
         console.error("학생 목록 가져오기 오류:", error);
       }
     };
-
     getStudentList();
   }, []);
 
