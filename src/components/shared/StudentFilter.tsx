@@ -1,5 +1,6 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 import useStudentFilterStore from "@/store/student-filter-store";
+import axios from "axios";
 
 interface SelectInputProps {
   value: string;
@@ -12,6 +13,33 @@ export default function StudentFilter(): React.ReactElement {
   const gradeOptions: string[] = useMemo(() => ["1", "2", "3"], []);
   const classOptions: string[] = useMemo(() => Array.from({ length: 10 }, (_, i) => (i + 1).toString()), []);
   const numberOptions: string[] = useMemo(() => Array.from({ length: 30 }, (_, i) => (i + 1).toString()), []);
+
+  const setStudentFilter = useStudentFilterStore.setState;
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    const getStudentList = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers/students`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = res.data.response;
+        // ✅ 상태를 한 번에 업데이트
+        setStudentFilter({
+          grade: data.grade,
+          classNumber: data.classNum,
+          studentNumber: data.students[0]?.number?.toString() ?? "1",
+          studentId: data.students[0]?.studentId ?? "1",
+          isReady: true,
+        });
+      } catch (error) {
+        alert(`존재하지 않는 데이터입니다:${error}`);
+        console.error("학생 목록 가져오기 오류:", error);
+      }
+    };
+
+    getStudentList();
+  }, []);
 
   const { grade, classNumber, studentNumber, setGrade, setClassNumber, setStudentNumber } = useStudentFilterStore();
 

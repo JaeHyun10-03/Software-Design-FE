@@ -1,3 +1,4 @@
+import useSelectedDate from "@/store/selected-date-store";
 import useStudentFilterStore from "@/store/student-filter-store";
 import axios from "axios";
 import React, { useEffect, useMemo, useState } from "react";
@@ -5,6 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 export default function StudentList() {
   const setStudentFilter = useStudentFilterStore.setState;
   const { grade, classNumber, studentNumber, setStudentNumber, setStudentId } = useStudentFilterStore();
+  const { year } = useSelectedDate();
 
   const [studentList, setStudentList] = useState([]);
 
@@ -13,7 +15,7 @@ export default function StudentList() {
 
     const getStudentList = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers/students`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers/students?year=${year}&grade=${grade}&classNum=${classNumber}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const data = res.data.response;
@@ -34,7 +36,7 @@ export default function StudentList() {
     };
 
     getStudentList();
-  }, []);
+  }, [grade, classNumber, studentNumber]);
 
   const currentList = useMemo(() => {
     return studentList;
