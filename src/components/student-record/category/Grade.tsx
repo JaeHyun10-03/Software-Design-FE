@@ -10,7 +10,6 @@ export default function Grade() {
   const [dataList, setDataList] = useState<any[]>([]);
   const [modalOpen, setModalOpen] = useState<boolean[]>([]);
   const { grade, classNumber, studentNumber } = useStudentFilterStore();
-
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
@@ -45,6 +44,7 @@ export default function Grade() {
             석차등급: `${subject.grade}등급`,
             석차: `${subject.rank}등`,
             피드백: subject.feedback || "",
+            scoreSummaryId: subject.scoreSummaryId,
           };
         });
 
@@ -90,7 +90,7 @@ export default function Grade() {
           <Cell>{data.석차등급}</Cell>
           <Cell>{data.석차}</Cell>
 
-          {modalOpen[index] && <Modal name={data.name} onClose={() => closeModal(index)} />}
+          {modalOpen[index] && <Modal scoreSummaryId={data.scoreSummaryId} name={data.name} onClose={() => closeModal(index)} />}
         </div>
       ))}
       {/* 전체 과목차트 */}
