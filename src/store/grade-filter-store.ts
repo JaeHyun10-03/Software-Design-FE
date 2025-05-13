@@ -12,7 +12,7 @@ interface GradeFilterStore {
   resetFilter: () => void;
 }
 
-const useStudentFilterStore = create<GradeFilterStore>((set) => ({
+const useGradeFilterStore = create<GradeFilterStore>((set) => ({
   year: "2025",
   semester: "1",
   subject: "독서와 문법",
@@ -29,4 +29,4 @@ const useStudentFilterStore = create<GradeFilterStore>((set) => ({
     }),
 }));
 
-export default useStudentFilterStore;
+export default useGradeFilterStore;
