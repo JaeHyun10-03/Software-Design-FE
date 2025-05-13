@@ -28,7 +28,7 @@ export function CounselForm({
   selectedDate,
 }: CounselFormProps) {
   return (
-    <form onSubmit={selectedCounselId ? handleEdit : handleAdd} className={form.isPublic ? "" : "blur-sm"}>
+    <form onSubmit={selectedCounselId ? handleEdit : handleAdd} className={form.isPublic ? "" : "blur-sm"} data-testid="counsel-form">
       <table className="w-full mb-4">
         <tbody>
           <tr>
@@ -56,6 +56,7 @@ export function CounselForm({
                 value={form.category}
                 onChange={handleChange}
                 required
+                aria-label="상담 종류"
               >
                 <option value="">선택</option>
                 {COUNSEL_TYPES.map((t) => (
@@ -76,6 +77,7 @@ export function CounselForm({
                 name="content"
                 placeholder="상담 내용을 입력하세요"
                 required
+                aria-label="상담 내용"
               />
             </td>
           </tr>
@@ -87,8 +89,9 @@ export function CounselForm({
                 value={form.nextPlan || ""}
                 onChange={handleChange}
                 name="nextPlan"
-                placeholder="상담 내용을 입력하세요"
+                placeholder="다음 상담 일정을 입력하세요"
                 required
+                aria-label="다음 상담 일정"
               />
             </td>
           </tr>

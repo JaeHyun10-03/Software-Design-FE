@@ -20,6 +20,8 @@ describe('<Login />', () => {
     (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
     jest.clearAllMocks();
     localStorage.clear();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
   });
 
   it('렌더링: 아이디/비밀번호 입력창과 로그인 버튼이 있다', () => {
@@ -44,7 +46,7 @@ describe('<Login />', () => {
   it('예외: 아이디/비밀번호 미입력 시 alert 호출', () => {
     render(<Login />);
     fireEvent.click(screen.getByText('로그인하기'));
-    expect(window.alert).toHaveBeenCalledWith('아이디와 비밀번호를 입력해주세요.');
+    expect(window.alert).toHaveBeenCalledWith('아이디와 비밀번호를 모두 입력해주세요.');
   });
 
   it('로그인 성공 시 PostLogin 호출, localStorage 저장, 라우팅', async () => {
@@ -65,6 +67,8 @@ describe('<Login />', () => {
   });
 
   it('로그인 실패 시 alert 호출', async () => {
+
+
     (postLoginApi.PostLogin as jest.Mock).mockRejectedValue('로그인 실패');
 
     render(<Login />);
