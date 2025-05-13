@@ -1,4 +1,3 @@
-// CounselContent.test.tsx
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CounselContent from '@/components/counsel/counselContent';
@@ -63,24 +62,24 @@ describe('CounselContent', () => {
       subject: '상담',
     });
     (PostCounsel as jest.Mock).mockResolvedValue({});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('기본 렌더링 및 주요 하위 컴포넌트 표시', async () => {
     render(<CounselContent />);
-    // 상담 폼, 상담 이력, 캘린더 mock이 렌더링 되는지 확인
-    expect(screen.getByTestId('counsel-form')).toBeInTheDocument();
-    expect(screen.getByTestId('history-list')).toBeInTheDocument();
-    expect(screen.getByTestId('calendar-date')).toBeInTheDocument();
-    expect(screen.getByTestId('calendar-event')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('counsel-form')).toBeInTheDocument();
+      expect(screen.getByTestId('history-list')).toBeInTheDocument();
+      expect(screen.getByTestId('calendar-date')).toBeInTheDocument();
+      expect(screen.getByTestId('calendar-event')).toBeInTheDocument();
+      expect(screen.getByText('상담이력')).toBeInTheDocument();
+    });
 
-    // 상담이력 타이틀이 날짜 없이 기본 표시되는지
-    expect(screen.getByText('상담이력')).toBeInTheDocument();
-
-    // 데이터 로딩 후 날짜 타이틀 변경되는지
     fireEvent.click(screen.getByTestId('calendar-date'));
     await waitFor(() => {
       expect(screen.getByText(/상담 이력/)).toBeInTheDocument();
@@ -89,26 +88,50 @@ describe('CounselContent', () => {
 
   it('날짜 클릭 시 폼이 초기화되고 날짜 타이틀이 바뀐다', async () => {
     render(<CounselContent />);
+    await waitFor(() => {
+      expect(screen.getByTestId('calendar-date')).toBeInTheDocument();
+    });
     fireEvent.click(screen.getByTestId('calendar-date'));
     await waitFor(() => {
       expect(screen.getByText('2025. 05. 07. 상담 이력')).toBeInTheDocument();
     });
   });
 
-  it('상담 내용 입력 후 추가 버튼 클릭 시 PostCounsel이 호출된다', async () => {
-    render(<CounselContent />);
-    fireEvent.change(screen.getByTestId('content-input'), { target: { value: '새 상담 내용', name: 'content' } });
-    fireEvent.click(screen.getByTestId('add-btn'));
-    await waitFor(() => {
-      expect(PostCounsel).toHaveBeenCalled();
-    });
+ it('상담 내용 입력 후 추가 버튼 클릭 시 PostCounsel이 호출된다', async () => {
+  render(<CounselContent />);
+  
+  fireEvent.click(screen.getByTestId('calendar-date'));
+  // 상담 종류 select 찾기 (name 속성 활용)
+  const categorySelect = screen.getByRole('combobox', { name: /상담 종류/i });
+  // select의 option value는 COUNSEL_TYPES의 값 중 하나여야 합니다.
+  // 예: "UNIVERSITY", "CAREER", "FAMILY" 등 실제 value 확인
+  fireEvent.change(categorySelect, { target: { value: '대학' } });
+
+  // 상담 내용 textarea 찾기 (name 속성 활용)
+  const contentTextarea = screen.getByRole('textbox', { name: /상담 내용/i });
+  fireEvent.change(contentTextarea, { target: { value: '새 상담 내용' } });
+
+  // 다음 상담 일정 textarea도 필수(required)임을 고려
+  const nextPlanTextarea = screen.getByRole('textbox', { name: /다음 상담 일정/i });
+  fireEvent.change(nextPlanTextarea, { target: { value: '다음 상담 계획' } });
+
+  // "상담 등록" 버튼 클릭
+  const button = screen.getByRole('button', { name: '상담 등록' });
+  fireEvent.click(button);
+
+  await waitFor(() => {
+    expect(PostCounsel).toHaveBeenCalled();
   });
+});
+
 
   it('이벤트 클릭 시 폼이 해당 상담 내용으로 바뀐다', async () => {
     render(<CounselContent />);
+    await waitFor(() => {
+      expect(screen.getByTestId('calendar-event')).toBeInTheDocument();
+    });
     fireEvent.click(screen.getByTestId('calendar-event'));
     await waitFor(() => {
-      // 폼의 value가 상담 내용으로 바뀌는지 확인
       expect(screen.getByDisplayValue('상담 내용')).toBeInTheDocument();
     });
   });
