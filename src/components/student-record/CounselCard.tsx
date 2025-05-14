@@ -12,7 +12,7 @@ interface CounselingCardProps {
   isPublic: boolean;
 }
 
-export default function CounselCard({ dateTime, category, teacher, content, nextPlan }: CounselingCardProps) {
+export default function CounselCard({ dateTime, category, teacher, content, nextPlan, isPublic }: CounselingCardProps) {
   const [open, setOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -80,13 +80,13 @@ export default function CounselCard({ dateTime, category, teacher, content, next
             <div ref={contentRef} className="p-5 text-base text-black border-t border-gray-200">
               <div className="mb-4">
                 <h3 className="font-semibold text-lg mb-2">상담 내용</h3>
-                <p className="whitespace-pre-line">{content}</p>
+                <p className={`whitespace-pre-line ${!isPublic ? "blur-sm select-none text-gray-400" : ""}`}>{content}</p>
               </div>
 
               {nextPlan && (
                 <div>
                   <h3 className="font-semibold text-lg mb-2">향후 계획</h3>
-                  <p className="whitespace-pre-line">{nextPlan}</p>
+                  <p className={`whitespace-pre-line ${!isPublic ? "blur-sm select-none text-gray-400" : ""}`}>{nextPlan}</p>
                 </div>
               )}
             </div>
