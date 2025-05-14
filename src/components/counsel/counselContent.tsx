@@ -104,6 +104,7 @@ export default function CounselContent() {
     setConsultingData((prev) => [...prev, { ...form, id: nextId++ }]);
     try {
       await PostCounsel(studentId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, !sendAsPrivate);
+      alert("상담 내용이 등록되었습니다.");
     } catch (error) {
       console.error(" 실패", error);
       alert(error);
@@ -124,6 +125,7 @@ export default function CounselContent() {
     setConsultingData((prev) => prev.map((c) => (c.id === selectedCounselId ? { ...c, ...form } : c)));
     try {
       await PutCounsel(selectedCounselId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, !sendAsPrivate);
+      alert("상담 내용이 수정되었습니다.");
     } catch (error) {
       console.error(" 실패", error);
       alert(error);
