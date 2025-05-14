@@ -20,7 +20,7 @@ export default function Grade() {
         });
 
         const data = res.data.response.subjects;
-        // console.log("학적-성적데이터:", data);
+        console.log("학적-성적데이터:", data);
 
         const examTypeMap: Record<string, string> = {
           PRACTICAL: "수행평가",
