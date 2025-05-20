@@ -147,8 +147,8 @@ export default function Attendance() {
         <div className="flex">
           {attendanceHeaders.map((a, index) => (
             <div className="flex flex-1 items-center justify-center h-8" key={index}>
-              <Cell type="small">{a.label}</Cell>
-              <Cell type="small">{a.value}</Cell>
+              <Cell type="S">{a.label}</Cell>
+              <Cell type="S">{a.value}</Cell>
             </div>
           ))}
         </div>
