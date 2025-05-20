@@ -23,11 +23,6 @@ export default function Grade() {
 
         const data = res.data.response.subjects;
 
-        const examTypeMap: Record<string, string> = {
-          PRACTICAL: "수행평가",
-          WRITTEN: "지필평가",
-        };
-
         const mapped = data.map((subject: any) => ({
           name: subject.subjectName,
           evaluationMethods: subject.evaluationMethods || [],
@@ -75,7 +70,6 @@ export default function Grade() {
       {/* 데이터 렌더링 */}
       {dataList.map((data, index) => {
         const em = data.evaluationMethods;
-        const rowSpan = em.length;
 
         return (
           <div className="flex flex-row border border-[#a9a9a9]" key={index}>
