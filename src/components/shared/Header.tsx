@@ -2,9 +2,11 @@ import React, { ReactNode, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import AlertIcon from "@/assets/icons/AlertIcon";
+// import useStudentFilterStore from "@/store/student-filter-store";
 
 export const Header = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
+  // const { studentId } = useStudentFilterStore();
   const menuItems = useMemo(
     () => [
       { label: "학적", path: "/student-record" },
