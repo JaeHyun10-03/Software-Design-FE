@@ -34,7 +34,6 @@ export default function StudentRecord() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = res.data.response;
-        console.log("get", data);
         setStudentData({
           name: data.name,
           grade: grade,
@@ -104,9 +103,6 @@ export default function StudentRecord() {
         motherPhone: studentData.motherContact, // motherNum이 아닌 motherPhone으로 변경
       };
 
-      // 디버깅 정보
-      // console.log("전송할 학생 정보:", info);
-
       // JSON 문자열로 변환하여 FormData에 추가
       formData.append("info", new Blob([JSON.stringify(info)], { type: "application/json" }));
 
@@ -114,11 +110,6 @@ export default function StudentRecord() {
       if (fileInputRef.current?.files?.[0]) {
         formData.append("image", fileInputRef.current.files[0]);
       }
-
-      // // 요청 전 FormData 내용 확인 (디버깅용)
-      // for (const pair of formData.entries()) {
-      //   console.log(pair[0], pair[1]);
-      // }
 
       const res = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/students/${Number(studentId)}`, formData, {
         headers: {
