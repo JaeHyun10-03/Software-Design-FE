@@ -45,16 +45,16 @@ export default function Modal({ name, onClose, scoreSummaryId }: ModalProps) {
     }
   };
 
-  const putFeedback = async () => {
+  const editFeedback = async () => {
     try {
-      const res = await axios.put(
+      const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/score-summary/feedback/${scoreSummaryId}`,
         { feedback },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("PUT 성공:", res.data);
+      console.log("editFeedback 성공:", res.data);
     } catch (err) {
-      console.error("PUT 실패:", err);
+      console.error("editFeedback 실패:", err);
     }
   };
 
@@ -68,7 +68,7 @@ export default function Modal({ name, onClose, scoreSummaryId }: ModalProps) {
     if (initialFeedback === null) {
       await postFeedback();
     } else {
-      await putFeedback();
+      await editFeedback();
     }
     onClose();
   };

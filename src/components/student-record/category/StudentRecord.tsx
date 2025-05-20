@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import useStudentFilterStore from "@/store/student-filter-store";
 import axios from "axios";
 import Button from "@/components/shared/Button";
@@ -51,6 +50,7 @@ export default function StudentRecord() {
           fatherContact: data.fatherNum,
           motherContact: data.motherNum,
         });
+        setPhoto(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/images/${data.image}`);
       } catch (err) {
         alert(`학생 정보 가져오기 실패 : ${err}`);
         console.error("학생 정보 가져오기 실패 :", err);
@@ -103,9 +103,6 @@ export default function StudentRecord() {
         motherPhone: studentData.motherContact, // motherNum이 아닌 motherPhone으로 변경
       };
 
-      // 디버깅 정보
-      console.log("전송할 학생 정보:", info);
-
       // JSON 문자열로 변환하여 FormData에 추가
       formData.append("info", new Blob([JSON.stringify(info)], { type: "application/json" }));
 
@@ -114,12 +111,7 @@ export default function StudentRecord() {
         formData.append("image", fileInputRef.current.files[0]);
       }
 
-      // 요청 전 FormData 내용 확인 (디버깅용)
-      for (const pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
-      const res = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/student/${Number(studentId)}`, formData, {
+      const res = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/students/${Number(studentId)}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -141,7 +133,7 @@ export default function StudentRecord() {
         <div className="flex flex-wrap w-full gap-8 justify-start items-start">
           {/* 증명 사진 */}
           <div className="flex justify-center items-center w-[272px] h-[336px] flex-shrink-0 border border-gray-400 cursor-pointer" onClick={handleImageClick}>
-            {photo ? <Image src={photo} alt="증명사진" width={250} height={250} className="object-cover" /> : <p className="text-base text-center text-gray-800">증명 사진</p>}
+            {photo ? <img src={photo} alt="증명사진" className="w-[250px] h-[250px] object-cover" /> : <p className="text-base text-center text-gray-800">증명 사진</p>}
             <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: "none" }} />
           </div>
 
