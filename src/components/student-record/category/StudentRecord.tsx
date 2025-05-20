@@ -128,19 +128,22 @@ export default function StudentRecord() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-0 sm:p-8">
+      {/* ✅ 반응형 패딩 설정 */}
       <div className="flex flex-col">
-        <div className="flex flex-wrap w-full gap-8 justify-start items-start">
+        <div className="flex flex-col sm:flex-row w-full gap-8 justify-start items-start">
           {/* 증명 사진 */}
-          <div className="flex justify-center items-center w-[272px] h-[336px] flex-shrink-0 border border-gray-400 cursor-pointer" onClick={handleImageClick}>
+          <div className="flex justify-center items-center w-full sm:w-[272px] h-[336px] flex-shrink-0 border border-gray-400 cursor-pointer" onClick={handleImageClick}>
             {photo ? <img src={photo} alt="증명사진" className="w-[250px] h-[250px] object-cover" /> : <p className="text-base text-center text-gray-800">증명 사진</p>}
             <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: "none" }} />
           </div>
 
           {/* 표 컨테이너 */}
-          <div className="flex flex-grow min-w-0">
+          <div className="flex flex-col sm:flex-row flex-grow w-full gap-4">
+            {" "}
+            {/* sm:flex-row = 600px 이상 가로 배치 */} {/* ✅ 반응형 방향 설정 */}
             {/* 왼쪽 테이블 */}
-            <div className="flex border border-gray-400 flex-grow min-w-[300px]">
+            <div className="flex border border-gray-400 w-full sm:min-w-[300px]">
               <div className="flex flex-col w-32 bg-blue-100 border-r border-gray-400">
                 {["이름", "학년", "반", "번호", "성별", "주민번호", "주소"].map((label, idx) => (
                   <div key={idx} className="flex justify-center items-center h-12 border-b border-gray-400">
@@ -156,9 +159,8 @@ export default function StudentRecord() {
                 ))}
               </div>
             </div>
-
             {/* 오른쪽 테이블 */}
-            <div className="flex border border-gray-400 flex-grow min-w-[300px]">
+            <div className="flex border border-gray-400 w-full sm:min-w-[300px]">
               <div className="flex flex-col w-32 bg-blue-100 border-r border-gray-400">
                 {["전화번호", "입학일", "담임선생님", "부", "모", "부 연락처", "모 연락처"].map((label, idx) => (
                   <div key={idx} className="flex justify-center items-center h-12 border-b border-gray-400">

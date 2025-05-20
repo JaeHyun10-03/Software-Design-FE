@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 interface CellProps {
   children?: ReactNode;
   onClick?: () => void;
-  type?: "S" | "M" | "L";
+  type?: "S" | "M" | "L" | "XL";
 }
 
 export default function Cell({ children, onClick, type = "M" }: CellProps) {
@@ -17,8 +17,11 @@ export default function Cell({ children, onClick, type = "M" }: CellProps) {
       heightClass = "h-24";
       break;
     case "M":
-    default:
       heightClass = "h-16";
+      break;
+    case "XL":
+      heightClass = "h-64";
+    default:
       break;
   }
 
