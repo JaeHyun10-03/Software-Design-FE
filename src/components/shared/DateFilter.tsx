@@ -61,7 +61,7 @@ export default function DateFilter(): React.ReactElement {
   );
 
   return (
-    <div className="flex items-center gap-3 ml-4">
+    <div className="flex items-center gap-3 ml-0 sm:ml-4">
       <SelectInput value={year || currentYear} onChange={handleYearChange} options={yearOptions} label="년" />
       <SelectInput value={month || currentMonth} onChange={handleMonthChange} options={monthOptions} label="월" />
       <SelectInput value={semester} onChange={handleSemesterChange} options={[1, 2]} label="학기" />

@@ -46,8 +46,8 @@ export default function AttendancePage() {
   };
 
   return (
-    <div className="mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
-      <div className="flex h-8 gap-4">
+    <div className="sm:mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
+      <div className="flex flex-col h-16 gap-4 sm:flex-row sm:h-8">
         <StudentFilter />
         <DateFilter></DateFilter>
 
@@ -55,25 +55,25 @@ export default function AttendancePage() {
           <div className="hidden lg:flex">
             <AttendanceType />
           </div>
-          {edit ? (
-            <Button onClick={handleSave} className="w-20 h-8" disabled={loading}>
-              {loading ? "저장 중..." : "저장"}
-            </Button>
-          ) : (
-            <Button
-              onClick={() => {
-                setEdit(true);
-              }}
-              className="w-20 h-8"
-            >
-              수정
-            </Button>
-          )}
         </div>
       </div>
       <div className="flex flex-row mt-4 flex-1">
         <AttendanceContent ref={contentRef} edit={edit} onSave={setSaveFunction} />
       </div>
+      {edit ? (
+        <Button onClick={handleSave} className="w-20 h-8 mt-4 ml-auto" disabled={loading}>
+          {loading ? "저장 중..." : "저장"}
+        </Button>
+      ) : (
+        <Button
+          onClick={() => {
+            setEdit(true);
+          }}
+          className="w-20 h-8 mt-4 ml-auto"
+        >
+          수정
+        </Button>
+      )}
     </div>
   );
 }

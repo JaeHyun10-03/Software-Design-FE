@@ -8,11 +8,10 @@ interface AttendanceContentProps {
   onSave?: (saveFunction: () => Promise<void>) => void;
 }
 
-// forwardRef를 사용하여 부모 컴포넌트에서 접근할 수 있게 함
 const AttendanceContent = forwardRef<{ postAttendances: () => Promise<void> }, AttendanceContentProps>(({ edit, onSave }, ref) => {
   const { year, month } = useSelectedDate();
   const { grade, classNumber } = useStudentFilterStore();
-  const [dataList, setDataList] = useState<any[]>([]); // 배열로 명시
+  const [dataList, setDataList] = useState<any[]>([]);
 
   const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month, 0).getDate();
@@ -27,12 +26,10 @@ const AttendanceContent = forwardRef<{ postAttendances: () => Promise<void> }, A
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances?year=${year}&grade=${grade}&classNum=${classNumber}&month=${month}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data = res.data.response;
-        console.log("출결 데이터:", data);
-        setDataList(data);
+        setDataList(res.data.response);
       } catch (err) {
         console.error(err);
-        setDataList([]); // 실패 시 빈 배열
+        setDataList([]);
       }
     };
     fetchAttendances();
@@ -44,7 +41,6 @@ const AttendanceContent = forwardRef<{ postAttendances: () => Promise<void> }, A
     return statusCycle[(idx + 1) % statusCycle.length];
   };
 
-  // postAttendances 함수
   const postAttendances = async () => {
     try {
       const token = localStorage.getItem("accessToken");
@@ -69,12 +65,10 @@ const AttendanceContent = forwardRef<{ postAttendances: () => Promise<void> }, A
     }
   };
 
-  // 부모 컴포넌트에서 ref로 접근할 수 있도록 설정
   useImperativeHandle(ref, () => ({
     postAttendances,
   }));
 
-  // 부모 컴포넌트에 저장 함수 전달
   useEffect(() => {
     if (onSave) {
       onSave(postAttendances);
@@ -82,125 +76,110 @@ const AttendanceContent = forwardRef<{ postAttendances: () => Promise<void> }, A
   }, [onSave]);
 
   return (
-    <div className="w-full h-full min-w-[600px] border border-[#a9a9a9]">
-      {/* 날짜 헤더 */}
-      <div className="flex flex-row text-center">
-        <div className="flex w-12 h-8 border border-[#a9a9a9] justify-center items-center">
-          <span>번호</span>
-        </div>
-        <div className="flex w-20 h-8 border border-[#a9a9a9] justify-center items-center">
-          <span>성명</span>
-        </div>
-        {[...Array(daysInMonth)].map((_, idx) => (
-          <div key={idx} className="flex flex-1 h-8 border border-[#a9a9a9] justify-center items-center">
-            <span>
+    <div className="w-full h-full border border-[#a9a9a9] overflow-x-auto">
+      <div className="min-w-fit w-full">
+        {/* 날짜 헤더 */}
+        <div className="flex text-center w-full">
+          <div className="flex w-[48px] min-w-[48px] h-8 border border-[#a9a9a9] justify-center items-center">번호</div>
+          <div className="flex w-[80px] min-w-[80px] h-8 border border-[#a9a9a9] justify-center items-center">성명</div>
+          {[...Array(daysInMonth)].map((_, idx) => (
+            <div key={idx} className="flex flex-1 min-w-[40px] h-8 border border-[#a9a9a9] justify-center items-center">
               {month}/{idx + 1}
-            </span>
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
 
-      {/* 출석 데이터 */}
-      {dataList.length === 0 && <div className="text-center p-2">출결 정보가 없습니다.</div>}
-      {dataList.map((data, i) => (
-        <div key={i} className="flex flex-row text-center">
-          <div className="flex w-12 h-8 border border-[#a9a9a9] justify-center items-center">
-            <span>{i + 1}</span>
-          </div>
-          <div className="flex w-20 h-8 border border-[#a9a9a9] justify-center items-center">
-            <span>{data.studentName}</span>
-          </div>
-          {[...Array(daysInMonth)].map((_, dayIdx) => {
-            const day = dayIdx + 1;
-            const paddedMonth = month.toString().padStart(2, "0");
-            const paddedDay = day.toString().padStart(2, "0");
-            const dateStr = `${year}-${paddedMonth}-${paddedDay}`;
+        {/* 출석 데이터 */}
+        {dataList.length === 0 && <div className="text-center p-2">출결 정보가 없습니다.</div>}
+        {dataList.map((data, i) => (
+          <div key={i} className="flex text-center w-full">
+            <div className="flex w-[48px] min-w-[48px] h-8 border border-[#a9a9a9] justify-center items-center">{i + 1}</div>
+            <div className="flex w-[80px] min-w-[80px] h-8 border border-[#a9a9a9] justify-center items-center">{data.studentName}</div>
+            {[...Array(daysInMonth)].map((_, dayIdx) => {
+              const day = dayIdx + 1;
+              const paddedMonth = month.toString().padStart(2, "0");
+              const paddedDay = day.toString().padStart(2, "0");
+              const dateStr = `${year}-${paddedMonth}-${paddedDay}`;
+              const currentDate = new Date(`${year}-${paddedMonth}-${paddedDay}`);
+              const today = new Date();
+              const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
 
-            const currentDate = new Date(`${year}-${paddedMonth}-${paddedDay}`);
-            const today = new Date();
+              let symbol = "";
+              let attendanceIdx = -1;
+              const attendances = data.attendances ?? [];
 
-            const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
-
-            let symbol = "";
-            let attendanceIdx = -1;
-
-            const attendances = data.attendances ?? [];
-
-            if (isWeekend) {
-              symbol = "-";
-            } else {
-              if (Array.isArray(attendances)) {
-                attendanceIdx = attendances.findIndex((a: any) => a.date === dateStr);
-                if (attendanceIdx !== -1) {
-                  switch (attendances[attendanceIdx].status) {
-                    case "EARLY":
-                      symbol = "△";
-                      break;
-                    case "LATE":
-                      symbol = "▲";
-                      break;
-                    case "ABSENT":
-                      symbol = "X";
-                      break;
-                    default:
-                      symbol = "O";
+              if (isWeekend) {
+                symbol = "-";
+              } else {
+                if (Array.isArray(attendances)) {
+                  attendanceIdx = attendances.findIndex((a: any) => a.date === dateStr);
+                  if (attendanceIdx !== -1) {
+                    switch (attendances[attendanceIdx].status) {
+                      case "EARLY":
+                        symbol = "△";
+                        break;
+                      case "LATE":
+                        symbol = "▲";
+                        break;
+                      case "ABSENT":
+                        symbol = "X";
+                        break;
+                      default:
+                        symbol = "O";
+                    }
+                  } else if (currentDate <= today) {
+                    symbol = "O";
                   }
                 } else if (currentDate <= today) {
                   symbol = "O";
                 }
-              } else {
-                if (currentDate <= today) {
-                  symbol = "O";
+              }
+
+              const handleClick = () => {
+                if (!edit || isWeekend || currentDate > today) return;
+
+                const newDataList = [...dataList];
+                const target = newDataList[i];
+
+                if (!target.attendances) {
+                  target.attendances = [];
                 }
-              }
-            }
 
-            const handleClick = () => {
-              if (!edit || isWeekend || currentDate > today) return;
+                const currentStatus = symbol;
+                const nextSymbol = getNextStatus(currentStatus);
 
-              const newDataList = [...dataList];
-              const target = newDataList[i];
+                const statusMap: any = {
+                  O: null,
+                  "△": "EARLY",
+                  "▲": "LATE",
+                  X: "ABSENT",
+                };
 
-              if (!target.attendances) {
-                target.attendances = [];
-              }
+                if (nextSymbol === "O") {
+                  target.attendances = target.attendances.filter((a: any) => a.date !== dateStr);
+                } else {
+                  if (attendanceIdx !== -1) {
+                    target.attendances[attendanceIdx].status = statusMap[nextSymbol];
+                  } else {
+                    target.attendances.push({ date: dateStr, status: statusMap[nextSymbol] });
+                  }
+                }
 
-              const currentStatus = symbol;
-              const nextSymbol = getNextStatus(currentStatus);
-
-              const statusMap: any = {
-                O: null, // Remove if present
-                "△": "EARLY",
-                "▲": "LATE",
-                X: "ABSENT",
+                setDataList(newDataList);
               };
 
-              if (nextSymbol === "O") {
-                // Remove if exists
-                target.attendances = target.attendances.filter((a: any) => a.date !== dateStr);
-              } else {
-                if (attendanceIdx !== -1) {
-                  target.attendances[attendanceIdx].status = statusMap[nextSymbol];
-                } else {
-                  target.attendances.push({ date: dateStr, status: statusMap[nextSymbol] });
-                }
-              }
-
-              setDataList(newDataList);
-            };
-
-            return (
-              <div key={dayIdx} className="flex flex-1 h-8 border border-[#a9a9a9] justify-center items-center select-none cursor-pointer" onClick={handleClick}>
-                <span>{symbol}</span>
-              </div>
-            );
-          })}
-        </div>
-      ))}
+              return (
+                <div key={dayIdx} className="flex flex-1 min-w-[40px] h-8 border border-[#a9a9a9] justify-center items-center select-none cursor-pointer" onClick={handleClick}>
+                  <span>{symbol}</span>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 });
 
 AttendanceContent.displayName = "AttendanceContent";
-
 export default AttendanceContent;

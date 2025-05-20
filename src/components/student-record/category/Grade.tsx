@@ -12,6 +12,18 @@ export default function Grade() {
   const [modalOpen, setModalOpen] = useState<boolean[]>([]);
   const { grade, classNumber, studentNumber } = useStudentFilterStore();
 
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth <= 600);
+    };
+
+    handleResize(); // 초기값 설정
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
@@ -58,12 +70,16 @@ export default function Grade() {
     setModalOpen(updated);
   };
 
+  const cellType = isSmallScreen ? "XL" : "L";
+
   return (
     <>
       {/* 테이블 헤더 */}
       <div className="flex flex-row border border-[#a9a9a9]">
         {columnHeaders.map((text, index) => (
-          <Cell key={index}>{text}</Cell>
+          <Cell key={index} type="L">
+            {text}
+          </Cell>
         ))}
       </div>
 
@@ -74,12 +90,12 @@ export default function Grade() {
         return (
           <div className="flex flex-row border border-[#a9a9a9]" key={index}>
             {/* 과목 */}
-            <Cell type="L" onClick={() => openModal(index)}>
+            <Cell type={cellType} onClick={() => openModal(index)}>
               {data.name}
             </Cell>
 
             {/* 지필/수행 */}
-            <Cell type="L">
+            <Cell type={cellType}>
               <div className="flex flex-col h-full items-center justify-between w-full">
                 {em.map((e: any, idx: number) => (
                   <div key={idx} className={`flex my-auto w-full h-full text-center justify-center items-center ${idx !== em.length - 1 ? "border-b border-[#a9a9a9]" : ""}`}>
@@ -90,7 +106,7 @@ export default function Grade() {
             </Cell>
 
             {/* 고사 / 영역명 */}
-            <Cell type="L">
+            <Cell type={cellType}>
               <div className="flex flex-col h-full items-center justify-between w-full">
                 {em.map((e: any, idx: number) => (
                   <div key={idx} className={`flex my-auto w-full h-full text-center justify-center items-center ${idx !== em.length - 1 ? "border-b border-[#a9a9a9]" : ""}`}>
@@ -101,7 +117,7 @@ export default function Grade() {
             </Cell>
 
             {/* 만점 */}
-            <Cell type="L">
+            <Cell type={cellType}>
               <div className="flex flex-col h-full items-center justify-between w-full">
                 {em.map((e: any, idx: number) => (
                   <div key={idx} className={`flex my-auto w-full h-full text-center justify-center items-center ${idx !== em.length - 1 ? "border-b border-[#a9a9a9]" : ""}`}>
@@ -112,7 +128,7 @@ export default function Grade() {
             </Cell>
 
             {/* 받은 점수 */}
-            <Cell type="L">
+            <Cell type={cellType}>
               <div className="flex flex-col h-full items-center justify-between w-full">
                 {em.map((e: any, idx: number) => (
                   <div key={idx} className={`flex my-auto w-full h-full text-center justify-center items-center ${idx !== em.length - 1 ? "border-b border-[#a9a9a9]" : ""}`}>
@@ -122,12 +138,12 @@ export default function Grade() {
               </div>
             </Cell>
 
-            {/* 나머지는 1줄짜리 */}
-            <Cell type="L">{data.합계}</Cell>
-            <Cell type="L">{data.성취도}</Cell>
-            <Cell type="L">{data.원점수}</Cell>
-            <Cell type="L">{data.석차등급}</Cell>
-            <Cell type="L">{data.석차}</Cell>
+            {/* 나머지 */}
+            <Cell type={cellType}>{data.합계}</Cell>
+            <Cell type={cellType}>{data.성취도}</Cell>
+            <Cell type={cellType}>{data.원점수}</Cell>
+            <Cell type={cellType}>{data.석차등급}</Cell>
+            <Cell type={cellType}>{data.석차}</Cell>
 
             {modalOpen[index] && <Modal scoreSummaryId={data.scoreSummaryId} name={data.name} onClose={() => closeModal(index)} />}
           </div>
