@@ -22,6 +22,8 @@ export default function CounselContent() {
   const [teacher, setTeacher] = useState<TeacherInfo | null>(null);
   const [sendAsPrivate, setSendAsPrivate] = useState(false);
 
+  const [formattedDate, setFormattedDate] = useState<string>("");
+
   const [form, setForm] = useState<Omit<ConsultingData, "id">>({
     dateTime: "",
     category: "",
@@ -61,6 +63,19 @@ export default function CounselContent() {
       setForm((prev) => ({ ...prev, teacher: teacher.name }));
     }
   }, [teacher?.name]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const date = new Date(selectedDate).toLocaleDateString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      setFormattedDate(date);
+    } else {
+      setFormattedDate("");
+    }
+  }, [selectedDate]);
 
   const handleDateClick = (arg: any) => {
     setSelectedDate(arg.dateStr);
@@ -103,7 +118,14 @@ export default function CounselContent() {
     e.preventDefault();
     setConsultingData((prev) => [...prev, { ...form, id: nextId++ }]);
     try {
-      await PostCounsel(studentId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, !sendAsPrivate);
+      await PostCounsel(
+        studentId,
+        reverseCategoryMap[form.category] ?? form.category,
+        form.content,
+        form.nextPlan,
+        form.dateTime,
+        !sendAsPrivate
+      );
       alert("상담 내용이 등록되었습니다.");
     } catch (error) {
       console.error(" 실패", error);
@@ -122,9 +144,18 @@ export default function CounselContent() {
   const handleEdit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (selectedCounselId === null) return;
-    setConsultingData((prev) => prev.map((c) => (c.id === selectedCounselId ? { ...c, ...form } : c)));
+    setConsultingData((prev) =>
+      prev.map((c) => (c.id === selectedCounselId ? { ...c, ...form } : c))
+    );
     try {
-      await PutCounsel(selectedCounselId, reverseCategoryMap[form.category] ?? form.category, form.content, form.nextPlan, form.dateTime, !sendAsPrivate);
+      await PutCounsel(
+        selectedCounselId,
+        reverseCategoryMap[form.category] ?? form.category,
+        form.content,
+        form.nextPlan,
+        form.dateTime,
+        !sendAsPrivate
+      );
       alert("상담 내용이 수정되었습니다.");
     } catch (error) {
       console.error(" 실패", error);
@@ -132,7 +163,6 @@ export default function CounselContent() {
     }
   };
 
-  // 캘린더 이벤트 데이터
   function getEventColor(type: string): string {
     switch (type) {
       case "UNIVERSITY":
@@ -151,6 +181,7 @@ export default function CounselContent() {
         return "#1677FF";
     }
   }
+
   const events = consultingData.map((item) => ({
     id: String(item.id),
     title: categoryMap[item.category] ?? item.category,
@@ -163,9 +194,18 @@ export default function CounselContent() {
     <div className="w-full h-full border border-[#a9a9a9] p-4">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 min-w-[320px] flex justify-center items-center">
-          <CounselCalendar events={events} selectedDate={selectedDate} handleDateClick={handleDateClick} handleEventClick={handleEventClick} />
+          <CounselCalendar
+            events={events}
+            selectedDate={selectedDate}
+            handleDateClick={handleDateClick}
+            handleEventClick={handleEventClick}
+          />
         </div>
-        <div className={`flex-[2] border rounded-md p-4 flex flex-col justify-between relative ${form.isPublic ? "" : "pointer-events-none"}`}>
+        <div
+          className={`flex-[2] border rounded-md p-4 flex flex-col justify-between relative ${
+            form.isPublic ? "" : "pointer-events-none"
+          }`}
+        >
           <CounselForm
             form={form}
             setForm={setForm}
@@ -187,15 +227,14 @@ export default function CounselContent() {
       </div>
       <div className="mt-8">
         <div className="font-semibold mb-2">
-          {selectedDate
-            ? `${new Date(selectedDate).toLocaleDateString("ko-KR", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              })} 상담 이력`
-            : "상담이력"}
+          {formattedDate ? `${formattedDate} 상담 이력` : "상담이력"}
         </div>
-        <CounselHistoryList dailyHistory={dailyHistory} selectedCounselId={selectedCounselId} setSelectedCounselId={setSelectedCounselId} setForm={setForm} />
+        <CounselHistoryList
+          dailyHistory={dailyHistory}
+          selectedCounselId={selectedCounselId}
+          setSelectedCounselId={setSelectedCounselId}
+          setForm={setForm}
+        />
       </div>
     </div>
   );
