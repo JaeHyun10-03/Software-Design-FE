@@ -2,8 +2,11 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PostLogin } from "@/api/postLogin";
+import { messaging, getToken } from "@/utils/firebase";
+import { PostFCM } from "@/api/postFCM";
 
 const Login = () => {
+   
   const router = useRouter();
   const [userId, setUserId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -15,6 +18,23 @@ const Login = () => {
   const handlePWChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setPassword(e.target.value);
   };
+
+  async function sendFcmTokenToServer() {
+  if (!messaging) return;
+  try {
+    const token = await getToken(messaging, {
+      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: await navigator.serviceWorker.ready,
+    });
+    if (token) {
+      // 백엔드에 토큰 저장 API 호출
+      const res = await PostFCM(token);
+      console.log(res);
+    }
+  } catch (err) {
+    console.error("FCM 토큰 발급 실패", err);
+  }
+}
 
   const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
   e.preventDefault();
@@ -30,7 +50,7 @@ const Login = () => {
     const { accessToken, role } = data;
 
     localStorage.setItem("accessToken", accessToken);
-
+    sendFcmTokenToServer();
     if (role === "TEACHER") {
       router.push("/student-record");
     } else if (role === "STUDENT") {
