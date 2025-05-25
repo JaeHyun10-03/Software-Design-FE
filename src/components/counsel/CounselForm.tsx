@@ -31,22 +31,30 @@ export function CounselForm({
     <form onSubmit={selectedCounselId ? handleEdit : handleAdd} className={form.isPublic ? "" : "blur-sm"} data-testid="counsel-form">
       <table className="w-full mb-4">
         <tbody>
-          <tr>
-            <th className="text-left w-28 font-medium py-2">상담 날짜</th>
-            <td className="py-2">
-              {selectedDate
-                ? new Date(selectedDate).toLocaleDateString("ko-KR", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                  })
-                : "날짜를 선택하세요"}
-            </td>
-            <th className="text-left w-28 font-medium py-2">담당 교사</th>
-            <td className="py-2">
-              <span className="font-semibold text-gray-700">{teacher?.name}</span>
+        {/* 상담 날짜 + 담당 교사 */}
+          <tr className="block sm:table-row">
+            <td colSpan={4} className="py-2 block sm:table-cell">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-12">
+                <div className="mb-2 sm:mb-0">
+                  <span className="block  font-medium mb-1">상담 날짜</span>
+                  <span>
+                    {selectedDate
+                      ? new Date(selectedDate).toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })
+                    : "날짜를 선택하세요"}
+                  </span>
+                </div>
+                <div>
+                  <span className="block font-medium py-2 mb-1">담당 교사</span>
+                  <span className="font-semibold">{teacher?.name}</span>
+                </div>
+              </div>
             </td>
           </tr>
+
           <tr>
             <th className="text-left font-medium py-2">상담 종류</th>
             <td colSpan={3} className="py-2">
