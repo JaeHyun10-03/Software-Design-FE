@@ -49,7 +49,7 @@ export default function GradeFilter(): React.ReactElement { // 컴포넌트 이�
   );
 
   return (
-    <div className="flex items-center gap-3 ml-3">
+    <div className="flex items-center gap-3 ">
       <SelectInput value={year} onChange={handleGradeChange} options={yearOptions} label="연도" />
       <SelectInput value={semester} onChange={handleClassChange} options={classOptions} label="학기" />
       <SelectInput value={subject} onChange={handleNumberChange} options={numberOptions} label="과목" />

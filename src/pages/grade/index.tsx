@@ -68,8 +68,8 @@ export default function GradesPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center mb-4">
+  <div className="mx-0 sm:mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
+      <div className="flex flex-col sm:flex-row sm:items-center w-full gap-2 h-auto sm:h-8">
         <StudentFilter />
         <GradeFilter />
       </div>
