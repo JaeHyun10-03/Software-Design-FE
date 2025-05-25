@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Button from "../shared/Button";
-import axios from "axios";
 import useStudentFilterStore from "@/store/student-filter-store";
 import useSelectedDate from "@/store/selected-date-store";
 import { GetBehavior } from "@/api/student/getBehavior";
@@ -9,7 +7,6 @@ const BehaviorContent = () => {
   const { year } = useSelectedDate();
   const [behavior, setBehavior] = useState("");
   const [generalOpinion, setGeneralOpinion] = useState("");
-  const [behaviorId, setBehaviorId] = useState(null);
   // console.log(behaviorId);
   // console.log(behavior);
   // console.log(generalOpinion);
@@ -17,15 +14,12 @@ const BehaviorContent = () => {
   useEffect(() => {
     const getBehavior = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
         const res = await GetBehavior(year,  Number(grade),  Number(classNumber), Number(studentId));
         const data = res.data.response;
         setBehavior(data.behavior);
         setGeneralOpinion(data.generalComment);
-        setBehaviorId(data.behaviorId);
         console.log("행동 데이터:", data);
       } catch (err) {
-        setBehaviorId(null);
         console.error(err);
       }
     };
