@@ -20,7 +20,11 @@ const Login = () => {
   };
 
   async function sendFcmTokenToServer() {
-  if (!messaging) return;
+     console.log("sendFcmTokenToServer called"); // 추가
+  if (!messaging) {
+     console.log("messaging is not defined");
+    return;
+  }
   try {
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
@@ -29,7 +33,7 @@ const Login = () => {
     if (token) {
       // 백엔드에 토큰 저장 API 호출
       const res = await PostFCM(token);
-      console.log(res);
+      console.log("FCM",res);
     }
   } catch (err) {
     console.error("FCM 토큰 발급 실패", err);

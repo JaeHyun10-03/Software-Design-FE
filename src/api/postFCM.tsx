@@ -10,7 +10,7 @@ export const PostFCM = async (
   try {
     const response: AxiosResponse<any> = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/users/fcm/register`,
-         token , 
+         {token: token} , 
         {
             withCredentials: true,
             headers: {
@@ -20,8 +20,8 @@ export const PostFCM = async (
           }
     );
 
-    console.log(response.data.response);
-    return response.data.response;
+    console.log(response);
+    return response;
   } catch (error: any) {
     if (error.response) {
       const { status, data } = error.response;
