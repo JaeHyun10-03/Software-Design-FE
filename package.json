@@ -15,6 +15,7 @@
     "@tailwindcss/postcss": "^4.0.17",
     "axios": "^1.8.3",
     "dayjs": "^1.11.13",
+    "firebase": "^11.8.1",
     "framer-motion": "^12.6.3",
     "fullcalendar": "^6.1.17",
     "next": "14.2.23",
