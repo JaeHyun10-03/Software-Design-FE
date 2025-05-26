@@ -1,4 +1,4 @@
-import BehaviorContent from "@/components/behavior/BehaviorContent";
+import BehaviorContent from "@/components/behavior/StudentBehaviorContent";
 import { Header } from "@/components/shared/StudentHeader";
 import React, { ReactNode } from "react";
 
