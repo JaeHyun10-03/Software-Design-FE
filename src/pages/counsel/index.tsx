@@ -4,7 +4,7 @@ import StudentFilter from "@/components/shared/StudentFilter";
 import StudentList from "@/components/shared/StudentList";
 import React, { ReactNode,  useEffect, useState  } from "react";
 
-export default function BehaviorPage() {
+export default function CounselPage() {
     const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
 
     useEffect(() => {
@@ -45,6 +45,6 @@ export default function BehaviorPage() {
   );
 }
 
-BehaviorPage.getLayout = (page: ReactNode) => {
+CounselPage.getLayout = (page: ReactNode) => {
   return <Header>{page}</Header>;
 };
