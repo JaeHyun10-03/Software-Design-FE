@@ -22,6 +22,13 @@ const customJestConfig: Config.InitialOptions = {
     '!**/.next/**',
     '!**/coverage/**',
     '!**/jest.config.ts',
+    '!**/jest.setup.ts',
+    '!**/next-env.d.ts',
+    '!**/tailwind.config.ts',
+    '!**/src/pages/_app.tsx',
+    '!**/src/pages/_document.tsx',
+    '!**/src/assets/**', // 정적 파일 제외
+
   ],
 };
 
