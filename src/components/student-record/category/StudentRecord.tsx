@@ -63,14 +63,24 @@ export default function StudentRecord() {
 
   const renderField = (key: keyof typeof studentData) => {
     const isEditable = !uneditableFields.includes(key);
-    const commonClass = "text-base h-full w-full pl-2 outline-none";
+    const commonClass = "text-base w-full pl-2 outline-none";
     const editableClass = "bg-white";
     const uneditableClass = "bg-gray-100";
 
     if (isEditMode && isEditable) {
-      return <input className={`${commonClass} ${editableClass}`} value={studentData[key]} onChange={(e) => setStudentData({ ...studentData, [key]: e.target.value })} />;
+      return (
+        <input
+          className={`text-base w-full pl-4 outline-none ${editableClass} h-full`}
+          value={studentData[key]}
+          onChange={(e) => setStudentData({ ...studentData, [key]: e.target.value })}
+        />
+      );
     } else {
-      return <p className={`${commonClass} ${isEditMode && !isEditable ? uneditableClass : editableClass} text-left text-black`}>{studentData[key]}</p>;
+      return (
+        <div className={`${isEditMode && !isEditable ? uneditableClass : editableClass} flex items-center h-full w-full pl-2`}>
+          <p className={`${commonClass}`}>{studentData[key]}</p>
+        </div>
+      );
     }
   };
 
@@ -151,7 +161,7 @@ export default function StudentRecord() {
               <div className="flex flex-col w-32 bg-blue-100 border-r border-gray-400">
                 {["이름", "학년", "반", "번호", "성별", "주민번호", "주소"].map((label, idx) => (
                   <div key={idx} className="flex justify-center items-center h-12 border-b border-gray-400">
-                    <p className="text-base text-center text-black">{label}</p>
+                    <p className="text-base text-center text-black m-0 leading-normal">{label}</p>
                   </div>
                 ))}
               </div>
@@ -168,7 +178,7 @@ export default function StudentRecord() {
               <div className="flex flex-col w-32 bg-blue-100 border-r border-gray-400">
                 {["전화번호", "입학일", "담임선생님", "부", "모", "부 연락처", "모 연락처"].map((label, idx) => (
                   <div key={idx} className="flex justify-center items-center h-12 border-b border-gray-400">
-                    <p className="text-base text-center text-black">{label}</p>
+                    <p className="text-base text-center text-black leading-normal">{label}</p>
                   </div>
                 ))}
               </div>
