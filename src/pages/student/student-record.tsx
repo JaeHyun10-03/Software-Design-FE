@@ -58,7 +58,7 @@ const StudentRecord = () => {
   }, [grade, classNumber, studentNumber, studentId]);
 
   return (
-    <div className="p-0 sm:p-8">
+    <div className="m-4 sm:m-8">
       <div className="flex flex-col">
         <div className="flex flex-col sm:flex-row w-full gap-8 justify-start items-start">
           {/* 증명 사진 */}
