@@ -63,11 +63,15 @@ export default function StudentRecord() {
 
   const renderField = (key: keyof typeof studentData) => {
     const isEditable = !uneditableFields.includes(key);
-    return isEditMode && isEditable ? (
-      <input className="text-base h-full w-full pl-2 bg-white outline-none" value={studentData[key]} onChange={(e) => setStudentData({ ...studentData, [key]: e.target.value })} />
-    ) : (
-      <p className="text-base text-left text-black">{studentData[key]}</p>
-    );
+    const commonClass = "text-base h-full w-full pl-2 outline-none";
+    const editableClass = "bg-white";
+    const uneditableClass = "bg-gray-100";
+
+    if (isEditMode && isEditable) {
+      return <input className={`${commonClass} ${editableClass}`} value={studentData[key]} onChange={(e) => setStudentData({ ...studentData, [key]: e.target.value })} />;
+    } else {
+      return <p className={`${commonClass} ${isEditMode && !isEditable ? uneditableClass : editableClass} text-left text-black`}>{studentData[key]}</p>;
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,7 +157,7 @@ export default function StudentRecord() {
               </div>
               <div className="flex flex-col flex-grow min-w-[200px]">
                 {["name", "grade", "class", "number", "gender", "ssn", "address"].map((key, idx) => (
-                  <div key={idx} className="flex justify-left items-center h-12 border-b border-gray-400 pl-2">
+                  <div key={idx} className="flex justify-center items-center h-12 border-b border-gray-400">
                     {renderField(key as keyof typeof studentData)}
                   </div>
                 ))}
@@ -170,7 +174,7 @@ export default function StudentRecord() {
               </div>
               <div className="flex flex-col flex-grow min-w-[200px]">
                 {["phone", "admissionDate", "teacher", "father", "mother", "fatherContact", "motherContact"].map((key, idx) => (
-                  <div key={idx} className="flex justify-left items-center h-12 border-b border-gray-400 pl-2">
+                  <div key={idx} className="flex justify-left items-center h-12 border-b border-gray-400">
                     {renderField(key as keyof typeof studentData)}
                   </div>
                 ))}
