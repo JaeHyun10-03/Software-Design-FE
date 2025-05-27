@@ -35,7 +35,7 @@ export default function StudentRecordPage() {
 
   return (
     <div className="mx-0 sm:mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
-      <div className="flex flex-col sm:flex-row sm:items-center w-full gap-2 h-auto sm:h-8">
+      <div className="flex flex-col sm:flex-row sm:items-center w-full gap-2 h-auto sm:h-8 mx-4 sm:mx-0">
         <StudentFilter />
         {category === "출결" && (
           <div className="flex flex-col sm:flex-row w-full gap-2">
@@ -58,7 +58,7 @@ export default function StudentRecordPage() {
         )}
       </div>
 
-      <div className="flex flex-row gap-8 mt-4 flex-1">
+      <div className="flex flex-row gap-8 mt-4 flex-1 px-4 sm:px-0">
         {showStudentList && <StudentList />}
         <Content />
       </div>
