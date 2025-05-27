@@ -139,7 +139,7 @@ export default function AttendanceCalendar() {
 
       <style jsx global>{`
         .react-calendar {
-          border: 1px solid #e5e7eb;
+          border: none;
           border-radius: 0.375rem;
           width: 100%;
           height: 100%;
@@ -157,32 +157,44 @@ export default function AttendanceCalendar() {
           height: 100%;
         }
 
-        .react-calendar__month-view__weekdays__weekday {
-          border-right: 1px solid #e5e7eb;
+        /* 요일 헤더에 테두리 추가 */
+        .attendance-calendar-container .react-calendar__month-view__weekdays {
+          border-bottom: 1px solid #d1d5db !important;
+        }
+
+        .attendance-calendar-container .react-calendar__month-view__weekdays__weekday {
+          border-right: 1px solid #d1d5db !important;
           padding: 0.5rem 0;
+          background-color: #f9fafb;
         }
 
-        .react-calendar__month-view__weekdays__weekday:last-child {
-          border-right: none;
+        .attendance-calendar-container .react-calendar__month-view__weekdays__weekday:last-child {
+          border-right: none !important;
         }
 
-        .react-calendar__tile {
-          height: 60px;
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
-          align-items: center;
-          padding-top: 8px;
-          border-right: 1px solid #e5e7eb;
-          border-bottom: 1px solid #e5e7eb;
+        /* 날짜 셀들을 그리드로 배치하고 테두리 추가 */
+        .attendance-calendar-container .react-calendar__month-view__days {
+          display: grid !important;
+          grid-template-columns: repeat(7, 1fr) !important;
+          gap: 0 !important;
         }
 
-        .react-calendar__tile:nth-child(7n) {
-          border-right: none;
+        .attendance-calendar-container .react-calendar__tile {
+          height: 60px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: flex-start !important;
+          align-items: center !important;
+          padding-top: 8px !important;
+          border: 1px solid #d1d5db !important;
+          box-sizing: border-box !important;
+          position: relative !important;
         }
 
-        .react-calendar__month-view__days > .react-calendar__tile:nth-last-child(-n + 7) {
-          border-bottom: none;
+        /* 중복 테두리 제거를 위한 마진 조정 */
+        .attendance-calendar-container .react-calendar__tile {
+          margin-right: -1px !important;
+          margin-bottom: -1px !important;
         }
 
         .attendance-symbol {
@@ -190,8 +202,8 @@ export default function AttendanceCalendar() {
         }
 
         .today {
-          background-color: #e0f2fe !important; /* 연한 파랑 */
-          border: 2px solid #3b82f6 !important;
+          background-color: #e0f2fe !important;
+          border: 1px solid #3b82f6 !important;
           border-radius: 6px;
         }
 
@@ -221,20 +233,20 @@ export default function AttendanceCalendar() {
 
         /* 토요일 파란색, 일요일 빨간색 */
         .saturday {
-          color: #3b82f6 !important; /* 파란색 */
+          color: #3b82f6 !important;
         }
 
         .sunday {
-          color: #ef4444 !important; /* 빨간색 */
+          color: #ef4444 !important;
         }
 
         /* 요일 헤더 색상 설정 */
         .react-calendar__month-view__weekdays__weekday:nth-child(6) abbr {
-          color: #3b82f6 !important; /* 토요일 헤더 파란색 */
+          color: #3b82f6 !important;
         }
 
         .react-calendar__month-view__weekdays__weekday:nth-child(7) abbr {
-          color: #ef4444 !important; /* 일요일 헤더 빨간색 */
+          color: #ef4444 !important;
         }
       `}</style>
     </div>

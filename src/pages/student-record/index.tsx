@@ -1,3 +1,5 @@
+"use client";
+
 import DateFilter from "@/components/shared/DateFilter";
 import { Header } from "@/components/shared/Header";
 import StudentFilter from "@/components/shared/StudentFilter";
@@ -8,29 +10,24 @@ import React, { ReactNode, useEffect, useState } from "react";
 
 export default function StudentRecordPage() {
   const { category } = useCategoryStore();
-  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
+  const [windowWidth, setWindowWidth] = useState(0);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // 윈도우 너비 변경을 감지하는 함수
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
+    setIsClient(true); // 클라이언트 렌더링 여부 설정
 
-    // 컴포넌트 마운트 시 윈도우 너비 초기화
-    if (typeof window !== "undefined") {
-      setWindowWidth(window.innerWidth);
-      window.addEventListener("resize", handleResize);
-    }
+    // 윈도우 너비 설정 및 리사이즈 감지
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
 
-    // 컴포넌트 언마운트 시 이벤트 리스너 제거
     return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("resize", handleResize);
-      }
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  // 화면 너비가 600px 이상일 때만 StudentList 표시
+  if (!isClient) return null; // 서버에서는 아무것도 렌더링하지 않음
+
   const showStudentList = windowWidth > 600;
 
   return (
