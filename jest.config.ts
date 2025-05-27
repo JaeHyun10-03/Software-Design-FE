@@ -3,7 +3,7 @@ import nextJest from 'next/jest';
 import type { Config } from '@jest/types';
 
 const createJestConfig = nextJest({
-  dir: './', // Next.js 앱 루트 디렉토리
+  dir: './',
 });
 
 const customJestConfig: Config.InitialOptions = {
@@ -12,11 +12,16 @@ const customJestConfig: Config.InitialOptions = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-  },
+  // transform 옵션에서 ts-jest 제거!
+  // transform: {
+  //   '^.+\\.(ts|tsx)$': 'ts-jest',
+  //   '^.+\\.(js|jsx)$': 'babel-jest',
+  // },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(@fullcalendar|preact)/)',
+  ],
   collectCoverageFrom: [
-    '**/*.{ts,tsx,js,jsx}',
+    '**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/.next/**',
@@ -27,8 +32,7 @@ const customJestConfig: Config.InitialOptions = {
     '!**/tailwind.config.ts',
     '!**/src/pages/_app.tsx',
     '!**/src/pages/_document.tsx',
-    '!**/src/assets/**', // 정적 파일 제외
-
+    '!**/src/assets/**',
   ],
 };
 
