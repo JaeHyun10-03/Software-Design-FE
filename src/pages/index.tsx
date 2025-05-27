@@ -2,11 +2,13 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PostLogin } from "@/api/postLogin";
+import useLoginStore from "@/store/login-store";
 
 const Login = () => {
   const router = useRouter();
   const [userId, setUserId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const { setName } = useLoginStore();
   const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setUserId(e.target.value);
   };
@@ -26,14 +28,19 @@ const Login = () => {
       const response = await PostLogin(userId, password);
       console.log(`로그인 결과: ${response}`);
       const accessToken = response.accessToken;
+      const role = response.role;
+      setName(response.name);
 
       if (accessToken) {
         localStorage.setItem("accessToken", accessToken);
       } else {
         console.error("Access token이 응답에 포함되지 않았습니다.");
       }
-
-      router.push("/student-record");
+      if (role === "TEACHER") {
+        router.push("/student-record");
+      } else {
+        router.push("/student/student-record");
+      }
     } catch (error) {
       console.error("로그인 실패", error);
       alert(error);
@@ -70,7 +77,8 @@ const Login = () => {
           </button>
 
           <div id="findCont" className="flex flex-row w-[100%] justify-around font-[NanumGothic] text-[#A9A9A9] font-normal text-[20px] leading-[23px]">
-            <div onClick={() => router.push("/findId")}>아이디 찾기</div>|<div onClick={() => router.push("/findPW")}>비밀번호 찾기</div>|<div onClick={() => router.push("/changePW")}>비밀번호 변경</div>
+            <div onClick={() => router.push("/findId")}>아이디 찾기</div>|<div onClick={() => router.push("/findPW")}>비밀번호 찾기</div>|
+            <div onClick={() => router.push("/changePW")}>비밀번호 변경</div>
           </div>
         </div>
       </div>

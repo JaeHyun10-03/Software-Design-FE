@@ -2,10 +2,12 @@ import React, { ReactNode, useMemo, useCallback, useState, useEffect } from "rea
 import Image from "next/image";
 import { useRouter } from "next/router";
 import AlertIcon from "@/assets/icons/AlertIcon";
+import useLoginStore from "@/store/login-store";
 // import useStudentFilterStore from "@/store/student-filter-store";
 
 export const Header = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
+  const { name } = useLoginStore();
   // const { studentId } = useStudentFilterStore();
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
 
@@ -83,13 +85,16 @@ export const Header = ({ children }: { children: ReactNode }) => {
           className={`cursor-pointer my-auto ${isMobile ? "mx-6" : "mx-8"}`}
         />
         <div className={`flex items-center h-[72px] ${isMobile ? "gap-8" : "gap-16"} ${isMobile ? "ml-1" : "ml-4"}`}>{menuElements}</div>
-        <div
-          className={`flex justify-center items-center ml-auto ${isMobile ? "mr-2" : "mr-8"}`}
-          onClick={() => {
-            router.push("/alert");
-          }}
-        >
-          <AlertIcon />
+        <div className="flex flex-row justify-center items-center gap-8 ml-auto ">
+          <p className="hidden sm:flex text-base text-bold text-center">이름 : {name}</p>
+          <div
+            className={`flex justify-center items-center ml-auto ${isMobile ? "mr-2" : "mr-8"}`}
+            onClick={() => {
+              router.push("/alert");
+            }}
+          >
+            <AlertIcon />
+          </div>
         </div>
       </div>
       {children}
