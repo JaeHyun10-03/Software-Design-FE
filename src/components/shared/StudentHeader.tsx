@@ -87,12 +87,7 @@ export const StudentHeader = ({ children }: { children: ReactNode }) => {
         <div className={`flex items-center h-[72px] ${isMobile ? "gap-8" : "gap-16"} ${isMobile ? "ml-1" : "ml-4"}`}>{menuElements}</div>
         <div className="flex flex-row justify-center items-center gap-8 ml-auto ">
           <p className="hidden sm:flex text-base text-bold text-center">이름 : {name}</p>
-          <div
-            className={`flex justify-center items-center ml-auto ${isMobile ? "mr-2" : "mr-8"}`}
-            onClick={() => {
-              router.push("/alert");
-            }}
-          >
+          <div onClick={() => router.push("/alert")} aria-label="알림 아이콘" data-testid="alert-icon" className="cursor-pointer">
             <AlertIcon />
           </div>
         </div>

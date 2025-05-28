@@ -29,6 +29,7 @@ export default function Cell({ children, onClick, type = "M" }: CellProps) {
 
   return (
     <div
+      data-testid={`cell-${children}`}
       onClick={onClick}
       className={`w-full text-center break-words leading-tight flex flex-1 items-center justify-center border border-gray-300 text-sm text-gray-800 ${heightClass} ${clickableClass}`}
     >
