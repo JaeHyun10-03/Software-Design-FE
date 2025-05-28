@@ -52,7 +52,8 @@ const Login = () => {
       const response = await PostLogin(userId, password);
       const data = response;
 
-      const { accessToken, role } = data;
+      const { accessToken, role, name } = data;
+      setName(name);
 
       localStorage.setItem("accessToken", accessToken);
       sendFcmTokenToServer();
