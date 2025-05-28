@@ -42,7 +42,7 @@ export function GradeTable({
         <tbody>
           {students.map((student) => (
             <GradeTableRow
-              key={student.number}
+              key={student.number ?? student.studentId ?? student.name} // 항상 고유한 key
               student={student}
               evaluations={evaluations}
               editing={editing}
@@ -79,10 +79,10 @@ function GradeTableRow({
       className={`hover:bg-blue-100 ${selectedRow === student.number ? "bg-blue-200" : ""}`}
     >
       <td className="border px-2 py-1">{student.number}</td>
-      <td className="border px-2 py-1">{student.studentName}</td>
+      <td className="border px-2 py-1">{student.studentName ?? student.name ?? "-"}</td>
       {evaluations.map((evaluation: any) => (
         <EditableCell
-          key={evaluation.evaluationId}
+          key={evaluation.evaluationId ?? evaluation.title} // key가 항상 존재하도록
           student={student}
           evaluation={evaluation}
           editing={editing}
