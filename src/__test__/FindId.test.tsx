@@ -15,6 +15,15 @@ jest.mock('next/navigation', () => ({
 const pushMock = jest.fn();
 (window as any).alert = jest.fn();
 
+
+beforeEach(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 describe('<FindId />', () => {
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({ push: pushMock });

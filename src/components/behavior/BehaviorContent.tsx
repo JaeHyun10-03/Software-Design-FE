@@ -10,10 +10,7 @@ const BehaviorContent = () => {
   const [behavior, setBehavior] = useState("");
   const [generalOpinion, setGeneralOpinion] = useState("");
   const [behaviorId, setBehaviorId] = useState(null);
-  const [edit, setEdit] = useState(false);
-  // console.log(behaviorId);
-  // console.log(behavior);
-  // console.log(generalOpinion);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const getBehavior = async () => {
@@ -26,60 +23,59 @@ const BehaviorContent = () => {
         setBehavior(data.behavior);
         setGeneralOpinion(data.generalComment);
         setBehaviorId(data.behaviorId);
-        console.log("출결 데이터:", data);
       } catch (err) {
         setBehaviorId(null);
-        alert(`행동 API 요청 실패 : ${err}`);
+        console.error(err);
       }
     };
     getBehavior();
   }, [year, grade, classNumber, studentId]);
 
   const postBehavior = async () => {
-    if (behaviorId) {
-      return;
-    }
     try {
       const token = localStorage.getItem("accessToken");
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNumber}&studentId=${studentId}`,
         {
-          behavior: behavior,
+          behavior,
           generalComment: generalOpinion,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const data = res.data;
-      console.log("행동 데이터 생성:", data);
-      alert("저장되었습니다.");
+      console.log("행동 데이터 생성:", res.data);
     } catch (err) {
-      alert(`저장 실패 : ${err}`);
+      console.error(`생성 실패 : ${err}`);
     }
   };
 
   const putBehavior = async () => {
-    if (!behavior) {
-      return;
-    }
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNumber}&studentId=${studentId}`,
+      const res = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior/${behaviorId}`,
         {
-          behavior: behavior,
+          behavior,
           generalComment: generalOpinion,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const data = res.data;
-      console.log("행동 데이터 수정:", data);
+      alert(res.data.message);
     } catch (err) {
-      alert(`저장 실패 : ${err}`);
+      console.error(`수정 실패 : ${err}`);
     }
+  };
+
+  const handleSave = async () => {
+    if (behaviorId) {
+      await putBehavior();
+    } else {
+      await postBehavior();
+    }
+    setIsEditing(false);
   };
 
   return (
@@ -89,6 +85,7 @@ const BehaviorContent = () => {
         <textarea
           value={behavior}
           onChange={(e) => setBehavior(e.target.value)}
+          readOnly={!isEditing}
           className="min-h-48 border border-[#a9a9a9] rounded-md text-[#333333] text-base resize-none p-4 focus:outline-none"
         />
       </div>
@@ -97,27 +94,20 @@ const BehaviorContent = () => {
         <textarea
           value={generalOpinion}
           onChange={(e) => setGeneralOpinion(e.target.value)}
+          readOnly={!isEditing}
           className="min-h-48 border border-[#a9a9a9] rounded-md text-[#333333] text-base resize-none p-4 focus:outline-none"
         />
-        {behaviorId ? (
-          <Button
-            className="w-16 h-8 ml-auto"
-            onClick={() => {
-              putBehavior();
-            }}
-          >
-            저장
-          </Button>
-        ) : (
-          <Button
-            className="w-16 h-8 ml-auto"
-            onClick={() => {
-              postBehavior();
-            }}
-          >
-            등록
-          </Button>
-        )}
+        <div className="flex gap-2 justify-end mt-2">
+          {isEditing ? (
+            <Button className="w-16 h-8" onClick={handleSave}>
+              저장
+            </Button>
+          ) : (
+            <Button className="w-16 h-8" onClick={() => setIsEditing(true)}>
+              수정
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

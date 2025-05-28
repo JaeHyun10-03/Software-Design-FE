@@ -17,12 +17,10 @@ interface CounselingData {
 export default function CounselList() {
   const { grade, classNumber, studentId } = useStudentFilterStore();
   const [cardList, setCardList] = useState<CounselingData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getCounsel = async () => {
-      setIsLoading(true);
       setError(null);
       const token = localStorage.getItem("accessToken");
       try {
@@ -35,8 +33,6 @@ export default function CounselList() {
       } catch (err) {
         console.error("상담 데이터 불러오기 오류:", err);
         setError("상담 데이터를 불러오는 중 오류가 발생했습니다.");
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -44,10 +40,6 @@ export default function CounselList() {
       getCounsel();
     }
   }, [grade, classNumber, studentId]);
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center p-4">상담 데이터를 불러오는 중...</div>;
-  }
 
   if (error) {
     return <div className="flex justify-center items-center p-4 text-red-500">{error}</div>;

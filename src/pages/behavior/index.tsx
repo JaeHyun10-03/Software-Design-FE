@@ -7,13 +7,15 @@ import React, { ReactNode } from "react";
 
 export default function BehaviorPage() {
   return (
-    <div className="mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
+    <div className="mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col mx-4 sm:mx-8">
       <div className="flex h-8">
         <StudentFilter />
         <DateFilter />
       </div>
       <div className="flex flex-row gap-8 mt-4 flex-1">
-        <StudentList />
+        <div className="hidden sm:flex">
+          <StudentList />
+        </div>
         <BehaviorContent />
       </div>
     </div>

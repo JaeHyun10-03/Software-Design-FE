@@ -1,19 +1,38 @@
 import React, { ReactNode } from "react";
 
 interface CellProps {
-  children: ReactNode;
+  children?: ReactNode;
   onClick?: () => void;
-  type?: "small" | "large";
+  type?: "S" | "M" | "L" | "XL";
 }
 
-export default function Cell({ children, onClick, type = "large" }: CellProps) {
-  const baseClass = type === "large" ? "flex flex-1 items-center justify-center h-16 border border-gray-400" : "flex flex-1 items-center justify-center h-8 border border-gray-400";
+export default function Cell({ children, onClick, type = "M" }: CellProps) {
+  let heightClass = "";
+
+  switch (type) {
+    case "S":
+      heightClass = "h-8";
+      break;
+    case "L":
+      heightClass = "h-24";
+      break;
+    case "M":
+      heightClass = "h-16";
+      break;
+    case "XL":
+      heightClass = "h-64";
+    default:
+      break;
+  }
 
   const clickableClass = onClick ? "cursor-pointer" : "";
 
   return (
-    <div className={`${baseClass} ${clickableClass}`} onClick={onClick}>
-      <p className="text-base text-center text-gray-800">{children}</p>
+    <div
+      onClick={onClick}
+      className={`w-full text-center break-words leading-tight flex flex-1 items-center justify-center border border-gray-300 text-sm text-gray-800 ${heightClass} ${clickableClass}`}
+    >
+      {children}
     </div>
   );
 }
