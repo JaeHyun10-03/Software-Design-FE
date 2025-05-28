@@ -1,7 +1,8 @@
 import React, { useMemo, useCallback, useState, useEffect } from "react";
 import useGradeFilterStore from "@/store/grade-filter-store";
 import { PostSubject } from "@/api/postSubject";
-import { GetSubjects } from "@/api/getSubjects"; // GetSubjects import
+import { GetSubjects } from "@/api/getSubjects";
+import { AddSubjectForm } from "@/components/grade/AddSubjectForm";
 
 interface SelectInputProps {
   value: string;
@@ -20,7 +21,6 @@ export default function GradeFilter() {
 
   const { year, semester, grade, subject, setYear, setSemester, setSubject } = useGradeFilterStore();
 
-  // 과목 목록 불러오기 (year, semester, grade가 바뀔 때마다)
   useEffect(() => {
     async function fetchSubjects() {
       if (!year || !semester || !grade) {
@@ -29,8 +29,7 @@ export default function GradeFilter() {
       }
       try {
         const data = await GetSubjects(Number(year), Number(semester), Number(grade));
-        // data: [{id: 1, name: "독서와 문법"}, ...]
-        const names = data.map((item: { name: any; }) => item.name);
+        const names = data.map((item: { name: any }) => item.name);
         setSubjectOptions([...names, "+ 과목추가"]);
       } catch (e) {
         setSubjectOptions(["+ 과목추가"]);
@@ -38,6 +37,7 @@ export default function GradeFilter() {
     }
     fetchSubjects();
   }, [year, semester, grade]);
+
   const handleGradeChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => setYear(event.target.value),
     [setYear]
@@ -60,7 +60,6 @@ export default function GradeFilter() {
     [setSubject]
   );
 
-  // PostSubject 사용!
   const handleAddSubject = async () => {
     const trimmed = newSubject.trim();
     if (!trimmed) {
@@ -72,6 +71,8 @@ export default function GradeFilter() {
       setSubjectOptions((prev) => {
         const base = prev.filter(opt => opt !== "+ 과목추가");
         if (!base.includes(trimmed)) base.push(trimmed);
+                alert("과목이 추가되었습니다. 과목의 평가방식을 꼭 추가해주세요");
+
         return [...base, "+ 과목추가"];
       });
       setSubject(trimmed);
@@ -102,39 +103,24 @@ export default function GradeFilter() {
   );
 
   return (
-    <div className="flex items-center gap-3">
-      <SelectInput value={year} onChange={handleGradeChange} options={yearOptions} label="연도" />
-      <SelectInput value={semester} onChange={handleClassChange} options={classOptions} label="학기" />
-      {isAdding ? (
-        <div className="flex items-center gap-1">
-          <input
-            className="border border-gray-400 rounded px-2 py-1 text-base"
-            value={newSubject}
-            onChange={e => setNewSubject(e.target.value)}
-            placeholder="새 과목명 입력"
-            onKeyDown={e => {
-              if (e.key === "Enter") handleAddSubject();
-              if (e.key === "Escape") setIsAdding(false);
-            }}
-            autoFocus
-          />
-          <button
-            className="px-2 py-1 bg-blue-500 text-white rounded"
-            onClick={handleAddSubject}
-            type="button"
-          >
-            추가
-          </button>
-          <button
-            className="px-2 py-1 bg-gray-300 text-black rounded"
-            onClick={() => setIsAdding(false)}
-            type="button"
-          >
-            취소
-          </button>
-        </div>
-      ) : (
+    <div className=" flex-col items-center justify-center w-full h-auto sm:h-8 gap-2">
+    <div className="flex flex-row sm:items-center gap-3">
+      <div className="flex flex-row gap-3">
+        <SelectInput value={year} onChange={handleGradeChange} options={yearOptions} label="연도" />
+        <SelectInput value={semester} onChange={handleClassChange} options={classOptions} label="학기" />
         <SelectInput value={subject} onChange={handleNumberChange} options={subjectOptions} label="과목" />
+      </div>
+      
+    </div>
+    {isAdding && (
+        <div className="flex mt-2">
+          <AddSubjectForm
+            value={newSubject}
+            onChange={setNewSubject}
+            onAdd={handleAddSubject}
+            onCancel={() => setIsAdding(false)}
+          />
+        </div>
       )}
     </div>
   );
