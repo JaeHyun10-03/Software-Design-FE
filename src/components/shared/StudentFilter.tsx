@@ -25,6 +25,7 @@ export default function StudentFilter(): React.ReactElement {
     if (!accessToken) return;
 
     const fetchStudentList = async () => {
+      if (!grade || !classNumber || !studentNumber) return;
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers/students?year=${year}&grade=${grade}&classNum=${classNumber}`, {
           headers: { Authorization: `Bearer ${accessToken}` },

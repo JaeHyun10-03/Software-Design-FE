@@ -12,10 +12,26 @@ const customJestConfig: Config.InitialOptions = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
-  transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
-  },
-  collectCoverageFrom: ["**/*.{ts,tsx,js,jsx}", "!**/*.d.ts", "!**/node_modules/**", "!**/.next/**", "!**/coverage/**", "!**/jest.config.ts"],
+  // transform 옵션에서 ts-jest 제거!
+  // transform: {
+  //   '^.+\\.(ts|tsx)$': 'ts-jest',
+  //   '^.+\\.(js|jsx)$': 'babel-jest',
+  // },
+  transformIgnorePatterns: ["/node_modules/(?!(@fullcalendar|preact)/)"],
+  collectCoverageFrom: [
+    "**/*.{ts,tsx}",
+    "!**/*.d.ts",
+    "!**/node_modules/**",
+    "!**/.next/**",
+    "!**/coverage/**",
+    "!**/jest.config.ts",
+    "!**/jest.setup.ts",
+    "!**/next-env.d.ts",
+    "!**/tailwind.config.ts",
+    "!**/src/pages/_app.tsx",
+    "!**/src/pages/_document.tsx",
+    "!**/src/assets/**",
+  ],
 };
 
 export default createJestConfig(customJestConfig);

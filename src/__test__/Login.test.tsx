@@ -2,10 +2,14 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Login from "@/pages/index";
 import { useRouter } from "next/navigation";
 import * as postLoginApi from "@/api/postLogin";
+import * as postFcmApi from "@/api/postFCM";
 
-// PostLogin 모듈을 mock 처리
+// PostLogin, PostFCM 모듈을 mock 처리
 jest.mock("@/api/postLogin", () => ({
   PostLogin: jest.fn(),
+}));
+jest.mock("@/api/postFCM", () => ({
+  PostFCM: jest.fn(),
 }));
 
 // 라우터, alert mocking
@@ -54,6 +58,8 @@ describe("<Login />", () => {
       role: "TEACHER",
       name: "홍길동", // 필요하다면 name도 같이 줘야 함
     });
+    // PostFCM mock
+    (postFcmApi.PostFCM as jest.Mock).mockResolvedValue({ success: true });
 
     render(<Login />);
     fireEvent.change(screen.getByPlaceholderText("아이디 입력"), { target: { value: "2025010201" } });
@@ -67,6 +73,40 @@ describe("<Login />", () => {
     });
   });
 
+  it("로그인 성공 시 라우팅(학생)", async () => {
+    (postLoginApi.PostLogin as jest.Mock).mockResolvedValue({
+      accessToken: "mockToken",
+      role: "STUDENT",
+    });
+    (postFcmApi.PostFCM as jest.Mock).mockResolvedValue({ success: true });
+
+    render(<Login />);
+    fireEvent.change(screen.getByPlaceholderText("아이디 입력"), { target: { value: "studentid" } });
+    fireEvent.change(screen.getByPlaceholderText("비밀번호 입력"), { target: { value: "studentpw" } });
+    fireEvent.click(screen.getByText("로그인하기"));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith("/student/student-record");
+    });
+  });
+
+  it("로그인 성공 시 role이 이상할 때 alert", async () => {
+    (postLoginApi.PostLogin as jest.Mock).mockResolvedValue({
+      accessToken: "mockToken",
+      role: "UNKNOWN",
+    });
+    (postFcmApi.PostFCM as jest.Mock).mockResolvedValue({ success: true });
+
+    render(<Login />);
+    fireEvent.change(screen.getByPlaceholderText("아이디 입력"), { target: { value: "unknownid" } });
+    fireEvent.change(screen.getByPlaceholderText("비밀번호 입력"), { target: { value: "unknownpw" } });
+    fireEvent.click(screen.getByText("로그인하기"));
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith("알 수 없는 사용자 역할입니다.");
+    });
+  });
+
   it("로그인 실패 시 alert 호출", async () => {
     (postLoginApi.PostLogin as jest.Mock).mockRejectedValue("로그인 실패");
 
@@ -76,7 +116,7 @@ describe("<Login />", () => {
     fireEvent.click(screen.getByText("로그인하기"));
 
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith("로그인 실패");
+      expect(window.alert).toHaveBeenCalledWith("이메일 혹은 비밀번호가 틀립니다. 다시 시도해주세요.");
     });
   });
 
@@ -90,5 +130,11 @@ describe("<Login />", () => {
     render(<Login />);
     fireEvent.click(screen.getByText("비밀번호 찾기"));
     expect(pushMock).toHaveBeenCalledWith("/findPW");
+  });
+
+  it("'비밀번호 변경' 클릭 시 라우팅", () => {
+    render(<Login />);
+    fireEvent.click(screen.getByText("비밀번호 변경"));
+    expect(pushMock).toHaveBeenCalledWith("/changePW");
   });
 });

@@ -1,12 +1,17 @@
+import BehaviorContent from "@/components/behavior/StudentBehaviorContent";
 import { StudentHeader } from "@/components/shared/StudentHeader";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
-const behavior = () => {
-  return <div className="sm:m-0 m-4"></div>;
-};
+export default function Behavior() {
+  return (
+    <div className="mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col sm:mx-8">
+      <div className="flex flex-row gap-8 mt-4 flex-1">
+        <BehaviorContent />
+      </div>
+    </div>
+  );
+}
 
-export default behavior;
-
-behavior.getLayout = (page: ReactNode) => {
+Behavior.getLayout = (page: ReactNode) => {
   return <StudentHeader>{page}</StudentHeader>;
 };
