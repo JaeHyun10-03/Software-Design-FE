@@ -49,9 +49,9 @@ export default function AlertPage() {
   }, [page, fetchAlerts, hasMore]);
 
   return (
-    <div className="flex flex-col p-4 h-[calc(100vh-120px)]">
+    <div className="flex flex-col p-4 pb-0 h-[calc(100vh-100px)]">
       <p className="text-left text-xl font-bold text-black mb-4">알림</p>
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto scrollbar-hide">
         <div className="flex flex-col gap-4 border border-[#d9d9d9] p-4  ">
           {alerts.map((alert, index) => (
             <div key={index} className="flex items-start gap-4  border-b border-[#d9d9d9]  last:border-b-0 pb-3 -ml-4 -mr-4">
