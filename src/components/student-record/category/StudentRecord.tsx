@@ -63,11 +63,25 @@ export default function StudentRecord() {
 
   const renderField = (key: keyof typeof studentData) => {
     const isEditable = !uneditableFields.includes(key);
-    return isEditMode && isEditable ? (
-      <input className="text-base h-full w-full pl-2 bg-white outline-none" value={studentData[key]} onChange={(e) => setStudentData({ ...studentData, [key]: e.target.value })} />
-    ) : (
-      <p className="text-base text-left text-black">{studentData[key]}</p>
-    );
+    const commonClass = "text-base w-full pl-2 outline-none";
+    const editableClass = "bg-white";
+    const uneditableClass = "bg-gray-100";
+
+    if (isEditMode && isEditable) {
+      return (
+        <input
+          className={`text-base w-full pl-4 outline-none ${editableClass} h-full`}
+          value={studentData[key]}
+          onChange={(e) => setStudentData({ ...studentData, [key]: e.target.value })}
+        />
+      );
+    } else {
+      return (
+        <div className={`${isEditMode && !isEditable ? uneditableClass : editableClass} flex items-center h-full w-full pl-2`}>
+          <p className={`${commonClass}`}>{studentData[key]}</p>
+        </div>
+      );
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,7 +149,7 @@ export default function StudentRecord() {
           {/* 증명 사진 */}
           <div className="flex justify-center items-center w-full sm:w-[272px] h-[336px] flex-shrink-0 border border-gray-400 cursor-pointer" onClick={handleImageClick}>
             {photo ? <img src={photo} alt="증명사진" className="w-[250px] h-[250px] object-cover" /> : <p className="text-base text-center text-gray-800">증명 사진</p>}
-            <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: "none" }} />
+            <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: "none" }} data-testid="file-input" />
           </div>
 
           {/* 표 컨테이너 */}
@@ -147,13 +161,13 @@ export default function StudentRecord() {
               <div className="flex flex-col w-32 bg-blue-100 border-r border-gray-400">
                 {["이름", "학년", "반", "번호", "성별", "주민번호", "주소"].map((label, idx) => (
                   <div key={idx} className="flex justify-center items-center h-12 border-b border-gray-400">
-                    <p className="text-base text-center text-black">{label}</p>
+                    <p className="text-base text-center text-black m-0 leading-normal">{label}</p>
                   </div>
                 ))}
               </div>
               <div className="flex flex-col flex-grow min-w-[200px]">
                 {["name", "grade", "class", "number", "gender", "ssn", "address"].map((key, idx) => (
-                  <div key={idx} className="flex justify-left items-center h-12 border-b border-gray-400 pl-2">
+                  <div key={idx} className="flex justify-center items-center h-12 border-b border-gray-400">
                     {renderField(key as keyof typeof studentData)}
                   </div>
                 ))}
@@ -164,13 +178,13 @@ export default function StudentRecord() {
               <div className="flex flex-col w-32 bg-blue-100 border-r border-gray-400">
                 {["전화번호", "입학일", "담임선생님", "부", "모", "부 연락처", "모 연락처"].map((label, idx) => (
                   <div key={idx} className="flex justify-center items-center h-12 border-b border-gray-400">
-                    <p className="text-base text-center text-black">{label}</p>
+                    <p className="text-base text-center text-black leading-normal">{label}</p>
                   </div>
                 ))}
               </div>
               <div className="flex flex-col flex-grow min-w-[200px]">
                 {["phone", "admissionDate", "teacher", "father", "mother", "fatherContact", "motherContact"].map((key, idx) => (
-                  <div key={idx} className="flex justify-left items-center h-12 border-b border-gray-400 pl-2">
+                  <div key={idx} className="flex justify-left items-center h-12 border-b border-gray-400">
                     {renderField(key as keyof typeof studentData)}
                   </div>
                 ))}

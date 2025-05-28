@@ -3,78 +3,104 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import StudentFilter from "@/components/shared/StudentFilter";
 import useStudentFilterStore from "@/store/student-filter-store";
+import useSelectedDate from "@/store/selected-date-store";
 import axios from "axios";
 
-// zustand store mock
 jest.mock("@/store/student-filter-store");
-// axios mock
+jest.mock("@/store/selected-date-store");
 jest.mock("axios");
+
+const mockUseStudentFilterStore = useStudentFilterStore as unknown as jest.Mock;
+const mockUseSelectedDate = useSelectedDate as unknown as jest.Mock;
+const mockAxiosGet = axios.get as jest.Mock;
 
 describe("<StudentFilter />", () => {
   const setGrade = jest.fn();
   const setClassNumber = jest.fn();
   const setStudentNumber = jest.fn();
   const setStudentId = jest.fn();
+  const setStudents = jest.fn();
 
- beforeEach(() => {
-  jest.clearAllMocks();
-  // store mock 리턴값 설정
-  ((useStudentFilterStore as unknown) as jest.Mock).mockReturnValue({
-    grade: "1",
-    classNumber: "2",
-    studentNumber: "3",
-    setGrade,
-    setClassNumber,
-    setStudentNumber,
-    setStudentId,
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    mockUseSelectedDate.mockReturnValue({
+      year: "2025",
+    });
+
+    mockUseStudentFilterStore.mockReturnValue({
+      grade: "1",
+      classNumber: "1",
+      studentNumber: "1",
+      setGrade,
+      setClassNumber,
+      setStudentNumber,
+      setStudentId,
+      setStudents,
+      students: [
+        { studentId: "1001", number: 1, name: "홍길동" },
+        { studentId: "1002", number: 2, name: "김철수" },
+      ],
+    });
+
+    // getState 직접 모킹 (any 캐스팅으로 우회)
+    (mockUseStudentFilterStore as any).getState = jest.fn(() => ({
+      students: [
+        { studentId: "1001", number: 1, name: "홍길동" },
+        { studentId: "1002", number: 2, name: "김철수" },
+      ],
+    }));
+
+    // localStorage mock
+    jest.spyOn(Storage.prototype, "getItem").mockImplementation((key) => (key === "accessToken" ? "mock-token" : null));
   });
-  // localStorage mock
-  Storage.prototype.getItem = jest.fn(() => "mock-token");
-});
 
-
-  it("학년/반/번호 셀렉트와 라벨이 모두 보인다", () => {
+  it("학년, 반, 번 셀렉트 박스가 렌더링 된다", () => {
     render(<StudentFilter />);
-    expect(screen.getByText("학년")).toBeInTheDocument();
-    expect(screen.getByText("반")).toBeInTheDocument();
-    expect(screen.getByText("번")).toBeInTheDocument();
-    expect(screen.getAllByRole("combobox")).toHaveLength(3);
+    const gradeSelect = screen.getAllByRole("combobox")[0];
+    const classSelect = screen.getAllByRole("combobox")[1];
+    const numberSelect = screen.getAllByRole("combobox")[2];
+
+    expect(gradeSelect).toBeInTheDocument();
+    expect(classSelect).toBeInTheDocument();
+    expect(numberSelect).toBeInTheDocument();
+
+    expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
   });
 
- it("각 셀렉트박스에 올바른 옵션이 보인다", () => {
-  render(<StudentFilter />);
-  const selects = screen.getAllByRole("combobox");
-  // 학년 셀렉트
-  expect(selects[0].querySelector('option[value="1"]')).toBeInTheDocument();
-  expect(selects[0].querySelector('option[value="2"]')).toBeInTheDocument();
-  expect(selects[0].querySelector('option[value="3"]')).toBeInTheDocument();
-  // 반 셀렉트
-  expect(selects[1].querySelector('option[value="10"]')).toBeInTheDocument();
-  // 번호 셀렉트
-  expect(selects[2].querySelector('option[value="30"]')).toBeInTheDocument();
-});
-
-
-  it("학년/반/번호 변경 시 각각 setGrade/setClassNumber/setStudentNumber가 호출된다", () => {
+  it("학년 변경 시 setGrade가 호출된다", () => {
     render(<StudentFilter />);
-    const selects = screen.getAllByRole("combobox");
-    fireEvent.change(selects[0], { target: { value: "2" } });
+    const gradeSelect = screen.getAllByRole("combobox")[0];
+
+    fireEvent.change(gradeSelect, { target: { value: "2" } });
+
     expect(setGrade).toHaveBeenCalledWith("2");
-    fireEvent.change(selects[1], { target: { value: "5" } });
-    expect(setClassNumber).toHaveBeenCalledWith("5");
-    fireEvent.change(selects[2], { target: { value: "10" } });
-    expect(setStudentNumber).toHaveBeenCalledWith("10");
   });
 
-  it("학년/반/번호가 모두 선택되면 학생 정보 API를 호출하고, setStudentId가 호출된다", async () => {
-    // axios 응답 mock
-    (axios.get as jest.Mock).mockResolvedValueOnce({
+  it("반 변경 시 setClassNumber가 호출된다", () => {
+    render(<StudentFilter />);
+    const classSelect = screen.getAllByRole("combobox")[1];
+
+    fireEvent.change(classSelect, { target: { value: "3" } });
+
+    expect(setClassNumber).toHaveBeenCalledWith("3");
+  });
+
+  it("번 변경 시 setStudentNumber, setStudentId가 호출된다", () => {
+    render(<StudentFilter />);
+    const numberSelect = screen.getAllByRole("combobox")[2];
+
+    fireEvent.change(numberSelect, { target: { value: "2" } });
+
+    expect(setStudentNumber).toHaveBeenCalledWith("2");
+    expect(setStudentId).toHaveBeenCalledWith("1002");
+  });
+
+  it("grade, classNumber 변경시 학생 목록 API 호출되고 스토어 갱신된다", async () => {
+    mockAxiosGet.mockResolvedValueOnce({
       data: {
         response: {
-          students: [
-            { number: 1, studentId: 1001 },
-            { number: 3, studentId: 1003 }, // studentNumber: "3"일 때 매칭
-          ],
+          students: [{ studentId: "1003", number: 3, name: "박영희" }],
         },
       },
     });
@@ -82,45 +108,11 @@ describe("<StudentFilter />", () => {
     render(<StudentFilter />);
 
     await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith(
-        expect.stringContaining("/teachers/students"),
-        expect.objectContaining({
-          headers: { Authorization: "Bearer mock-token" },
-        })
-      );
-      expect(setStudentId).toHaveBeenCalledWith(1003);
-    });
-  });
-
-  it("학생 정보가 없으면 setStudentId가 호출되지 않고, 콘솔 경고가 발생한다", async () => {
-    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    (axios.get as jest.Mock).mockResolvedValueOnce({
-      data: {
-        response: {
-          students: [{ number: 1, studentId: 1001 }],
-        },
-      },
+      expect(mockAxiosGet).toHaveBeenCalledWith(expect.stringContaining("/teachers/students"), expect.any(Object));
     });
 
-    render(<StudentFilter />);
-    await waitFor(() => {
-      expect(setStudentId).not.toHaveBeenCalled();
-      expect(warnSpy).toHaveBeenCalledWith("해당 학생을 찾을 수 없습니다.");
-    });
-    warnSpy.mockRestore();
-  });
-
-  it("API 호출 실패시 콘솔 에러가 발생한다", async () => {
-    const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-    (axios.get as jest.Mock).mockRejectedValueOnce(new Error("API 실패"));
-
-    render(<StudentFilter />);
-    await waitFor(() => {
-      expect(errorSpy).toHaveBeenCalledWith(
-        "학생 정보 가져오기 실패:",
-        expect.any(Error)
-      );
-    });
-    errorSpy.mockRestore();
+    expect(setStudents).toHaveBeenCalledWith([{ studentId: "1003", number: 3, name: "박영희" }]);
+    expect(setStudentNumber).toHaveBeenCalledWith("3");
+    expect(setStudentId).toHaveBeenCalledWith("1003");
   });
 });

@@ -46,7 +46,7 @@ export default function AttendancePage() {
   };
 
   return (
-    <div className="sm:mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
+    <div className="sm:mx-8 mx-4 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
       <div className="flex flex-col h-16 gap-4 sm:flex-row sm:h-8">
         <StudentFilter />
         <DateFilter></DateFilter>

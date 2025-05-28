@@ -13,7 +13,7 @@ export default function Content() {
   return (
     <div className="flex-1 border border-gray-400 overflow-y-auto flex flex-col">
       <Category />
-      <div className="flex-1">
+      <div className="flex-1 ">
         {category === "학적" && <StudentRecord />}
         {category === "성적" && <Grade />}
         {category === "출결" && <Attendance />}
