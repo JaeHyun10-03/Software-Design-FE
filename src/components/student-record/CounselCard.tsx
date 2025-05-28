@@ -1,4 +1,3 @@
-// CounselCard.tsx
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,15 +15,14 @@ export default function CounselCard({ dateTime, category, teacher, content, next
   const [open, setOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // 날짜 형식을 YYYY-MM-DD HH:MM:SS에서 YYYY년 MM월 DD일 HH:MM으로 변환
+  // 날짜 유효성 체크 추가
   const formatDate = (dateTimeStr: string) => {
-    try {
-      const date = new Date(dateTimeStr);
-      return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-    } catch (err) {
-      console.error(err);
-      return dateTimeStr; // 변환 실패 시 원본 반환
+    const date = new Date(dateTimeStr);
+    if (isNaN(date.getTime())) {
+      // 유효하지 않은 날짜면 원본 반환
+      return dateTimeStr;
     }
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
   };
 
   return (

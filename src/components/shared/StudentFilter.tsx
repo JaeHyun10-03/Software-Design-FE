@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback, useEffect } from "react";
 import useStudentFilterStore from "@/store/student-filter-store";
+import useSelectedDate from "@/store/selected-date-store";
 import axios from "axios";
 
 interface SelectInputProps {
@@ -10,72 +11,67 @@ interface SelectInputProps {
 }
 
 export default function StudentFilter(): React.ReactElement {
-  const gradeOptions: string[] = useMemo(() => ["1", "2", "3"], []);
-  const classOptions: string[] = useMemo(() => Array.from({ length: 10 }, (_, i) => (i + 1).toString()), []);
-  const numberOptions: string[] = useMemo(() => Array.from({ length: 30 }, (_, i) => (i + 1).toString()), []);
+  const gradeOptions = useMemo(() => ["1", "2", "3"], []);
+  const classOptions = useMemo(() => Array.from({ length: 10 }, (_, i) => (i + 1).toString()), []);
+  const numberOptions = useMemo(() => Array.from({ length: 30 }, (_, i) => (i + 1).toString()), []);
 
-  const {
-    grade,
-    classNumber,
-    studentNumber,
-    setGrade,
-    setClassNumber,
-    setStudentNumber,
-    setStudentId,
-  } = useStudentFilterStore();
+  const { year } = useSelectedDate();
 
-  // 학년, 반, 번호가 바뀔 때마다 해당 학생 ID를 가져오기 위한 useEffect
+  const { grade, classNumber, studentNumber, setGrade, setClassNumber, setStudentNumber, setStudentId, setStudents } = useStudentFilterStore();
+
+  // 🔁 grade/classNumber 바뀌면 학생 목록 갱신
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) return;
 
     const fetchStudentList = async () => {
       if (!grade || !classNumber || !studentNumber) return;
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers/students`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/teachers/students?year=${year}&grade=${grade}&classNum=${classNumber}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
+
         const data = res.data.response;
-        console.log(data)
+        const students = data.students || [];
 
-        // 선택된 학년, 반, 번호에 맞는 학생을 찾기
-        const matchedStudent = data.students.find(
-          (student: any) =>
-            student.number === Number(studentNumber)
-        );
-
-        if (matchedStudent) {
-          setStudentId(matchedStudent.studentId);
-        } else {
-          console.warn("해당 학생을 찾을 수 없습니다.");
+        if (students.length > 0) {
+          setStudentNumber(students[0].number.toString());
+          setStudentId(students[0].studentId);
         }
+
+        setStudents(students);
       } catch (error) {
-        console.error("학생 정보 가져오기 실패:", error);
+        // alert("학생 목록을 불러오는 데 실패했습니다.");
+        console.error(error);
       }
     };
 
     fetchStudentList();
-  }, [grade, classNumber, studentNumber]);
+  }, [grade, classNumber]);
 
-  const handleGradeChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
-    setGrade(event.target.value);
+  const handleGradeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setGrade(e.target.value);
   }, []);
 
-  const handleClassChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
-    setClassNumber(event.target.value);
+  const handleClassChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setClassNumber(e.target.value);
   }, []);
 
-  const handleNumberChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
-    setStudentNumber(event.target.value);
+  const handleNumberChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedNumber = e.target.value;
+    setStudentNumber(selectedNumber);
+
+    // 현재 students에서 해당 학생 ID 찾기
+    const student = useStudentFilterStore.getState().students.find((s) => s.number.toString() === selectedNumber);
+    if (student) {
+      setStudentId(student.studentId);
+    }
   }, []);
 
   const SelectInput = useCallback(
     ({ value, onChange, options, label }: SelectInputProps) => (
       <div className="flex items-center gap-1">
-        <select
-          className="w-10 h-6 border border-gray-400 text-gray-800 text-center text-base rounded"
-          value={value}
-          onChange={onChange}
-        >
+        <select className="w-16 h-6 border border-gray-400 text-gray-800 text-center text-base rounded" value={value} onChange={onChange}>
           {options.map((option) => (
             <option key={option} value={option}>
               {option}

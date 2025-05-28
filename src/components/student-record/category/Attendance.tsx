@@ -41,8 +41,8 @@ export default function Attendance() {
         );
         setSummary(res.data.response);
       } catch (err) {
-        console.error("출결 통계 데이터 조회 오류:", err);
-        setError("출결 통계 데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error("올바른 학년, 반을 적용해주세요:", err);
+        setError("올바른 학년, 반을 적용해주세요. 담임선생님만 학생들의 출결을 볼 수 있습니다");
       } finally {
         setIsLoading(false);
       }

@@ -2,22 +2,23 @@ import React, { useEffect } from "react";
 import axios from "axios";
 import useStudentFilterStore from "@/store/student-filter-store";
 import useBehaviorStore from "@/store/behavior-store";
+import useSelectedDate from "@/store/selected-date-store";
 
 export default function Behavior() {
   const { behavior, generalComment, setBehavior, setBehaviorId, setGeneralComment } = useBehaviorStore();
   const { grade, classNumber, studentId, isReady } = useStudentFilterStore();
+  const { year } = useSelectedDate();
 
   useEffect(() => {
-    if (!isReady) return;
-
     const token = localStorage.getItem("accessToken");
 
     const getBehavior = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?grade=${+grade}&classNum=${+classNumber}&studentId=${+studentId}`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${+classNumber}&studentId=${+studentId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = res.data.response;
+        console.log(data);
         setBehavior(data.behavior);
         setBehaviorId(data.behaviorId);
         setGeneralComment(data.generalComment);
