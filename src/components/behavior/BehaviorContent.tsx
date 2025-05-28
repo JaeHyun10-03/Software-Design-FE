@@ -9,7 +9,7 @@ const BehaviorContent = () => {
   const { year } = useSelectedDate();
   const [behavior, setBehavior] = useState("");
   const [generalOpinion, setGeneralOpinion] = useState("");
-  const [behaviorId, setBehaviorId] = useState(null);
+  const [behaviorId, setBehaviorId] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
@@ -45,6 +45,7 @@ const BehaviorContent = () => {
         }
       );
       console.log("행동 데이터 생성:", res.data);
+      setBehaviorId(res.data.response.behaviorId); // 새로 생성된 id 저장
     } catch (err) {
       console.error(`생성 실패 : ${err}`);
     }
@@ -52,6 +53,7 @@ const BehaviorContent = () => {
 
   const putBehavior = async () => {
     try {
+      if (!behaviorId) return;
       const token = localStorage.getItem("accessToken");
       const res = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior/${behaviorId}`,
@@ -78,11 +80,17 @@ const BehaviorContent = () => {
     setIsEditing(false);
   };
 
+  // 수정 버튼 클릭 핸들러 분리 (접근성 키 이벤트에도 사용)
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
   return (
     <div className="w-full h-full border border-[#a9a9a9] p-4">
       <div className="flex flex-col gap-2">
         <p className="text-xl">행동특성</p>
         <textarea
+          aria-label="행동특성"
           value={behavior}
           onChange={(e) => setBehavior(e.target.value)}
           readOnly={!isEditing}
@@ -92,6 +100,7 @@ const BehaviorContent = () => {
       <div className="flex flex-col gap-2 mt-16">
         <p className="text-xl">종합의견</p>
         <textarea
+          aria-label="종합의견"
           value={generalOpinion}
           onChange={(e) => setGeneralOpinion(e.target.value)}
           readOnly={!isEditing}
@@ -103,9 +112,21 @@ const BehaviorContent = () => {
               저장
             </Button>
           ) : (
-            <Button className="w-16 h-8" onClick={() => setIsEditing(true)}>
-              수정
-            </Button>
+            // div 대신 role="button" 추가하고 키보드 접근성 지원
+            <div
+              role="button"
+              tabIndex={0}
+              className="flex items-center justify-center rounded-md w-16 h-8 select-none bg-[#0064ff] cursor-pointer hover:bg-[#0057E6]"
+              onClick={handleEditClick}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleEditClick();
+                }
+              }}
+            >
+              <p className="text-xl font-bold text-white">수정</p>
+            </div>
           )}
         </div>
       </div>
