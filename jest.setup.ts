@@ -1,6 +1,7 @@
 // DOM 테스트에 확장 매처 추가
 import "@testing-library/jest-dom";
 import "jest-canvas-mock";
+import React from "react";
 
 // 🔧 브라우저 내장 객체 Mock --------------------------------------------------
 
@@ -47,3 +48,62 @@ global.console = {
   error: jest.fn(),
   warn: jest.fn(),
 };
+
+// 🔧 FullCalendar Mock -----------------------------------------------------
+
+// FullCalendar React 컴포넌트 모킹
+jest.mock("@fullcalendar/react", () => {
+  return function MockFullCalendar(props: any) {
+    return React.createElement(
+      "div",
+      {
+        "data-testid": "full-calendar",
+        className: "mock-fullcalendar",
+      },
+      [
+        // 이벤트들 렌더링
+        ...(props.events || []).map((event: any) =>
+          React.createElement(
+            "div",
+            {
+              key: event.id,
+              "data-testid": `event-${event.id}`,
+              className: "fc-event",
+              onClick: () => props.eventClick?.({ event }),
+              style: {
+                backgroundColor: event.backgroundColor,
+                borderColor: event.borderColor,
+              },
+            },
+            event.title
+          )
+        ),
+        // 날짜 셀 (클릭 테스트용) - 항상 selected-date 클래스 포함
+        React.createElement(
+          "div",
+          {
+            key: "calendar-cell",
+            "data-testid": "calendar-cell",
+            className: "fc-daygrid-day selected-date", // 여기서 selected-date 클래스 명시적으로 추가
+            onClick: () =>
+              props.dateClick?.({
+                date: new Date(props.selectedDate || "2024-06-01"),
+                dateStr: props.selectedDate || "2024-06-01",
+              }),
+          },
+          "1"
+        ),
+      ]
+    );
+  };
+});
+
+// FullCalendar 플러그인들 모킹
+jest.mock("@fullcalendar/daygrid", () => ({}));
+jest.mock("@fullcalendar/interaction", () => ({
+  DateClickArg: {},
+}));
+jest.mock("@fullcalendar/core", () => ({
+  EventClickArg: {},
+}));
+jest.mock("@fullcalendar/core/locales/ko", () => ({}));
