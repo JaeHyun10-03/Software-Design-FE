@@ -149,6 +149,15 @@ body {
   /* 셀 전체 배경은 투명하게 유지 */
 }
 
+.no-spinner {
+  -moz-appearance: textfield;
+}
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 @media (max-width: 600px) {
   .overflow-x-auto {
     display: flex;
