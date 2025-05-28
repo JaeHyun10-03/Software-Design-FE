@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState, useRef, useCallback } from "react";
-import { Header } from "@/components/shared/StudentHeader";
+import { StudentHeader } from "@/components/shared/StudentHeader";
 import { GetNotification } from "@/api/student/getNotifications";
 
 type Alert = {
@@ -74,5 +74,5 @@ export default function AlertPage() {
 }
 
 AlertPage.getLayout = (page: ReactNode) => {
-  return <Header>{page}</Header>;
+  return <StudentHeader>{page}</StudentHeader>;
 };

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PostLogin } from "@/api/postLogin";
 import useLoginStore from "@/store/login-store";
+import useStudent from "@/store/student-store";
 import { messaging, getToken } from "@/utils/firebase";
 import { PostFCM } from "@/api/postFCM";
 
@@ -11,7 +12,8 @@ const Login = () => {
   const [userId, setUserId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const { setName } = useLoginStore();
-
+  const { setGrade, setClassNumber, setStudentNumber, setStudentId, setStudentName } = useStudent();
+  
   const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setUserId(e.target.value);
   };
@@ -51,9 +53,17 @@ const Login = () => {
     try {
       const response = await PostLogin(userId, password);
       const data = response;
+      console.log("로그인 성공", data);
 
       const { accessToken, role, name } = data;
       setName(name);
+      setGrade(data.grade);
+      setClassNumber(data.classNum);
+      setStudentNumber(data.number);
+      setStudentId(data.studentId);
+      setStudentName(data.name);
+
+      console.log("학생 정보 저장됨:", data.grade, data.classNum, data.number, data.studentId, data.name);
 
       localStorage.setItem("accessToken", accessToken);
       sendFcmTokenToServer();
