@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/shared/Header";
-import StudentFilter from "@/components/shared/StudentFilter";
-import GradeFilter from "@/components/grade/GradeFilter";
+import { GradeHeaderSection } from "@/components/grade/GradeHeaderSection";
+import { GradeActionBar } from "@/components/grade/GradeActionBar";
+import { EvalAddModal } from "@/components/grade/EvalAddModal";
+import { GradeTableSection } from "@/components/grade/GradeTableSection";
 import { GetScore } from "@/api/getScoreSummary";
 import { PostScore } from "@/api/postScore";
 import { PostEval } from "@/api/postEval";
-import { Modal } from "@/components/shared/Modal";
 import { GetEvalMethod } from "@/api/getEvalMethod";
-import { EvalAddForm } from "@/components/grade/EvalAddForm";
 import { GetStudentList } from "@/api/getStudentList";
 import { mapApiResponseToStudents, convertToApiFormat, Evaluation } from "@/utils/gradeUtils";
-import { GradeTable } from "@/components/grade/GradeTable";
-import { SaveButton } from "@/components/grade/SaveButton";
 import useStudentFilterStore from "@/store/student-filter-store";
 import useGradeFilterStore from "@/store/grade-filter-store";
 
@@ -41,20 +39,15 @@ export default function GradesPage() {
     if (!allFilled) return;
     const fetchGrades = async () => {
       try {
-        // 1. 먼저 GetScore로 시도
         const response = await GetScore(Number(year), Number(semester), Number(grade), Number(classNumber), subject);
         const { titles, students } = mapApiResponseToStudents(response);
         setEvaluations(titles);
         setStudents(students);
       } catch (error: any) {
-        // 2. 404 에러(데이터 없음)일 때만 대체 로직 수행
         if (error?.response?.status === 404) {
           try {
-            // 평가방식(컬럼) 목록 가져오기
             const evalList = await GetEvalMethod(Number(year), Number(semester), Number(grade), subject);
             setEvaluations(evalList);
-
-            // 학생 목록 가져오기
             const studentList = await GetStudentList(Number(year), Number(grade), Number(classNumber));
             const studentsWithDash = Array.isArray(studentList)
               ? studentList.map((stu: any) => {
@@ -118,7 +111,6 @@ export default function GradesPage() {
     }
   };
 
-  // 평가방식 추가 핸들러
   const handleAddEval = async () => {
     if (!evalInput.title.trim()) {
       alert("평가명을 입력하세요.");
@@ -130,7 +122,7 @@ export default function GradesPage() {
         Number(year),
         Number(semester),
         Number(grade),
-        evalInput.examType as "WRITTEN" | "PRACTICAL",
+        evalInput.examType,
         evalInput.title,
         Number(evalInput.weight),
         Number(evalInput.fullScore)
@@ -138,7 +130,7 @@ export default function GradesPage() {
       setEvaluations(prev => [
         ...prev,
         {
-          evaluationId: Date.now(), // 임시 id
+          evaluationId: Date.now(),
           title: evalInput.title,
           examType: evalInput.examType,
           weight: evalInput.weight,
@@ -154,50 +146,29 @@ export default function GradesPage() {
 
   return (
     <div className="mx-0 sm:mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
-      <div className="flex flex-col sm:flex-row sm:items-base w-full gap-2 sm:h-8">
-        <div className="flex mb-[20px]"><StudentFilter /></div>
-        <div className="flex mt-[-16px] max-h-[24px]"><GradeFilter /></div>
-      </div>
-   
-      <div className="flex justify-end mt-16 gap-2">
-        {/* + 평가방식 버튼 */}
-        <button
-          className="w-[84px] h-[32px] rounded-[6px] mb-[14px] bg-green-500 text-white  hover:bg-green-600 transition"
-          onClick={() =>setShowEvalInput(true) }
-          type="button"
-        >
-          + 평가방식
-        </button>
-        <SaveButton onClick={handleSave} />
-      </div>
-      {/* 평가방식 추가 모달 */}
-        <Modal open={showEvalInput} onClose={() => setShowEvalInput(false)}>
-        <EvalAddForm
-          value={evalInput}
-          onChange={v => setEvalInput(prev => ({ ...prev, ...v }))}
-          onAdd={handleAddEval}
-          onCancel={() => setShowEvalInput(false)}
-        />
-      </Modal>
-      {allFilled ? (
-        <>
-          <p className="font-nanum-gothic font-semibold text-[20px] leading-[23px] flex items-center text-black mb-[5px]">{subject}</p>
-          <GradeTable
-            evaluations={evaluations}
-            students={students}
-            editing={editing}
-            inputValue={inputValue}
-            selectedRow={selectedRow}
-            setSelectedRow={setSelectedRow}
-            handleCellClick={handleCellClick}
-            handleInputChange={handleInputChange}
-            handleInputBlur={handleInputBlur}
-            handleInputKeyDown={handleInputKeyDown}
-          />
-        </>
-      ) : (
-        <div className="text-gray-400 text-center mt-8">모든 정보를 입력해주세요.</div>
-      )}
+      <GradeHeaderSection />
+      <GradeActionBar onAddEval={() => setShowEvalInput(true)} onSave={handleSave} />
+      <EvalAddModal
+        open={showEvalInput}
+        value={evalInput}
+        onChange={v => setEvalInput(prev => ({ ...prev, ...v }))}
+        onAdd={handleAddEval}
+        onCancel={() => setShowEvalInput(false)}
+      />
+      <GradeTableSection
+        allFilled={allFilled}
+        subject={subject}
+        evaluations={evaluations}
+        students={students}
+        editing={editing}
+        inputValue={inputValue}
+        selectedRow={selectedRow}
+        setSelectedRow={setSelectedRow}
+        handleCellClick={handleCellClick}
+        handleInputChange={handleInputChange}
+        handleInputBlur={handleInputBlur}
+        handleInputKeyDown={handleInputKeyDown}
+      />
     </div>
   );
 }

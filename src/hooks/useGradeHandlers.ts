@@ -1,5 +1,4 @@
 // hooks/useGradeHandlers.ts
-import { useState } from "react";
 import { PostScore } from "@/api/postScore";
 import { PostEval } from "@/api/postEval";
 import { convertToApiFormat, Evaluation } from "@/utils/gradeUtils";

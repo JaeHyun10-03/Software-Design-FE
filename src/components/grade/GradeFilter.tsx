@@ -9,6 +9,7 @@ interface SelectInputProps {
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: string[];
   label: string;
+  ariaLabel?: string;
 }
 
 export default function GradeFilter() {
@@ -31,8 +32,9 @@ export default function GradeFilter() {
         const data = await GetSubjects(Number(year), Number(semester), Number(grade));
         const names = data.map((item: { name: any }) => item.name);
         setSubjectOptions([...names, "+ 과목추가"]);
-      } catch (e) {
+      } catch (error) {
         setSubjectOptions(["+ 과목추가"]);
+        console.error("과목 목록을 불러오는 데 실패했습니다.", error);
       }
     }
     fetchSubjects();
@@ -79,13 +81,15 @@ export default function GradeFilter() {
       setIsAdding(false);
     } catch (e) {
       alert("과목 추가에 실패했습니다.");
+      console.error("과목 추가 실패:", e);
     }
   };
 
   const SelectInput = useCallback(
-    ({ value, onChange, options, label }: SelectInputProps) => (
+    ({ value, onChange, options, label, ariaLabel }: SelectInputProps) => (
       <div className="flex items-center gap-1">
         <select
+          aria-label={ariaLabel || label}
           className="w-15 h-6 border border-gray-400 text-gray-800 text-center text-base rounded"
           value={value}
           onChange={onChange}
@@ -106,9 +110,9 @@ export default function GradeFilter() {
     <div className=" flex-col items-center justify-center w-full h-auto sm:h-8 gap-2">
     <div className="flex flex-row sm:items-center gap-3">
       <div className="flex flex-row gap-3">
-        <SelectInput value={year} onChange={handleGradeChange} options={yearOptions} label="연도" />
-        <SelectInput value={semester} onChange={handleClassChange} options={classOptions} label="학기" />
-        <SelectInput value={subject} onChange={handleNumberChange} options={subjectOptions} label="과목" />
+        <SelectInput ariaLabel="연도" value={year} onChange={handleGradeChange} options={yearOptions} label="연도" />
+        <SelectInput ariaLabel="학기" value={semester} onChange={handleClassChange} options={classOptions} label="학기" />
+        <SelectInput ariaLabel="과목" value={subject} onChange={handleNumberChange} options={subjectOptions} label="과목" />
       </div>
       
     </div>
