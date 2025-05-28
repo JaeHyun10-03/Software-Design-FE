@@ -28,8 +28,7 @@ jest.mock("@/components/grade/GradeTable", () => ({
   __esModule: true,
   GradeTable: ({ evaluations, students }: any) => (
     <div data-testid="grade-table-mock">
-      evals:{evaluations.map((e: any) => e.name ?? e).join(",")}
-      | students:{students.length}
+      evals:{evaluations.map((e: any) => e.name ?? e).join(",")}| students:{students.length}
     </div>
   ),
 }));
@@ -37,9 +36,7 @@ jest.mock("@/components/grade/GradeTable", () => ({
 // 5) SaveButton (named export)
 jest.mock("@/components/grade/SaveButton", () => ({
   __esModule: true,
-  SaveButton: ({ onClick }: { onClick: () => void }) => (
-    <button onClick={onClick}>다음</button>
-  ),
+  SaveButton: ({ onClick }: { onClick: () => void }) => <button onClick={onClick}>다음</button>,
 }));
 
 // ——— Mock Zustand stores ———
@@ -71,10 +68,7 @@ jest.mock("@/utils/gradeUtils", () => ({
 
 import { GetScore } from "@/api/getScoreSummary";
 import { PostScore } from "@/api/postScore";
-import {
-  mapApiResponseToStudents,
-  convertToApiFormat,
-} from "@/utils/gradeUtils";
+import { mapApiResponseToStudents, convertToApiFormat } from "@/utils/gradeUtils";
 
 describe("GradesPage", () => {
   beforeEach(() => {
