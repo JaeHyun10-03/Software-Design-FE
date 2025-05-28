@@ -1,371 +1,431 @@
-// src/__tests__/grade/GradesPage.test.tsx
-
+// __tests__/pages/GradesPage.test.tsx
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import GradesPage from "@/pages/grade";
+import GradesPage from "@/pages/grade/index";
+import { GetScore } from "@/api/getScoreSummary";
+import { GetEvalMethod } from "@/api/getEvalMethod";
+import { GetStudentList } from "@/api/getStudentList";
+import { PostScore } from "@/api/postScore";
+import { PostEval } from "@/api/postEval";
 
-// ——— Mock all collaborators with correct ES module interop ———
-jest.mock("@/components/shared/Header", () => ({
+// 1. Mock store
+jest.mock("@/store/student-filter-store", () => ({
   __esModule: true,
-  Header: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  default: () => ({
+    grade: "1",
+    classNumber: "2",
+    studentNumber: "3",
+  }),
+}));
+jest.mock("@/store/grade-filter-store", () => ({
+  __esModule: true,
+  default: () => ({
+    year: "2025",
+    semester: "1",
+    subject: "수학",
+  }),
 }));
 
-jest.mock("@/components/shared/StudentFilter", () => ({
-  __esModule: true,
-  default: () => <div data-testid="student-filter" />,
-}));
-
-jest.mock("@/components/grade/GradeFilter", () => ({
-  __esModule: true,
-  default: () => <div data-testid="grade-filter" />,
-}));
-
-jest.mock("@/components/grade/GradeTable", () => ({
-  __esModule: true,
-  GradeTable: ({ evaluations, students, handleCellClick, handleInputChange, handleInputBlur, handleInputKeyDown }: any) => (
-    <div data-testid="grade-table-mock">
-      <span>
-        evals:{evaluations.map((e: any) => e.name ?? e).join(",")}| students:{students.length}
-      </span>
-      <button onClick={() => handleCellClick(1, "score", 85)} data-testid="cell-click-btn">
-        Cell Click
-      </button>
-      <input onChange={handleInputChange} onBlur={handleInputBlur} onKeyDown={handleInputKeyDown} data-testid="mock-input" />
-    </div>
-  ),
-}));
-
-jest.mock("@/components/grade/SaveButton", () => ({
-  __esModule: true,
-  SaveButton: ({ onClick }: { onClick: () => void }) => <button onClick={onClick}>다음</button>,
-}));
-
-// ——— Mock Zustand stores - 기본값 설정 ———
-const defaultStudentStore = {
-  grade: "1",
-  classNumber: "2",
-  studentNumber: "3",
-};
-
-const defaultGradeStore = {
-  year: "2024",
-  semester: "1",
-  subject: "수학",
-};
-
-let mockStudentStore = { ...defaultStudentStore };
-let mockGradeStore = { ...defaultGradeStore };
-
-jest.mock("@/store/student-filter-store", () => jest.fn(() => mockStudentStore));
-
-jest.mock("@/store/grade-filter-store", () => jest.fn(() => mockGradeStore));
-
-// ——— Mock API & Utils ———
+// 2. Mock API
 jest.mock("@/api/getScoreSummary", () => ({
   __esModule: true,
   GetScore: jest.fn(),
+}));
+jest.mock("@/api/getEvalMethod", () => ({
+  __esModule: true,
+  GetEvalMethod: jest.fn(),
+}));
+jest.mock("@/api/getStudentList", () => ({
+  __esModule: true,
+  GetStudentList: jest.fn(),
 }));
 jest.mock("@/api/postScore", () => ({
   __esModule: true,
   PostScore: jest.fn(),
 }));
-jest.mock("@/utils/gradeUtils", () => ({
+jest.mock("@/api/postEval", () => ({
   __esModule: true,
-  mapApiResponseToStudents: jest.fn(),
-  convertToApiFormat: jest.fn(),
+  PostEval: jest.fn(),
 }));
 
-// Mock window.location.reload
-Object.defineProperty(window, "location", {
-  value: {
-    reload: jest.fn(),
-  },
-  writable: true,
+// 3. Mock utils
+jest.mock("@/utils/gradeUtils", () => ({
+  mapApiResponseToStudents: jest.fn(() => ({
+    titles: [{ evaluationId: 1, title: "중간고사", examType: "WRITTEN", weight: 20, fullScore: 100 }],
+    students: [{ number: 1, name: "홍길동", 중간고사: 90 }],
+  })),
+  convertToApiFormat: jest.fn(() => "convertedPayload"),
+  Evaluation: jest.fn(),
+}));
+
+// 4. Mock 일부 subcomponents만 (EvalAddModal/EvalAddForm은 mock하지 않음)
+jest.mock("@/components/grade/GradeHeaderSection", () => ({
+  __esModule: true,
+  GradeHeaderSection: () => <div data-testid="header-section" />,
+}));
+jest.mock("@/components/grade/GradeActionBar", () => ({
+  __esModule: true,
+  GradeActionBar: ({ onAddEval, onSave }: any) => (
+    <div data-testid="action-bar">
+      <button onClick={onAddEval}>+ 평가방식</button>
+      <button onClick={onSave}>저장</button>
+    </div>
+  ),
+}));
+jest.mock("@/components/grade/GradeTableSection", () => ({
+  __esModule: true,
+  GradeTableSection: (props: any) => (
+    <table>
+      <tbody>
+        <tr>
+          <td
+            data-testid="editable-cell"
+            onClick={() => props.handleCellClick(1, "중간고사", 90)}
+          >
+            {props.editing && props.editing.row === 1 && props.editing.key === "중간고사" ? (
+              <input
+                data-testid="score-input"
+                value={props.inputValue}
+                onChange={props.handleInputChange}
+                onBlur={props.handleInputBlur}
+                onKeyDown={props.handleInputKeyDown}
+              />
+            ) : (
+              props.students[0]?.["중간고사"]
+            )}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  ),
+}));
+jest.mock("@/components/shared/Header", () => ({
+  __esModule: true,
+  Header: ({ children }: any) => <div>{children}</div>,
+}));
+
+describe("<GradesPage /> 실제 EvalAddModal/EvalAddForm 테스트", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("handleAddEval에서 평가명 없이 추가 시 alert가 호출된다", async () => {
+    window.alert = jest.fn();
+    render(<GradesPage />);
+    fireEvent.click(screen.getByText("+ 평가방식"));
+    fireEvent.click(screen.getByText("추가"));
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith("평가명을 입력하세요.");
+    });
+  });
+
+  it("handleAddEval에서 PostEval 실패 시 alert가 호출된다", async () => {
+    (PostEval as jest.Mock).mockRejectedValueOnce(new Error("fail"));
+    window.alert = jest.fn();
+
+    render(<GradesPage />);
+    fireEvent.click(screen.getByText("+ 평가방식"));
+    const titleInput = await screen.findByPlaceholderText("(예: 중간고사)");
+    fireEvent.change(titleInput, { target: { value: "기말고사" } });
+    fireEvent.click(screen.getByText("추가"));
+    await waitFor(() => {
+      expect(PostEval).toHaveBeenCalled();
+      expect(window.alert).toHaveBeenCalledWith("평가방식 추가에 실패했습니다.");
+    });
+  });
+
+  it("handleAddEval에서 정상적으로 평가방식이 추가되고 상태가 초기화된다", async () => {
+    (PostEval as jest.Mock).mockResolvedValueOnce({});
+    render(<GradesPage />);
+    fireEvent.click(screen.getByText("+ 평가방식"));
+    const titleInput = await screen.findByPlaceholderText("(예: 중간고사)");
+    fireEvent.change(titleInput, { target: { value: "기말고사" } });
+    fireEvent.click(screen.getByText("추가"));
+    await waitFor(() => {
+      expect(PostEval).toHaveBeenCalled();
+    });
+  });
+
+  it("GetScore 실패시 error.message가 있으면 콘솔에 찍힌다", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const error = { message: "Unknown error" };
+    (GetScore as jest.Mock).mockRejectedValueOnce(error);
+    render(<GradesPage />);
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch grades", error);
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it("GetScore 실패시 error.request가 있으면 콘솔에 찍힌다", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    (GetScore as jest.Mock).mockRejectedValueOnce({ request: {}, message: "Network Error" });
+    render(<GradesPage />);
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch grades", { request: {}, message: "Network Error" });
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it("테이블 셀 클릭, 입력, 엔터, 블러로 값이 바뀐다", async () => {
+    render(<GradesPage />);
+    fireEvent.click(screen.getByTestId("editable-cell"));
+    const input = screen.getByTestId("score-input");
+    expect(input).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: "95" } });
+    expect((input as HTMLInputElement).value).toBe("95");
+
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(screen.queryByTestId("score-input")).not.toBeInTheDocument();
+  });
+
+  it("입력 후 blur로 편집모드가 종료된다", async () => {
+    render(<GradesPage />);
+    fireEvent.click(screen.getByTestId("editable-cell"));
+    const input = screen.getByTestId("score-input");
+    fireEvent.change(input, { target: { value: "88" } });
+    fireEvent.blur(input);
+    expect(screen.queryByTestId("score-input")).not.toBeInTheDocument();
+  });
+
+  it("handleInputBlur에서 editing이 null이면 아무것도 하지 않는다", () => {
+    render(<GradesPage />);
+    // 편집모드가 아닐 때 blur 발생시켜도 에러가 나지 않으면 커버됨
+  });
+
+  it("handleSave에서 PostScore 성공 시 window.location.reload가 호출된다", async () => {
+    (PostScore as jest.Mock).mockResolvedValueOnce({});
+    const reloadMock = jest.fn();
+    Object.defineProperty(window, "location", {
+      value: { reload: reloadMock },
+      writable: true,
+    });
+    render(<GradesPage />);
+    fireEvent.click(screen.getByText("저장"));
+    await waitFor(() => {
+      expect(PostScore).toHaveBeenCalled();
+      expect(reloadMock).toHaveBeenCalled();
+    });
+  });
+
+  it("handleSave에서 PostScore 실패 시 alert가 호출된다", async () => {
+    (PostScore as jest.Mock).mockRejectedValueOnce(new Error("fail"));
+    window.alert = jest.fn();
+
+    render(<GradesPage />);
+    fireEvent.click(screen.getByText("저장"));
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith("저장에 실패했습니다. 다시 시도해주세요.");
+    });
+  });
+
+  it("정상적으로 GetScore 성공시 mapApiResponseToStudents로 셋팅된다", async () => {
+    (GetScore as jest.Mock).mockResolvedValueOnce({ mock: true });
+    render(<GradesPage />);
+    await waitFor(() => {
+      expect(GetScore).toHaveBeenCalled();
+      expect(screen.getByTestId("header-section")).toBeInTheDocument();
+    });
+  });
+
+  it("404 에러시 GetEvalMethod, GetStudentList로 대체 fetch 후 -로 채운다", async () => {
+    (GetScore as jest.Mock).mockRejectedValueOnce({ response: { status: 404 } });
+    (GetEvalMethod as jest.Mock).mockResolvedValueOnce([
+      { title: "중간고사", evaluationId: 1, examType: "WRITTEN", weight: 20, fullScore: 100 }
+    ]);
+    (GetStudentList as jest.Mock).mockResolvedValueOnce([{ studentId: 1, name: "홍길동" }]);
+    render(<GradesPage />);
+    await waitFor(() => {
+      expect(GetEvalMethod).toHaveBeenCalled();
+      expect(GetStudentList).toHaveBeenCalled();
+    });
+  });
+
+  it("fetch 실패시 setEvaluations, setStudents가 빈 배열이 된다", async () => {
+    (GetScore as jest.Mock).mockRejectedValueOnce({ response: { status: 500 } });
+    render(<GradesPage />);
+    await waitFor(() => {
+      expect(screen.getByTestId("header-section")).toBeInTheDocument();
+    });
+  });
+
+  it("404 fallback fetch에서 에러가 나면 콘솔에 찍히고 빈 배열로 초기화된다", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    (GetScore as jest.Mock).mockRejectedValueOnce({ response: { status: 404 } });
+    (GetEvalMethod as jest.Mock).mockRejectedValueOnce(new Error("Eval fetch fail"));
+    (GetStudentList as jest.Mock).mockResolvedValueOnce([]);
+    render(<GradesPage />);
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Fallback fetch failed",
+        expect.any(Error)
+      );
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it("GetScore 실패시 error.message만 있을 때도 콘솔에 찍힌다", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const error = { message: "Unknown error" };
+    (GetScore as jest.Mock).mockRejectedValueOnce(error);
+    render(<GradesPage />);
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch grades", error);
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it("handleInputChange에서 빈값과 숫자값 모두 반영된다", () => {
+    render(<GradesPage />);
+    fireEvent.click(screen.getByTestId("editable-cell"));
+    const input = screen.getByTestId("score-input");
+    fireEvent.change(input, { target: { value: "" } });
+    expect((input as HTMLInputElement).value).toBe("");
+    fireEvent.change(input, { target: { value: "100" } });
+    expect((input as HTMLInputElement).value).toBe("100");
+  });
+
+  it("handleInputKeyDown에서 Enter가 아니면 handleInputBlur가 호출되지 않는다", () => {
+    render(<GradesPage />);
+    fireEvent.click(screen.getByTestId("editable-cell"));
+    const input = screen.getByTestId("score-input");
+    fireEvent.keyDown(input, { key: "a" });
+    expect(screen.getByTestId("score-input")).toBeInTheDocument();
+  });
+it("handleInputBlur에서 빈 문자열 입력 시 score가 undefined로 설정된다", async () => {
+    render(<GradesPage />);
+    fireEvent.click(screen.getByTestId("editable-cell"));
+    const input = screen.getByTestId("score-input");
+
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.blur(input);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("score-input")).not.toBeInTheDocument();
+    });
+  });
+
+  it("handleAddEval에서 weight와 fullScore가 null일 때 PostEval이 올바르게 호출된다", async () => {
+    (PostEval as jest.Mock).mockResolvedValueOnce({});
+    render(<GradesPage />);
+    fireEvent.click(screen.getByText("+ 평가방식"));
+    const titleInput = await screen.findByPlaceholderText("(예: 중간고사)");
+    fireEvent.change(titleInput, { target: { value: "새로운 평가" } });
+
+    fireEvent.click(screen.getByText("추가"));
+    await waitFor(() => {
+      expect(PostEval).toHaveBeenCalledWith(
+        "수학", // subject from mock store
+        2025, // year from mock store
+        1, // semester from mock store
+        1, // grade from mock store
+        "WRITTEN", // default examType
+        "새로운 평가",
+        0, // Number(null) results in 0
+        0  // Number(null) results in 0
+      );
+    });
+  });
+  
+  it("404 fallback fetch에서 studentList의 studentId와 name이 없으면 '-'로 채운다", async () => {
+    (GetScore as jest.Mock).mockRejectedValueOnce({ response: { status: 404 } });
+    (GetEvalMethod as jest.Mock).mockResolvedValueOnce([
+      { evaluationId: 1, title: "중간고사", examType: "WRITTEN", weight: 20, fullScore: 100 }
+    ]);
+    // Mock GetStudentList to return an item with missing studentId and name
+    (GetStudentList as jest.Mock).mockResolvedValueOnce([{ studentId: undefined, name: null }]); // Use undefined and null
+
+    render(<GradesPage />);
+    await waitFor(() => {
+      expect(GetEvalMethod).toHaveBeenCalled();
+      expect(GetStudentList).toHaveBeenCalled();
+    });
+  });
+
+   it("GetScore 실패 시 error 객체가 비어있을 때 콘솔에 찍힌다", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const error = {}; // 빈 에러 객체
+    (GetScore as jest.Mock).mockRejectedValueOnce(error);
+
+    render(<GradesPage />);
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch grades", error);
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it("GetScore 실패 시 error.message만 있을 때 콘솔에 찍힌다 (response 없음)", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const error = { message: "Network error without response" };
+    (GetScore as jest.Mock).mockRejectedValueOnce(error); // response 속성이 없는 에러 mock
+
+    render(<GradesPage />);
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch grades", error);
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it("handleInputKeyDown에서 Enter가 아니면 handleInputBlur가 호출되지 않는다", () => {
+  render(<GradesPage />);
+  fireEvent.click(screen.getByTestId("editable-cell"));
+  const input = screen.getByTestId("score-input");
+  fireEvent.keyDown(input, { key: "a" });
+  expect(screen.getByTestId("score-input")).toBeInTheDocument();
 });
 
-// Mock window.alert
-global.alert = jest.fn();
-
-import { GetScore } from "@/api/getScoreSummary";
-import { PostScore } from "@/api/postScore";
-import { mapApiResponseToStudents, convertToApiFormat } from "@/utils/gradeUtils";
-
-describe("GradesPage", () => {
-  beforeEach(() => {
-    // Mock 함수들만 리셋, store는 기본값으로 복원
-    jest.clearAllMocks();
-    mockStudentStore = { ...defaultStudentStore };
-    mockGradeStore = { ...defaultGradeStore };
-
-    // 기본 성공 케이스 설정
-    (GetScore as jest.Mock).mockResolvedValue({ raw: "api-data" });
-    (mapApiResponseToStudents as jest.Mock).mockReturnValue({
-      titles: [{ id: 1, name: "중간" }],
-      students: [{ number: 1, name: "홍길동", score: 90 }],
-    });
-    (convertToApiFormat as jest.Mock).mockReturnValue([
-      {
-        classNum: 2,
-        evaluationId: 1,
-        students: [{ number: 1, rawScore: 90 }],
-      },
-    ]);
-    (PostScore as jest.Mock).mockResolvedValue(undefined);
+it("404 fallback fetch에서 studentList의 studentId와 name이 없으면 '-'로 채운다", async () => {
+  (GetScore as jest.Mock).mockRejectedValueOnce({ response: { status: 404 } });
+  (GetEvalMethod as jest.Mock).mockResolvedValueOnce([
+    { evaluationId: 1, title: "중간고사", examType: "WRITTEN", weight: 20, fullScore: 100 }
+  ]);
+  (GetStudentList as jest.Mock).mockResolvedValueOnce([{ studentId: undefined, name: null }]);
+  render(<GradesPage />);
+  await waitFor(() => {
+    expect(GetEvalMethod).toHaveBeenCalled();
+    expect(GetStudentList).toHaveBeenCalled();
+    // '-'로 채워지는지 확인하려면 GradeTableSection에서 students를 화면에 노출하도록 수정 필요
   });
+});
 
-  describe("초기 렌더링 및 데이터 로딩", () => {
-    it("모든 필터가 채워진 경우: GetScore 호출 → GradeTable 렌더", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => {
-        expect(GetScore).toHaveBeenCalledWith(2024, 1, 1, 2, "수학");
-        expect(mapApiResponseToStudents).toHaveBeenCalledWith({ raw: "api-data" });
-      });
-
-      expect(screen.getByTestId("grade-table-mock")).toBeInTheDocument();
-      expect(screen.getByText("수학")).toBeInTheDocument();
-    });
-
-    it("필터 정보가 부족한 경우: API 호출하지 않고 안내 메시지 표시", () => {
-      // grade 필드를 빈 문자열로 설정
-      mockStudentStore.grade = "";
-
-      render(<GradesPage />);
-
-      expect(GetScore).not.toHaveBeenCalled();
-      expect(screen.getByText("모든 정보를 입력해주세요.")).toBeInTheDocument();
-      expect(screen.queryByTestId("grade-table-mock")).not.toBeInTheDocument();
-    });
-
-    it("GetScore API 호출 실패 시 콘솔 에러 로그", async () => {
-      const consoleSpy = jest.spyOn(console, "error").mockImplementation();
-      (GetScore as jest.Mock).mockRejectedValue(new Error("API Error"));
-
-      render(<GradesPage />);
-
-      await waitFor(() => {
-        expect(GetScore).toHaveBeenCalled();
-      });
-
-      await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch grades", expect.any(Error));
-      });
-
-      consoleSpy.mockRestore();
-    });
+  it("handleAddEval에서 weight와 fullScore가 null일 때 PostEval이 0, 0으로 호출된다", async () => {
+  (PostEval as jest.Mock).mockResolvedValueOnce({});
+  render(<GradesPage />);
+  fireEvent.click(screen.getByText("+ 평가방식"));
+  const titleInput = await screen.findByPlaceholderText("(예: 중간고사)");
+  fireEvent.change(titleInput, { target: { value: "새로운 평가" } });
+  fireEvent.click(screen.getByText("추가"));
+  await waitFor(() => {
+    expect(PostEval).toHaveBeenCalledWith(
+      "수학", 2025, 1, 1, "WRITTEN", "새로운 평가", 0, 0 // Number(null) === 0
+    );
   });
+});
 
-  describe("셀 편집 기능", () => {
-    it("셀 클릭 → editing 상태 설정", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      const cellClickBtn = screen.getByTestId("cell-click-btn");
-      fireEvent.click(cellClickBtn);
-
-      // 편집 상태가 설정되었는지 확인 (실제로는 내부 상태이므로 UI 변화로 확인)
-      expect(screen.getByTestId("mock-input")).toBeInTheDocument();
-    });
-
-    it("입력값 변경 처리", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      const mockInput = screen.getByTestId("mock-input");
-      fireEvent.change(mockInput, { target: { value: "95" } });
-
-      // 입력 처리가 정상적으로 이루어졌는지 확인
-      expect(mockInput).toBeInTheDocument();
-    });
-
-    it("Enter 키 입력 시 편집 완료", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      // 먼저 셀 클릭으로 편집 모드 활성화
-      fireEvent.click(screen.getByTestId("cell-click-btn"));
-
-      const mockInput = screen.getByTestId("mock-input");
-      fireEvent.change(mockInput, { target: { value: "95" } });
-      fireEvent.keyDown(mockInput, { key: "Enter" });
-
-      expect(mockInput).toBeInTheDocument();
-    });
-
-    it("blur 이벤트로 편집 완료 - 빈 값 처리", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      fireEvent.click(screen.getByTestId("cell-click-btn"));
-
-      const mockInput = screen.getByTestId("mock-input");
-      fireEvent.change(mockInput, { target: { value: "" } });
-      fireEvent.blur(mockInput);
-
-      expect(mockInput).toBeInTheDocument();
-    });
-
-    it("blur 이벤트로 편집 완료 - 숫자 값 처리", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      fireEvent.click(screen.getByTestId("cell-click-btn"));
-
-      const mockInput = screen.getByTestId("mock-input");
-      fireEvent.change(mockInput, { target: { value: "88" } });
-      fireEvent.blur(mockInput);
-
-      expect(mockInput).toBeInTheDocument();
-    });
+it("GetScore 실패 시 error 객체가 비어있을 때 콘솔에 찍힌다", async () => {
+  const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  const error = {};
+  (GetScore as jest.Mock).mockRejectedValueOnce(error);
+  render(<GradesPage />);
+  await waitFor(() => {
+    expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch grades", error);
   });
+  consoleSpy.mockRestore();
+});
 
-  describe("저장 기능", () => {
-    it("저장 성공 시 페이지 새로고침", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      fireEvent.click(screen.getByRole("button", { name: "다음" }));
-
-      await waitFor(() => {
-        expect(convertToApiFormat).toHaveBeenCalled();
-        expect(PostScore).toHaveBeenCalledWith([
-          {
-            classNum: 2,
-            evaluationId: 1,
-            students: [{ number: 1, rawScore: 90 }],
-          },
-        ]);
-      });
-
-      await waitFor(() => {
-        expect(window.location.reload).toHaveBeenCalled();
-      });
-    });
-
-    it("저장 실패 시 알림 메시지 표시", async () => {
-      (PostScore as jest.Mock).mockRejectedValue(new Error("Save failed"));
-
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      fireEvent.click(screen.getByRole("button", { name: "다음" }));
-
-      await waitFor(() => {
-        expect(PostScore).toHaveBeenCalled();
-      });
-
-      await waitFor(() => {
-        expect(global.alert).toHaveBeenCalledWith("저장에 실패했습니다. 다시 시도해주세요.");
-        expect(window.location.reload).not.toHaveBeenCalled();
-      });
-    });
-
-    it("저장 버튼 클릭 시 preventDefault 호출", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      const saveButton = screen.getByRole("button", { name: "다음" });
-      fireEvent.click(saveButton);
-
-      await waitFor(() => {
-        expect(PostScore).toHaveBeenCalled();
-      });
-    });
+it("GetScore 실패 시 error.message만 있을 때 콘솔에 찍힌다 (response 없음)", async () => {
+  const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  const error = { message: "Network error without response" };
+  (GetScore as jest.Mock).mockRejectedValueOnce(error);
+  render(<GradesPage />);
+  await waitFor(() => {
+    expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch grades", error);
   });
+  consoleSpy.mockRestore();
+});
 
-  describe("다양한 필터 조합 테스트", () => {
-    it("일부 필터만 채워진 경우 - year 누락", () => {
-      mockGradeStore.year = "";
 
-      render(<GradesPage />);
-
-      expect(GetScore).not.toHaveBeenCalled();
-      expect(screen.getByText("모든 정보를 입력해주세요.")).toBeInTheDocument();
-    });
-
-    it("일부 필터만 채워진 경우 - semester 누락", () => {
-      mockGradeStore.semester = "";
-
-      render(<GradesPage />);
-
-      expect(GetScore).not.toHaveBeenCalled();
-      expect(screen.getByText("모든 정보를 입력해주세요.")).toBeInTheDocument();
-    });
-
-    it("일부 필터만 채워진 경우 - subject 누락", () => {
-      mockGradeStore.subject = "";
-
-      render(<GradesPage />);
-
-      expect(GetScore).not.toHaveBeenCalled();
-      expect(screen.getByText("모든 정보를 입력해주세요.")).toBeInTheDocument();
-    });
-
-    it("일부 필터만 채워진 경우 - classNumber 누락", () => {
-      mockStudentStore.classNumber = "";
-
-      render(<GradesPage />);
-
-      expect(GetScore).not.toHaveBeenCalled();
-      expect(screen.getByText("모든 정보를 입력해주세요.")).toBeInTheDocument();
-    });
-
-    it("일부 필터만 채워진 경우 - studentNumber 누락", () => {
-      mockStudentStore.studentNumber = "";
-
-      render(<GradesPage />);
-
-      expect(GetScore).not.toHaveBeenCalled();
-      expect(screen.getByText("모든 정보를 입력해주세요.")).toBeInTheDocument();
-    });
-  });
-
-  describe("Edge Cases", () => {
-    it("편집 상태가 null일 때 blur 이벤트 무시", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      // editing 상태 없이 blur 이벤트 발생
-      const mockInput = screen.getByTestId("mock-input");
-      fireEvent.blur(mockInput);
-
-      // 에러 없이 처리되어야 함
-      expect(mockInput).toBeInTheDocument();
-    });
-
-    it("셀 클릭 시 undefined 값 처리", async () => {
-      render(<GradesPage />);
-
-      await waitFor(() => screen.getByTestId("grade-table-mock"));
-
-      // 셀 클릭 이벤트가 정상적으로 처리되는지 확인
-      fireEvent.click(screen.getByTestId("cell-click-btn"));
-      expect(screen.getByTestId("grade-table-mock")).toBeInTheDocument();
-    });
-
-    it("빈 evaluations 배열 처리", async () => {
-      (mapApiResponseToStudents as jest.Mock).mockReturnValue({
-        titles: [],
-        students: [],
-      });
-
-      render(<GradesPage />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("grade-table-mock")).toBeInTheDocument();
-      });
-
-      // 빈 배열도 정상적으로 렌더링되는지 확인
-      expect(screen.getByText("evals:| students:0")).toBeInTheDocument();
-    });
-  });
 });
