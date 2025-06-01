@@ -22,7 +22,20 @@ jest.mock("@/store/grade-filter-store", () => ({
   default: () => ({
     year: "2025",
     semester: "1",
-    subject: "수학",
+    subject: "독서와 문법",
+  }),
+}));
+jest.mock("@/store/teacher-store", () => ({
+  __esModule: true,
+  default: () => ({
+    mysubject: "독서와 문법",
+    setSubject: jest.fn(),
+    setGrade: jest.fn(),
+    setTeacherName: jest.fn(),
+    setClassNumber: jest.fn(),
+    grade: "1",
+    classNumber: "1",
+    teacherName: "김철수",
   }),
 }));
 
@@ -106,8 +119,11 @@ jest.mock("@/components/shared/Header", () => ({
 
 describe("<GradesPage /> 실제 EvalAddModal/EvalAddForm 테스트", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    value: { reload: jest.fn() } as any,
   });
+});
 
   it("handleAddEval에서 평가명 없이 추가 시 alert가 호출된다", async () => {
     window.alert = jest.fn();
@@ -118,6 +134,7 @@ describe("<GradesPage /> 실제 EvalAddModal/EvalAddForm 테스트", () => {
       expect(window.alert).toHaveBeenCalledWith("평가명을 입력하세요.");
     });
   });
+
 
   it("handleAddEval에서 PostEval 실패 시 alert가 호출된다", async () => {
     (PostEval as jest.Mock).mockRejectedValueOnce(new Error("fail"));
@@ -316,7 +333,7 @@ it("handleInputBlur에서 빈 문자열 입력 시 score가 undefined로 설정�
     fireEvent.click(screen.getByText("추가"));
     await waitFor(() => {
       expect(PostEval).toHaveBeenCalledWith(
-        "수학", // subject from mock store
+        "독서와 문법", // subject from mock store
         2025, // year from mock store
         1, // semester from mock store
         1, // grade from mock store
@@ -400,7 +417,7 @@ it("404 fallback fetch에서 studentList의 studentId와 name이 없으면 '-'�
   fireEvent.click(screen.getByText("추가"));
   await waitFor(() => {
     expect(PostEval).toHaveBeenCalledWith(
-      "수학", 2025, 1, 1, "WRITTEN", "새로운 평가", 0, 0 // Number(null) === 0
+      "독서와 문법", 2025, 1, 1, "WRITTEN", "새로운 평가", 0, 0 // Number(null) === 0
     );
   });
 });

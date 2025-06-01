@@ -16,7 +16,7 @@ const BehaviorContent = () => {
     const getBehavior = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNumber}&studentId=${studentId}`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNumber}&number=${studentId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = res.data.response;
