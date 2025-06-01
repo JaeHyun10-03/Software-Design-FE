@@ -77,7 +77,7 @@ const GradePage = () => {
   };
 
   return (
-    <div className="sm:m-0 m-4">
+    <div className="sm:m-8 m-4">
       <div className="flex flex-row border border-[#a9a9a9]">
         {columnHeaders.map((text, index) => (
           <Cell key={index} type="L">

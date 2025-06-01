@@ -90,7 +90,7 @@ const AttendanceContent = forwardRef<{ postAttendances: () => Promise<void> }, A
         </div>
 
         {/* 출석 데이터 */}
-        {dataList.length === 0 && <div className="text-center p-2">출결 정보가 없습니다.</div>}
+        {dataList.length === 0 && <div className="text-center p-2 text-[red]">출결 조회 권한이 없습니다</div>}
         {dataList.map((data, i) => (
           <div key={i} className="flex text-center w-full">
             <div className="flex w-[48px] min-w-[48px] h-8 border border-[#a9a9a9] justify-center items-center">{i + 1}</div>

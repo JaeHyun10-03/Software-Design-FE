@@ -19,7 +19,7 @@ interface AttendanceSummary {
 }
 
 const Attendance = () => {
-  const { grade, classNumber, studentNumber } = useStudentFilterStore();
+  const { grade, classNumber, studentNumber, studentId } = useStudentFilterStore();
   const { year, month, semester } = useSelectedDate();
   const [token, setToken] = useState<string | null>(null);
   const [summary, setSummary] = useState<AttendanceSummary | null>(null);
@@ -44,7 +44,7 @@ const Attendance = () => {
       setError(null);
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances/summary?year=${year}&semester=${semester}&grade=${grade}&classNum=${classNumber}&number=${studentNumber}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances/summary?year=${year}&semester=${semester}&grade=${grade}&classNum=${classNumber}&number=${studentId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
