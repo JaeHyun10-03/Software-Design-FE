@@ -87,14 +87,7 @@ export const Header = ({ children }: { children: ReactNode }) => {
         <div className={`flex items-center h-[72px] ${isMobile ? "gap-8" : "gap-16"} ${isMobile ? "ml-1" : "ml-4"}`}>{menuElements}</div>
         <div className="flex flex-row justify-center items-center gap-8 ml-auto ">
           <p className="hidden sm:flex text-base text-bold text-center">이름 : {name}</p>
-          <div
-            role="button" // 추가
-            tabIndex={0} // 키보드 접근 가능하도록 추가
-            className={`flex justify-center items-center ml-auto ${isMobile ? "mr-2" : "mr-8"}`}
-            onClick={() => {
-              router.push("/alert");
-            }}
-          >
+          <div onClick={() => router.push("/alert")} className="cursor-pointer" data-testid="alert-icon">
             <AlertIcon />
           </div>
         </div>

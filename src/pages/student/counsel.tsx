@@ -51,7 +51,7 @@ const CounselPage = () => {
   }
 
   return (
-    <div className="sm:m-0 m-4 flex flex-col gap-4">
+    <div className="sm:m-8 m-4 flex flex-col gap-4">
       {cardList.map((card) => (
         <CounselCard
           key={card.id}

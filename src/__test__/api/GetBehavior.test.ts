@@ -31,17 +31,11 @@ describe("GetBehavior", () => {
     const mockResponse = { response: [{ id: 1, behavior: "우수" }] };
     mockedAxios.get.mockResolvedValueOnce({ data: mockResponse });
 
-    const result = await GetBehavior(
-      params.year,
-      params.grade,
-      params.classNum,
-      params.studentId
-    );
+    const result = await GetBehavior(params.year, params.grade, params.classNum, params.studentId);
 
-    expect(mockedAxios.get).toHaveBeenCalledWith(
-      `${backendDomain}/behavior?year=${params.year}&grade=${params.grade}&classNum=${params.classNum}&studentId=${params.studentId}`,
-      { headers: { Authorization: `Bearer ${mockAccessToken}` } }
-    );
+    expect(mockedAxios.get).toHaveBeenCalledWith(`${backendDomain}/behavior?year=${params.year}&grade=${params.grade}&classNum=${params.classNum}&number=${params.studentId}`, {
+      headers: { Authorization: `Bearer ${mockAccessToken}` },
+    });
     expect(result).toEqual(mockResponse.response);
   });
 
@@ -54,9 +48,7 @@ describe("GetBehavior", () => {
     };
     mockedAxios.get.mockRejectedValueOnce(mockError);
 
-    await expect(
-      GetBehavior(params.year, params.grade, params.classNum, params.studentId)
-    ).rejects.toEqual(mockError);
+    await expect(GetBehavior(params.year, params.grade, params.classNum, params.studentId)).rejects.toEqual(mockError);
   });
 
   it("네트워크 오류 등으로 response가 없으면 에러를 throw한다", async () => {
@@ -66,9 +58,7 @@ describe("GetBehavior", () => {
     };
     mockedAxios.get.mockRejectedValueOnce(mockError);
 
-    await expect(
-      GetBehavior(params.year, params.grade, params.classNum, params.studentId)
-    ).rejects.toEqual(mockError);
+    await expect(GetBehavior(params.year, params.grade, params.classNum, params.studentId)).rejects.toEqual(mockError);
   });
 
   it("요청 설정 에러가 발생하면 에러를 throw한다", async () => {
@@ -77,8 +67,6 @@ describe("GetBehavior", () => {
     };
     mockedAxios.get.mockRejectedValueOnce(mockError);
 
-    await expect(
-      GetBehavior(params.year, params.grade, params.classNum, params.studentId)
-    ).rejects.toEqual(mockError);
+    await expect(GetBehavior(params.year, params.grade, params.classNum, params.studentId)).rejects.toEqual(mockError);
   });
 });

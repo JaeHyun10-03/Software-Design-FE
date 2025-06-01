@@ -83,6 +83,6 @@ describe("AttendanceContent", () => {
       data: { response: [] },
     });
     render(<AttendanceContent edit={false} />);
-    expect(await screen.findByText("출결 정보가 없습니다.")).toBeInTheDocument();
+    expect(await screen.findByText("출결 조회 권한이 없습니다")).toBeInTheDocument();
   });
 });
