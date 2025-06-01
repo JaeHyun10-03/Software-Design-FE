@@ -124,7 +124,7 @@ function EditableCell({
       {isEditing ? (
         <input
           type="number"
-          className="w-16 border rounded px-1 py-0.5"
+          className="w-8 border-none rounded px-1 py-0.5 no-spinner "
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
