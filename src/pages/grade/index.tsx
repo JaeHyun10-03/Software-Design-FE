@@ -12,7 +12,7 @@ import { GetStudentList } from "@/api/getStudentList";
 import { mapApiResponseToStudents, convertToApiFormat, Evaluation } from "@/utils/gradeUtils";
 import useStudentFilterStore from "@/store/student-filter-store";
 import useGradeFilterStore from "@/store/grade-filter-store";
-
+import useTeacher from "@/store/teacher-store";
 export default function GradesPage() {
   const { grade, classNumber, studentNumber } = useStudentFilterStore();
   const { year, semester, subject } = useGradeFilterStore();
@@ -22,6 +22,7 @@ export default function GradesPage() {
   const [inputValue, setInputValue] = useState<string>("");
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [showEvalInput, setShowEvalInput] = useState(false);
+  const mysubject = useTeacher().mysubject;
   const [evalInput, setEvalInput] = useState<{
     title: string;
     examType: "WRITTEN" | "PRACTICAL";
@@ -102,13 +103,16 @@ export default function GradesPage() {
 
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if(subject != mysubject ){ 
+      alert(`본인의 과목인 ${mysubject}만 수정가능합니다.`)
+    }else{
     const payload = convertToApiFormat(students, evaluations, Number(classNumber));
     try {
       await PostScore(payload);
       window.location.reload();
     } catch {
       alert("저장에 실패했습니다. 다시 시도해주세요.");
-    }
+    }}
   };
 
   const handleAddEval = async () => {

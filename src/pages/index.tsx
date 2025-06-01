@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { PostLogin } from "@/api/postLogin";
 import useLoginStore from "@/store/login-store";
 import useStudent from "@/store/student-store";
+import useTeacher from "@/store/teacher-store";
 import { messaging, getToken } from "@/utils/firebase";
 import { PostFCM } from "@/api/postFCM";
 
@@ -13,7 +14,7 @@ const Login = () => {
   const [password, setPassword] = useState<string>("");
   const { setName } = useLoginStore();
   const { setGrade, setClassNumber, setStudentNumber, setStudentId, setStudentName } = useStudent();
-  
+  const { setTeacherName, setSubject } = useTeacher();
   const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setUserId(e.target.value);
   };
@@ -68,6 +69,8 @@ const Login = () => {
       localStorage.setItem("accessToken", accessToken);
       sendFcmTokenToServer();
       if (role === "TEACHER") {
+        setTeacherName(data.name);
+        setSubject(data.subject);
         router.push("/student-record");
       } else if (role === "STUDENT") {
         router.push("/student/student-record");
