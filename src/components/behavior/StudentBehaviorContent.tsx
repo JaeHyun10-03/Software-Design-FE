@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import useStudentFilterStore from "@/store/student-filter-store";
 import useSelectedDate from "@/store/selected-date-store";
 import { GetBehavior } from "@/api/student/getBehavior";
+import useStudent from "@/store/student-store";
+
 const BehaviorContent = () => {
-  const { grade, classNumber, studentId } = useStudentFilterStore();
+  const { grade, classNumber, studentNumber } = useStudent();
   const { year } = useSelectedDate();
   const [behavior, setBehavior] = useState("");
   const [generalOpinion, setGeneralOpinion] = useState("");
@@ -14,7 +15,7 @@ const BehaviorContent = () => {
   useEffect(() => {
     const getBehavior = async () => {
       try {
-        const res = await GetBehavior(year, Number(grade), Number(classNumber), Number(studentId));
+        const res = await GetBehavior(year, Number(grade), Number(classNumber), Number(studentNumber));
         const data = res;
         setBehavior(data.behavior);
         setGeneralOpinion(data.generalComment);
@@ -24,7 +25,7 @@ const BehaviorContent = () => {
       }
     };
     getBehavior();
-  }, [year, grade, classNumber, studentId]);
+  }, [year, grade, classNumber, studentNumber]);
 
   return (
     <div className="w-full h-full scroll-auto p-4 pt-0 pb-0">

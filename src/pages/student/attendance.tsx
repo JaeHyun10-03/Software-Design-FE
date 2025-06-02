@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { StudentHeader } from "@/components/shared/StudentHeader";
 import { ReactNode } from "react";
 import axios from "axios";
-import useStudentFilterStore from "@/store/student-filter-store";
 import useSelectedDate from "@/store/selected-date-store";
 import Cell from "@/components/student-record/Cell";
-import AttendanceCalendar from "@/components/student-record/AttendanceCalendar";
+import StudentAttendanceCalendar from "@/components/student-record/StudentAttendanceCalendar";
 import DateFilter from "@/components/shared/DateFilter";
+import useStudent from "@/store/student-store";
 
 interface AttendanceSummary {
   absentDays: number;
@@ -19,7 +19,7 @@ interface AttendanceSummary {
 }
 
 const Attendance = () => {
-  const { grade, classNumber, studentNumber, studentId } = useStudentFilterStore();
+  const { grade, classNumber, studentNumber } = useStudent();
   const { year, month, semester } = useSelectedDate();
   const [token, setToken] = useState<string | null>(null);
   const [summary, setSummary] = useState<AttendanceSummary | null>(null);
@@ -44,7 +44,7 @@ const Attendance = () => {
       setError(null);
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances/summary?year=${year}&semester=${semester}&grade=${grade}&classNum=${classNumber}&number=${studentId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances/summary?year=${year}&semester=${semester}&grade=${grade}&classNum=${classNumber}&number=${studentNumber}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -122,7 +122,7 @@ const Attendance = () => {
           </div>
 
           {/* 캘린더 */}
-          <AttendanceCalendar />
+          <StudentAttendanceCalendar />
         </div>
 
         {/* 피드백 읽기 전용 */}

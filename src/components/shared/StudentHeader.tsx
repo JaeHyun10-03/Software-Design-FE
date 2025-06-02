@@ -70,7 +70,6 @@ export const StudentHeader = ({ children }: { children: ReactNode }) => {
       )),
     [menuItems, router.pathname, handleNavigation, isMobile]
   );
-
   return (
     <header>
       <div className="flex items-center w-full bg-white border-b border-gray-400">

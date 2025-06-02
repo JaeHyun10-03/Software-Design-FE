@@ -1,12 +1,12 @@
 import axios, { AxiosResponse } from "axios";
 
-export const GetBehavior = async (year: number, grade: number, classNum: number, studentId: number): Promise<any> => {
+export const GetBehavior = async (year: number, grade: number, classNum: number, studentNumber: number): Promise<any> => {
   axios.defaults.withCredentials = true;
   const accessToken = localStorage.getItem("accessToken");
 
   try {
     const response: AxiosResponse<any> = await axios.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNum}&number=${studentId}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNum}&number=${studentNumber}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
