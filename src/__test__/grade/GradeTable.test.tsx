@@ -22,7 +22,6 @@ const students = [
     rank: 1,
     grade: 'A',
     achievementLevel: '상',
-    feedback: '잘함',
   },
   {
     number: 2,
@@ -36,7 +35,6 @@ const students = [
     rank: 2,
     grade: 'B',
     achievementLevel: '중',
-    feedback: '',
   },
 ];
 
@@ -80,7 +78,6 @@ describe('<GradeTable />', () => {
     // 점수 (여러 셀이 있을 수 있으므로 getAllByText 사용)
     expect(screen.getAllByText('170.0').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('A')).toBeInTheDocument();
-    expect(screen.getByText('잘함')).toBeInTheDocument();
   });
 
   it('행 클릭 시 setSelectedRow가 호출된다', () => {
