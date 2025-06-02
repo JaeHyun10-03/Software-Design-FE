@@ -3,7 +3,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import BehaviorPage from "@/pages/behavior/index";
 
-// Mock 컴포넌트들
+// Mock 컴포넌트들 (이전과 동일)
 jest.mock("@/components/behavior/BehaviorContent", () => {
   return function MockBehaviorContent() {
     return <div data-testid="behavior-content">BehaviorContent</div>;
@@ -47,12 +47,12 @@ describe("BehaviorPage", () => {
   it("올바른 레이아웃 구조를 가진다", () => {
     const { container } = render(<BehaviorPage />);
 
-    // 메인 컨테이너 확인 (클래스명으로 직접 확인하지 않고 구조로 확인)
+    // 메인 컨테이너 확인
     const mainContainer = container.firstChild;
     expect(mainContainer).toHaveClass("mt-4", "mb-8", "flex", "flex-col");
 
-    // 필터 섹션 확인
-    const filterSection = container.querySelector(".flex.h-8");
+    // 필터 섹션 확인 - 클래스 선택자 수정
+    const filterSection = container.querySelector(".flex.flex-col.gap-3.sm\\:flex-row");
     expect(filterSection).toBeInTheDocument();
 
     // 콘텐츠 섹션 확인

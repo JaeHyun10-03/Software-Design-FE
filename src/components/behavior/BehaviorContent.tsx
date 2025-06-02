@@ -5,7 +5,7 @@ import useStudentFilterStore from "@/store/student-filter-store";
 import useSelectedDate from "@/store/selected-date-store";
 
 const BehaviorContent = () => {
-  const { grade, classNumber, studentId } = useStudentFilterStore();
+  const { grade, classNumber, studentId, studentNumber } = useStudentFilterStore();
   const { year } = useSelectedDate();
   const [behavior, setBehavior] = useState("");
   const [generalOpinion, setGeneralOpinion] = useState("");
@@ -16,7 +16,7 @@ const BehaviorContent = () => {
     const getBehavior = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNumber}&number=${studentId}`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${classNumber}&number=${studentNumber}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = res.data.response;

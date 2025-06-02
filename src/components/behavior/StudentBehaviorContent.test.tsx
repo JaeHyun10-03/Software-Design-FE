@@ -3,11 +3,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 import BehaviorContent from "./StudentBehaviorContent";
 import { GetBehavior } from "@/api/student/getBehavior";
 
-// Mock Store
-jest.mock("@/store/student-filter-store", () => () => ({
+// Mock the correct student store and provide the correct properties
+jest.mock("@/store/student-store", () => () => ({
   grade: "1",
   classNumber: "2",
-  studentId: "3",
+  studentNumber: "3", // Corrected: use studentNumber
 }));
 
 jest.mock("@/store/selected-date-store", () => () => ({
