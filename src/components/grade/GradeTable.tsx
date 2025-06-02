@@ -33,7 +33,7 @@ export function GradeTable({
           <tr>
             {[
               "번호", "성명", ...evaluations.map(e => e.title),
-              "총점", "환산", "평균", "표준편차", "석차", "등급", "성취도", "피드백(비고)"
+              "총점", "환산", "평균", "표준편차", "석차", "등급", "성취도", 
             ].map((header) => (
               <th key={header} className="px-2 py-2 border">{header}</th>
             ))}
@@ -100,7 +100,6 @@ function GradeTableRow({
       <td className="border px-2 py-1">{student.rank ?? "-"}</td>
       <td className="border px-2 py-1">{student.grade ?? "-"}</td>
       <td className="border px-2 py-1">{student.achievementLevel ?? "-"}</td>
-      <td className="border px-2 py-1">{student.feedback ?? "-"}</td>
     </tr>
   );
 }
