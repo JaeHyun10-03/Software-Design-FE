@@ -6,7 +6,7 @@ import useSelectedDate from "@/store/selected-date-store";
 
 export default function Behavior() {
   const { behavior, generalComment, setBehavior, setBehaviorId, setGeneralComment } = useBehaviorStore();
-  const { grade, classNumber, studentId, isReady } = useStudentFilterStore();
+  const { grade, classNumber, studentNumber, isReady } = useStudentFilterStore();
   const { year } = useSelectedDate();
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function Behavior() {
 
     const getBehavior = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${+classNumber}&studentId=${+studentId}`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/behavior?year=${year}&grade=${grade}&classNum=${+classNumber}&number=${studentNumber}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = res.data.response;
@@ -28,7 +28,7 @@ export default function Behavior() {
     };
 
     getBehavior();
-  }, [isReady, grade, classNumber, studentId]);
+  }, [isReady, grade, classNumber, studentNumber]);
 
   return (
     <div className="flex flex-col h-full gap-4 p-8">
