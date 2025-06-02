@@ -24,6 +24,7 @@ export default function Attendance() {
   const [feedback, setFeedback] = useState("");
   const [feedbackId, setFeedbackId] = useState("");
   const [saveMessage, setSaveMessage] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   const token = localStorage.getItem("accessToken");
 
@@ -62,9 +63,9 @@ export default function Attendance() {
         setFeedbackId(data.feedbackId);
       } catch (err) {
         console.error("출결 피드백 조회 에러:", err);
-        setFeedback(""); // 피드백 초기화
-        setFeedbackId(""); // 피드백 ID 초기화
-        setSaveMessage(""); // ✅ 이전 저장 메시지 제거
+        setFeedback("");
+        setFeedbackId("");
+        setSaveMessage("");
       }
     };
     getAttendancesFeedback();
@@ -99,8 +100,7 @@ export default function Attendance() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const data = res.data;
-      console.log("put feedback:", data);
+      console.log(res);
       setSaveMessage("피드백이 수정되었습니다.");
     } catch (err) {
       console.error("출결 피드백 수정 에러:", err);
@@ -108,13 +108,19 @@ export default function Attendance() {
     }
   };
 
-  const handleSaveFeedback = () => {
-    setSaveMessage(""); // 메시지 초기화
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setSaveMessage("");
+  };
+
+  const handleSaveClick = () => {
+    setSaveMessage("");
     if (feedbackId) {
       putAttendancesFeedback();
     } else {
       postAttendancesFeedback();
     }
+    setIsEditing(false);
   };
 
   const attendanceHeaders = [
@@ -157,10 +163,18 @@ export default function Attendance() {
 
       <div className="flex flex-col mx-4 mt-4">
         <span className="mb-2 font-semibold">출결 피드백</span>
-        <textarea className="border h-48 border-[#a9a9a9] rounded-md p-2 resize-none" value={feedback} onChange={(e) => setFeedback(e.target.value)} />
-        <button className="mt-2 self-end bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleSaveFeedback}>
-          저장
-        </button>
+        <textarea className="border h-48 border-[#a9a9a9] rounded-md p-2 resize-none" value={feedback} onChange={(e) => setFeedback(e.target.value)} disabled={!isEditing} />
+        <div className="mt-2 self-end">
+          {!isEditing ? (
+            <button className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600" onClick={handleEditClick}>
+              수정
+            </button>
+          ) : (
+            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleSaveClick}>
+              저장
+            </button>
+          )}
+        </div>
         {saveMessage && <p className="text-sm text-green-600 mt-1 self-end">{saveMessage}</p>}
       </div>
     </div>

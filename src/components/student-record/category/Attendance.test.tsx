@@ -1,5 +1,3 @@
-// __tests__/Attendance.test.tsx
-
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import Attendance from "@/components/student-record/category/Attendance";
 import axios from "axios";
@@ -20,7 +18,6 @@ jest.mock("@/store/selected-date-store", () => ({
 
 describe("Attendance Component", () => {
   beforeEach(() => {
-    // store mock 설정
     (useStudentFilterStore as unknown as jest.Mock).mockReturnValue({
       grade: 1,
       classNumber: 2,
@@ -40,8 +37,8 @@ describe("Attendance Component", () => {
     jest.clearAllMocks();
   });
 
-  it("출결 데이터를 불러오는 동안 로딩 메시지를 보여준다", async () => {
-    (axios.get as jest.Mock).mockImplementation(() => new Promise(() => {})); // 무한 대기
+  it("출결 데이터를 불러오는 동안 로딩 메시지를 보여준다", () => {
+    (axios.get as jest.Mock).mockImplementation(() => new Promise(() => {}));
 
     render(<Attendance />);
     expect(screen.getByText("출결 통계 데이터를 불러오는 중...")).toBeInTheDocument();
@@ -58,7 +55,6 @@ describe("Attendance Component", () => {
   });
 
   it("출결 통계를 정상적으로 렌더링한다", async () => {
-    // summary
     (axios.get as jest.Mock).mockImplementation((url: string) => {
       if (url.includes("/summary")) {
         return Promise.resolve({
@@ -88,11 +84,9 @@ describe("Attendance Component", () => {
     });
 
     render(<Attendance />);
-    await waitFor(() => {
-      expect(screen.getByText("출석")).toBeInTheDocument();
-      expect(screen.getByText("20")).toBeInTheDocument();
-      expect(screen.getByDisplayValue("피드백 내용")).toBeInTheDocument();
-    });
+    expect(await screen.findByText("출석")).toBeInTheDocument();
+    expect(screen.getByText("20")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("피드백 내용")).toBeInTheDocument();
   });
 
   it("피드백이 없을 때 새 피드백을 저장한다 (POST)", async () => {
@@ -133,11 +127,15 @@ describe("Attendance Component", () => {
     });
 
     render(<Attendance />);
-    await waitFor(() => screen.getByText("저장"));
+
+    const editButton = await screen.findByText("수정");
+    fireEvent.click(editButton);
 
     const textarea = screen.getByRole("textbox");
     fireEvent.change(textarea, { target: { value: "새로운 피드백입니다." } });
-    fireEvent.click(screen.getByText("저장"));
+
+    const saveButton = screen.getByText("저장");
+    fireEvent.click(saveButton);
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalled();
@@ -177,11 +175,15 @@ describe("Attendance Component", () => {
     (axios.put as jest.Mock).mockResolvedValue({});
 
     render(<Attendance />);
-    await waitFor(() => screen.getByText("저장"));
+
+    const editButton = await screen.findByText("수정");
+    fireEvent.click(editButton);
 
     const textarea = screen.getByRole("textbox");
     fireEvent.change(textarea, { target: { value: "수정된 피드백" } });
-    fireEvent.click(screen.getByText("저장"));
+
+    const saveButton = screen.getByText("저장");
+    fireEvent.click(saveButton);
 
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalled();
