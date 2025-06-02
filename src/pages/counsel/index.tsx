@@ -1,7 +1,8 @@
 import CounselContent from "@/components/counsel/counselContent";
 import { Header } from "@/components/shared/Header";
 import StudentFilter from "@/components/shared/StudentFilter";
-import StudentList from "@/components/shared/StudentList";
+import dynamic from "next/dynamic";
+const StudentList = dynamic(() => import("@/components/shared/StudentList"), { ssr: false });
 import React, { ReactNode,  useEffect, useState  } from "react";
 
 export default function CounselPage() {
