@@ -83,11 +83,7 @@ export default function Attendance() {
       );
       const data = res.data.response;
       setFeedbackId(data.feedbackId);
-      setSaveMessage("피드백이 저장되었습니다.");
-    } catch (err) {
-      console.error("출결 피드백 등록 에러:", err);
-      setSaveMessage("피드백 저장 중 오류가 발생했습니다.");
-    }
+    } catch {}
   };
 
   // PUT: 피드백 수정
@@ -101,11 +97,7 @@ export default function Attendance() {
         }
       );
       console.log(res);
-      setSaveMessage("피드백이 수정되었습니다.");
-    } catch (err) {
-      console.error("출결 피드백 수정 에러:", err);
-      setSaveMessage("피드백 수정 중 오류가 발생했습니다.");
-    }
+    } catch {}
   };
 
   const handleEditClick = () => {

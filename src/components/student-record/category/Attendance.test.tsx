@@ -138,9 +138,15 @@ describe("Attendance Component", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalled();
-      expect(screen.getByText("피드백이 저장되었습니다.")).toBeInTheDocument();
+      expect(axios.post).toHaveBeenCalledWith(
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances/feedback?year=2024&grade=1&classNum=2&number=3`,
+        { feedback: "새로운 피드백입니다." },
+        {
+          headers: { Authorization: `Bearer mocked-token` },
+        }
+      );
     });
+    // Removed the expectation for setSaveMessage, as it's no longer present in the component.
   });
 
   it("피드백이 있을 때 기존 피드백을 수정한다 (PUT)", async () => {
@@ -186,8 +192,14 @@ describe("Attendance Component", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(axios.put).toHaveBeenCalled();
-      expect(screen.getByText("피드백이 수정되었습니다.")).toBeInTheDocument();
+      expect(axios.put).toHaveBeenCalledWith(
+        `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/attendances/feedback?year=2024&grade=1&classNum=2&number=3`,
+        { feedback: "수정된 피드백" },
+        {
+          headers: { Authorization: `Bearer mocked-token` },
+        }
+      );
     });
+    // Removed the expectation for setSaveMessage, as it's no longer present in the component.
   });
 });
