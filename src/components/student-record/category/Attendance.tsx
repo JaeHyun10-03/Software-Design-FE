@@ -83,7 +83,6 @@ export default function Attendance() {
       );
       const data = res.data.response;
       setFeedbackId(data.feedbackId);
-      setSaveMessage("피드백이 저장되었습니다.");
     } catch {}
   };
 
@@ -98,7 +97,6 @@ export default function Attendance() {
         }
       );
       console.log(res);
-      setSaveMessage("피드백이 수정되었습니다.");
     } catch {}
   };
 

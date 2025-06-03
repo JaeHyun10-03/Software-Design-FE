@@ -109,7 +109,7 @@ const Attendance = () => {
       <div className="my-4">
         <DateFilter />
       </div>
-      <div className=" flex flex-col justify-between">
+      <div className="flex flex-col justify-between">
         <div>
           {/* 출결 통계 요약 */}
           <div className="flex flex-wrap ">
