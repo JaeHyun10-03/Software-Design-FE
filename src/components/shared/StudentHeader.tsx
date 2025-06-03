@@ -5,6 +5,8 @@ import AlertIcon from "@/assets/icons/AlertIcon";
 import useLoginStore from "@/store/login-store";
 import axios from "axios";
 import Button from "./Button";
+import useSelectedDate from "@/store/selected-date-store";
+import useStudent from "@/store/student-store";
 // import useStudentFilterStore from "@/store/student-filter-store";
 
 export const StudentHeader = ({ children }: { children: ReactNode }) => {
@@ -12,6 +14,8 @@ export const StudentHeader = ({ children }: { children: ReactNode }) => {
   const { name } = useLoginStore();
   const [isModal, setIsModal] = useState(false);
   const [selectedReports, setSelectedReports] = useState<string[]>(["학적"]);
+  const { year, semester } = useSelectedDate();
+  const { studentId } = useStudent();
   console.log(selectedReports);
   // const { studentId } = useStudentFilterStore();
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
@@ -78,17 +82,42 @@ export const StudentHeader = ({ children }: { children: ReactNode }) => {
 
   const handleButton = () => {
     const accessToken = localStorage.getItem("accessToken");
+
     const getCounselListPdf = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/reports/counsels/students/{studentId}/history/pdf`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        const data = res.data;
-        console.log("PDF 다운로드:", data);
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/reports/my/pdf`,
+          {
+            studentId,
+            year,
+            semester,
+            includeGrades: selectedReports.includes("성적"),
+            includeAttendance: selectedReports.includes("출결"),
+            includeCounseling: selectedReports.includes("상담"),
+            includeBehavior: selectedReports.includes("행동"),
+            startDate: "2025-03-01",
+            endDate: "2025-06-04",
+          },
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+            responseType: "blob", // PDF 다운로드를 위한 설정
+          }
+        );
+
+        const blob = new Blob([res.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "학생_보고서.pdf";
+        a.click();
+
+        window.URL.revokeObjectURL(url);
       } catch (err) {
         console.error("학생별 상담 이력 PDF 생성 에러:", err);
       }
     };
+
     getCounselListPdf();
   };
 
@@ -130,14 +159,13 @@ export const StudentHeader = ({ children }: { children: ReactNode }) => {
           >
             <p className="text-[#333333] text-2xl mb-4">다운로드 받을 보고서를 선택해주세요</p>
 
-            {["학적", "성적", "출결", "상담", "행동"].map((label) => (
+            {["성적", "출결", "상담", "행동"].map((label) => (
               <label key={label} className="flex items-center gap-2 mb-4">
                 <input
                   type="checkbox"
                   className="w-5 h-5"
                   value={label}
                   checked={selectedReports.includes(label)}
-                  disabled={label === "학적"} // ✅ 학적은 비활성화
                   onChange={(e) => {
                     const value = e.target.value;
                     setSelectedReports((prev) => (prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]));
