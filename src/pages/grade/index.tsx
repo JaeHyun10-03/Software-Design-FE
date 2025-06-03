@@ -13,6 +13,7 @@ import { mapApiResponseToStudents, convertToApiFormat, Evaluation } from "@/util
 import useStudentFilterStore from "@/store/student-filter-store";
 import useGradeFilterStore from "@/store/grade-filter-store";
 import useTeacher from "@/store/teacher-store";
+
 export default function GradesPage() {
   const { grade, classNumber, studentNumber } = useStudentFilterStore();
   const { year, semester, subject } = useGradeFilterStore();
@@ -87,13 +88,7 @@ export default function GradesPage() {
 
   const handleInputBlur = () => {
     if (!editing) return;
-    setStudents(prev =>
-      prev.map(stu =>
-        stu.number === editing.row
-          ? { ...stu, [editing.key]: inputValue === "" ? undefined : Number(inputValue) }
-          : stu
-      )
-    );
+    setStudents((prev) => prev.map((stu) => (stu.number === editing.row ? { ...stu, [editing.key]: inputValue === "" ? undefined : Number(inputValue) } : stu)));
     setEditing(null);
   };
 
@@ -103,16 +98,17 @@ export default function GradesPage() {
 
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if(subject != mysubject ){ 
-      alert(`본인의 과목인 ${mysubject}만 수정가능합니다.`)
-    }else{
-    const payload = convertToApiFormat(students, evaluations, Number(classNumber));
-    try {
-      await PostScore(payload);
-      window.location.reload();
-    } catch {
-      alert("저장에 실패했습니다. 다시 시도해주세요.");
-    }}
+    if (subject != mysubject) {
+      alert(`본인의 과목인 ${mysubject}만 수정가능합니다.`);
+    } else {
+      const payload = convertToApiFormat(students, evaluations, Number(classNumber));
+      try {
+        await PostScore(payload);
+        window.location.reload();
+      } catch {
+        alert("저장에 실패했습니다. 다시 시도해주세요.");
+      }
+    }
   };
 
   const handleAddEval = async () => {
@@ -121,17 +117,8 @@ export default function GradesPage() {
       return;
     }
     try {
-      await PostEval(
-        subject,
-        Number(year),
-        Number(semester),
-        Number(grade),
-        evalInput.examType,
-        evalInput.title,
-        Number(evalInput.weight),
-        Number(evalInput.fullScore)
-      );
-      setEvaluations(prev => [
+      await PostEval(subject, Number(year), Number(semester), Number(grade), evalInput.examType, evalInput.title, Number(evalInput.weight), Number(evalInput.fullScore));
+      setEvaluations((prev) => [
         ...prev,
         {
           evaluationId: Date.now(),
@@ -139,7 +126,7 @@ export default function GradesPage() {
           examType: evalInput.examType,
           weight: evalInput.weight,
           fullScore: evalInput.fullScore,
-        }
+        },
       ]);
       setShowEvalInput(false);
       setEvalInput({ title: "", examType: "WRITTEN", weight: 20, fullScore: 100 });
@@ -149,13 +136,13 @@ export default function GradesPage() {
   };
 
   return (
-    <div className="mx-0 sm:mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
+    <div className="mx-4 sm:mx-8 mt-4 mb-8 h-[calc(100vh-120px)] flex flex-col">
       <GradeHeaderSection />
       <GradeActionBar onAddEval={() => setShowEvalInput(true)} onSave={handleSave} />
       <EvalAddModal
         open={showEvalInput}
         value={evalInput}
-        onChange={v => setEvalInput(prev => ({ ...prev, ...v }))}
+        onChange={(v) => setEvalInput((prev) => ({ ...prev, ...v }))}
         onAdd={handleAddEval}
         onCancel={() => setShowEvalInput(false)}
       />

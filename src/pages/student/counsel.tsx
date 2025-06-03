@@ -61,7 +61,7 @@ const CounselPage = () => {
           teacher={card.teacher}
           content={card.content}
           nextPlan={card.nextPlan}
-          isPublic={card.isPublic}
+          isPublic={true}
         />
       ))}
     </div>

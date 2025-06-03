@@ -24,6 +24,7 @@ export default function Behavior() {
         setGeneralComment(data.generalComment);
       } catch (err) {
         console.error("행동 정보 가져오기 오류:", err);
+        alert("담임선생님만 조회할 수 있습니다");
       }
     };
 
