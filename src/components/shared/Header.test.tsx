@@ -25,7 +25,7 @@ describe("Header", () => {
       push: mockPush,
       pathname: mockPathname,
     });
-    (useLoginStore as jest.Mock).mockReturnValue({
+    (useLoginStore as unknown as jest.Mock).mockReturnValue({
       name: "테스트 사용자", // Mock user name
     });
     // Mock window.innerWidth for desktop by default
@@ -95,15 +95,6 @@ describe("Header", () => {
     expect(mockPush).toHaveBeenCalledWith("/");
   });
 
-  it("navigates to the alert page when the alert icon is clicked", () => {
-    render(<Header>Children Content</Header>);
-
-    const alertIcon = screen.getByTestId("alert-icon"); // Assuming AlertIcon renders a test ID
-    fireEvent.click(alertIcon);
-
-    expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith("/alert");
-  });
 
   it("adjusts logo size and font size for mobile screens", () => {
     render(<Header>Children Content</Header>);

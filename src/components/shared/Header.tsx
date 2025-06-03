@@ -1,7 +1,6 @@
 import React, { ReactNode, useMemo, useCallback, useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import AlertIcon from "@/assets/icons/AlertIcon";
 import useLoginStore from "@/store/login-store";
 // import useStudentFilterStore from "@/store/student-filter-store";
 
@@ -87,9 +86,7 @@ export const Header = ({ children }: { children: ReactNode }) => {
         <div className={`flex items-center h-[72px] ${isMobile ? "gap-8" : "gap-16"} ${isMobile ? "ml-1" : "ml-4"}`}>{menuElements}</div>
         <div className="flex flex-row justify-center items-center gap-8 ml-auto ">
           <p className="hidden sm:flex text-base text-bold text-center">이름 : {name}</p>
-          <div onClick={() => router.push("/alert")} className="cursor-pointer" data-testid="alert-icon">
-            <AlertIcon />
-          </div>
+          
         </div>
       </div>
       {children}
