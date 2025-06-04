@@ -130,8 +130,15 @@ export default function GradesPage() {
       ]);
       setShowEvalInput(false);
       setEvalInput({ title: "", examType: "WRITTEN", weight: 20, fullScore: 100 });
-    } catch {
-      alert("평가방식 추가에 실패했습니다.");
+    } catch(error:any){
+      console.error(error)
+      if (error.response && error.response.data && error.response.data.message) {
+    alert(error.response.data.message);
+  } else if (error.message) {
+    alert(error.message);
+  } else {
+    alert("알 수 없는 에러가 발생했습니다.");
+  }
     }
   };
 

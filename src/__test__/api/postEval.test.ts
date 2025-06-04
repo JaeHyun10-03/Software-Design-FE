@@ -47,22 +47,28 @@ describe("PostEval", () => {
         withCredentials: true
       })
     );
-    expect(result).toEqual(mockResponseData);
+    expect(result.data).toEqual(mockResponseData);
   });
 
   it("에러 응답이 오면 throw 한다 (response 있음)", async () => {
-    const error = {
-      response: {
-        status: 400,
-        data: { message: "Bad Request" }
+  const error = {
+    response: {
+      status: 400,
+      data: {
+        code: "EvaluationMethod-003",
+        fieldErrors: [],
+        message: "해당 과목의 반영 비율 총합이 100을 초과합니다",
+        status: 400
       }
-    };
-    mockedAxios.post.mockRejectedValueOnce(error);
+    }
+  };
+  mockedAxios.post.mockRejectedValueOnce(error);
 
-    await expect(
-      PostEval(subject, year, semester, grade, examType, title, weight, fullScore)
-    ).rejects.toEqual(error);
-  });
+  await expect(
+    PostEval(subject, year, semester, grade, examType, title, weight, fullScore)
+  ).rejects.toEqual(error);
+});
+
 
   it("네트워크 에러 등 response가 없으면 throw 한다", async () => {
     const error = {
