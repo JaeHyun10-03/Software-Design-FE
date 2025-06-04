@@ -136,20 +136,44 @@ describe("<GradesPage /> 실제 EvalAddModal/EvalAddForm 테스트", () => {
   });
 
 
-  it("handleAddEval에서 PostEval 실패 시 alert가 호출된다", async () => {
-    (PostEval as jest.Mock).mockRejectedValueOnce(new Error("fail"));
-    window.alert = jest.fn();
-
-    render(<GradesPage />);
-    fireEvent.click(screen.getByText("+ 평가방식"));
-    const titleInput = await screen.findByPlaceholderText("(예: 중간고사)");
-    fireEvent.change(titleInput, { target: { value: "기말고사" } });
-    fireEvent.click(screen.getByText("추가"));
-    await waitFor(() => {
-      expect(PostEval).toHaveBeenCalled();
-      expect(window.alert).toHaveBeenCalledWith("평가방식 추가에 실패했습니다.");
-    });
+ it("handleAddEval에서 PostEval 실패 시 서버 메시지 alert가 호출된다", async () => {
+  // 서버에서 내려주는 에러 객체 구조에 맞게 mock
+  (PostEval as jest.Mock).mockRejectedValueOnce({
+    response: {
+      data: {
+        message: "해당 과목의 반영 비율 총합이 100을 초과합니다",
+      },
+    },
   });
+  window.alert = jest.fn();
+
+  render(<GradesPage />);
+  fireEvent.click(screen.getByText("+ 평가방식"));
+  const titleInput = await screen.findByPlaceholderText("(예: 중간고사)");
+  fireEvent.change(titleInput, { target: { value: "기말고사" } });
+  fireEvent.click(screen.getByText("추가"));
+  await waitFor(() => {
+    expect(PostEval).toHaveBeenCalled();
+    expect(window.alert).toHaveBeenCalledWith("해당 과목의 반영 비율 총합이 100을 초과합니다");
+  });
+});
+
+
+it("handleAddEval에서 PostEval 실패 시 일반 에러 메시지 alert가 호출된다", async () => {
+  (PostEval as jest.Mock).mockRejectedValueOnce(new Error("fail"));
+  window.alert = jest.fn();
+
+  render(<GradesPage />);
+  fireEvent.click(screen.getByText("+ 평가방식"));
+  const titleInput = await screen.findByPlaceholderText("(예: 중간고사)");
+  fireEvent.change(titleInput, { target: { value: "기말고사" } });
+  fireEvent.click(screen.getByText("추가"));
+  await waitFor(() => {
+    expect(PostEval).toHaveBeenCalled();
+    expect(window.alert).toHaveBeenCalledWith("fail");
+  });
+});
+
 
   it("handleAddEval에서 정상적으로 평가방식이 추가되고 상태가 초기화된다", async () => {
     (PostEval as jest.Mock).mockResolvedValueOnce({});
