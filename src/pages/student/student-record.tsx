@@ -22,7 +22,7 @@ const StudentRecord = () => {
     fatherContact: "",
     motherContact: "",
   });
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<string>("");
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -50,7 +50,6 @@ const StudentRecord = () => {
         });
         setPhoto(`${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/images/${data.image}`);
       } catch (err) {
-        alert(`학생 정보 가져오기 실패 : ${err}`);
         console.error("학생 정보 가져오기 실패 :", err);
       }
     };
@@ -63,7 +62,14 @@ const StudentRecord = () => {
         <div className="flex flex-col sm:flex-row w-full gap-8 justify-start items-start">
           {/* 증명 사진 */}
           <div className="flex justify-center items-center w-full sm:w-[272px] h-[336px] flex-shrink-0 border border-gray-400 cursor-default">
-            {photo ? <img src={photo} alt="증명사진" className="w-[250px] h-[250px] object-cover" /> : <p className="text-base text-center text-gray-800">증명 사진</p>}
+            <img
+              src={photo}
+              alt="증명사진"
+              className="w-[250px] h-[250px] object-cover"
+              onError={(e) => {
+                e.currentTarget.src = "/images/defaultImage.png";
+              }}
+            />
           </div>
 
           {/* 표 컨테이너 */}
