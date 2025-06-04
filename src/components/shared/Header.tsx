@@ -87,8 +87,7 @@ export const Header = ({ children }: { children: ReactNode }) => {
             includeAttendance: selectedReports.includes("출결"),
             includeCounseling: selectedReports.includes("상담"),
             includeBehavior: selectedReports.includes("행동"),
-            startDate: "2025-03-01",
-            endDate: "2025-06-04",
+            includeFeedback: selectedReports.includes("피드백"),
           },
           {
             headers: { Authorization: `Bearer ${accessToken}` },
@@ -147,8 +146,9 @@ export const Header = ({ children }: { children: ReactNode }) => {
             className="absolute w-[400px] h-[400px] bg-white z-50 p-6 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-base rounded-lg shadow-lg flex flex-col"
           >
             <p className="text-[#333333] text-2xl mb-4">다운로드 받을 보고서를 선택해주세요</p>
+            <p className="text-[#333333] text-base mb-4">전체 미선택 후 다운로드 클릭 시 학적 데이터만 다운로드</p>
 
-            {["성적", "출결", "상담", "행동"].map((label) => (
+            {["성적", "출결", "상담", "행동", "피드백"].map((label) => (
               <label key={label} className="flex items-center gap-2 mb-4">
                 <input
                   type="checkbox"
